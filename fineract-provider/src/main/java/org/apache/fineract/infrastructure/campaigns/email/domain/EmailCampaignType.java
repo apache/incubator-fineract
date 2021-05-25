@@ -22,7 +22,6 @@ public enum EmailCampaignType {
 
     DIRECT(1, "emailCampaignStatusType.direct"), SCHEDULE(2, "emailCampaignStatusType.schedule"), TRIGGERED(3,
             "emailCampaignStatusType.triggered");
-    ;
 
     private final Integer value;
     private final String code;

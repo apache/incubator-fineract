@@ -47,7 +47,6 @@ public interface EmailCampaignWritePlatformService {
 
     void sendEmailMessage() throws JobExecutionException;
 
-    void insertDirectCampaignIntoEmailOutboundTable(final Loan loan, final EmailCampaign emailCampaign,
-            HashMap<String, String> campaignParams);
+    void insertDirectCampaignIntoEmailOutboundTable(Loan loan, EmailCampaign emailCampaign, HashMap<String, String> campaignParams);
 
 }

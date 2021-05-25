@@ -173,7 +173,9 @@ public class EmailCampaignWritePlatformCommandHandlerImpl implements EmailCampai
         }
 
         EmailCampaign emailCampaign = EmailCampaign.instance(currentUser, businessRule, report, command);
-        if (stretchyReportParams != null) emailCampaign.setStretchyReportParamMap(new Gson().toJson(stretchyReportParams));
+        if (stretchyReportParams != null) {
+            emailCampaign.setStretchyReportParamMap(new Gson().toJson(stretchyReportParams));
+        }
 
         this.emailCampaignRepository.save(emailCampaign);
 
@@ -752,7 +754,9 @@ public class EmailCampaignWritePlatformCommandHandlerImpl implements EmailCampai
      */
     private File generateAttachments(final EmailCampaign emailCampaign, final ScheduledEmailAttachmentFileFormat emailAttachmentFileFormat,
             final Map<String, String> reportParams, final String reportName, final StringBuilder errorLog) {
-        if (reportName == null) return null;
+        if (reportName == null) {
+            return null;
+        }
         try {
             final ByteArrayOutputStream byteArrayOutputStream = this.readReportingService.generatePentahoReportAsOutputStream(reportName,
                     emailAttachmentFileFormat.getValue(), reportParams, null, emailCampaign.getApprovedBy(), errorLog);
