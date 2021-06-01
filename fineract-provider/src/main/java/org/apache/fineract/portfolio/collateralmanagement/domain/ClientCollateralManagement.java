@@ -23,11 +23,13 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.client.domain.Client;
 
 @Entity
 @Table(name = "m_client_collateral_management")
-public class ClientCollateralManagement {
+public class ClientCollateralManagement extends AbstractPersistableCustom {
 
     @Column(name = "quantity", nullable = false)
     private Double quantity;
