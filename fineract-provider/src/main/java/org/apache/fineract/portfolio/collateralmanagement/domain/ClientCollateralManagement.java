@@ -23,6 +23,8 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.client.domain.Client;
 
@@ -48,6 +50,17 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
         this.client = client;
         this.totalCollateral = totalCollateral;
         this.quantity = quantity;
+    }
+
+    public ClientCollateralManagement(final Double quantity, final Double totalCollateral) {
+        this.totalCollateral = totalCollateral;
+        this.quantity = quantity;
+    }
+
+    public ClientCollateralManagement createNew(JsonCommand jsonCommand) {
+        Double total = jsonCommand.bigDecimalValueOfParameterNamed("totalCollateral").doubleValue();
+        Double quantity = jsonCommand.bigDecimalValueOfParameterNamed("quantity").doubleValue();
+        return new ClientCollateralManagement(quantity, total);
     }
 
     public Double getQuantity() {
