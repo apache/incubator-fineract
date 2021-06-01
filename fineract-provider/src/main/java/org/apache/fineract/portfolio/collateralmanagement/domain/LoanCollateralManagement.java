@@ -27,7 +27,7 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 
 @Entity
-@Table(name = "m_loan_collateral")
+@Table(name = "m_loan_collateral_management")
 public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     @Column(name = "quantity", nullable = false)
@@ -48,7 +48,7 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     }
 
-    public LoanCollateralManagement(final Double quantity, final Loan loan, final Double totalValue,
+    public LoanCollateralManagement(final Double quantity, final Double totalValue, final Loan loan,
             final CollateralManagementDomain collateral) {
         this.collateral = collateral;
         this.loan = loan;
@@ -64,7 +64,7 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
         return this.totalValue;
     }
 
-    public Loan getLoan() {
+    public Loan getLoanData() {
         return this.loan;
     }
 

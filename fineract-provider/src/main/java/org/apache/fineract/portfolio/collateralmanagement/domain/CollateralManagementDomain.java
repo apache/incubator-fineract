@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -28,7 +29,7 @@ import javax.persistence.Table;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
 @Entity
-@Table(name = "m_collateral")
+@Table(name = "m_collateral_management")
 public class CollateralManagementDomain extends AbstractPersistableCustom {
 
     @Column(name = "quality", nullable = false, length = 20)
@@ -46,21 +47,20 @@ public class CollateralManagementDomain extends AbstractPersistableCustom {
     @Column(name = "currency", nullable = false, columnDefinition = "USD", length = 10)
     private String currency;
 
-    @OneToMany(mappedBy = "m_collateral", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<LoanCollateralManagement> loanCollateralManagements;
+    @OneToMany(mappedBy = "collateral", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<LoanCollateralManagement> loanCollateralManagements = new HashSet<>();
 
     public CollateralManagementDomain() {
 
     }
 
     public CollateralManagementDomain(final String quality, final Double basePrice, final String unityType, final Double pctToBase,
-            final String currency, final Set<LoanCollateralManagement> loanCollateralManagements) {
+            final String currency) {
         this.basePrice = basePrice;
         this.currency = currency;
         this.pctToBase = pctToBase;
         this.unityType = unityType;
         this.quality = quality;
-        this.loanCollateralManagements = loanCollateralManagements;
     }
 
     public String getQuality() {
@@ -83,8 +83,8 @@ public class CollateralManagementDomain extends AbstractPersistableCustom {
         return this.pctToBase;
     }
 
-    public Set<LoanCollateralManagement> getLoanCollateralManagements() {
-        return this.loanCollateralManagements;
-    }
+    // public Set<LoanCollateralManagement> getLoanCollateralManagements() {
+    // return this.loanCollateralManagements;
+    // }
 
 }
