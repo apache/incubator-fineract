@@ -16,12 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.collateralmanagement.service;
+package org.apache.fineract.portfolio.collateralmanagement.data;
 
-import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
+public class CollateralManagementData {
 
-public interface CollateralManagementWritePlatformService {
+    private final String quality;
 
-    CommandProcessingResult createCollateral(JsonCommand command);
+    private final Double basePrice;
+
+    private final String unityType;
+
+    private final Double pctToBase;
+
+    private final String currency;
+
+    public CollateralManagementData(final String quality, final Double basePrice, final String unityType, final Double pctToBase,
+            final String currency) {
+        this.basePrice = basePrice;
+        this.pctToBase = pctToBase;
+        this.quality = quality;
+        this.unityType = unityType;
+        this.currency = currency;
+    }
+
 }

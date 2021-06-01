@@ -16,12 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.collateralmanagement.service;
+package org.apache.fineract.portfolio.collateralmanagement.serialization;
 
-import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
+import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public interface CollateralManagementWritePlatformService {
+public class CollateralManagementCommandFromApiJsonDeserializer {
 
-    CommandProcessingResult createCollateral(JsonCommand command);
+    private final FromJsonHelper fromApiJsonHelper;
+
+    @Autowired
+    public CollateralManagementCommandFromApiJsonDeserializer(final FromJsonHelper fromApiJsonHelper) {
+        this.fromApiJsonHelper = fromApiJsonHelper;
+    }
+
 }

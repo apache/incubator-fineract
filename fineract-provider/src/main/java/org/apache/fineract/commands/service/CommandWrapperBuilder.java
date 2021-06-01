@@ -482,6 +482,14 @@ public class CommandWrapperBuilder {
         return this;
     }
 
+    public CommandWrapperBuilder createCollateral() {
+        this.actionName = "CREATE";
+        this.entityId = null;
+        this.entityName = "COLLATERAL_PRODUCT";
+        this.href = "/collateral-product";
+        return this;
+    }
+
     public CommandWrapperBuilder updateCharge(final Long chargeId) {
         this.actionName = "UPDATE";
         this.entityName = "CHARGE";

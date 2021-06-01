@@ -16,19 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.collateralmanagement.service;
+package org.apache.fineract.portfolio.collateralmanagement.handler;
 
-import javax.transaction.Transactional;
+import org.apache.fineract.commands.annotation.CommandType;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
+import org.apache.fineract.portfolio.collateralmanagement.service.CollateralManagementWritePlatformService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CollateralManagementWritePlatformServiceImpl implements CollateralManagementWritePlatformService {
+@CommandType(entity = "COLLATERAL_PRODUCT", action = "CREATE")
+public class CreateCollateralManagementCommandHandler {
 
-    @Transactional
-    @Override
-    public CommandProcessingResult createCollateral(final JsonCommand jsonCommand) {
-        return CommandProcessingResult.empty();
+    private final CollateralManagementWritePlatformService collateralManagementWritePlatformService;
+
+    @Autowired
+    public CreateCollateralManagementCommandHandler(
+            final CollateralManagementWritePlatformService collateralManagementWritePlatformService) {
+        this.collateralManagementWritePlatformService = collateralManagementWritePlatformService;
+    }
+
+    public CommandProcessingResult processCommand(final JsonCommand jsonCommand) {
+        return this.collateralManagementWritePlatformService.createCollateral(jsonCommand);
     }
 }
