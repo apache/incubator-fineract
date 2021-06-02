@@ -32,7 +32,7 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
 @Entity
 @Table(name = "m_collateral_management")
-public class CollateralManagementDomain extends AbstractPersistableCustom {
+public class CollateralManagementData extends AbstractPersistableCustom {
 
     @Column(name = "quality", nullable = false, length = 20)
     private String quality;
@@ -52,12 +52,12 @@ public class CollateralManagementDomain extends AbstractPersistableCustom {
     @OneToMany(mappedBy = "collateral", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<LoanCollateralManagement> loanCollateralManagements = new HashSet<>();
 
-    public CollateralManagementDomain() {
+    public CollateralManagementData() {
 
     }
 
-    private CollateralManagementDomain(final String quality, final Double basePrice, final String unitType, final Double pctToBase,
-            final String currency) {
+    private CollateralManagementData(final String quality, final Double basePrice, final String unitType, final Double pctToBase,
+                                     final String currency) {
         this.basePrice = basePrice;
         this.currency = currency;
         this.pctToBase = pctToBase;
@@ -65,13 +65,13 @@ public class CollateralManagementDomain extends AbstractPersistableCustom {
         this.quality = quality;
     }
 
-    public static CollateralManagementDomain createNew(JsonCommand jsonCommand) {
+    public static CollateralManagementData createNew(JsonCommand jsonCommand) {
         String quality = jsonCommand.stringValueOfParameterNamed("quality");
         Double basePrice = jsonCommand.bigDecimalValueOfParameterNamed("basePrice").doubleValue();
         Double pctToBase = jsonCommand.bigDecimalValueOfParameterNamedDefaultToNullIfZero("pctToBase").doubleValue();
         String unitType = jsonCommand.stringValueOfParameterNamed("unityType");
         String currency = jsonCommand.stringValueOfParameterNamed("currency");
-        return new CollateralManagementDomain(quality, basePrice, unitType,pctToBase, currency);
+        return new CollateralManagementData(quality, basePrice, unitType,pctToBase, currency);
     }
 
     public String getQuality() {

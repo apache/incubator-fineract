@@ -16,14 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.collateralmanagement.service;
+package org.apache.fineract.portfolio.collateralmanagement.exception;
 
-import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 
-import java.util.List;
+public class CollateralNotFoundException extends AbstractPlatformResourceNotFoundException {
 
-public interface CollateralManagementReadPlatformService {
+    public CollateralNotFoundException(final Long id) {
+        super("error.msg.collateral.id.invalid", "Collateral with identifier " + id + " does not exist", id);
+    }
 
-    CollateralManagementData getCollateralProduct(Long collateralId);
-    List<CollateralManagementData> getAllCollateralProducts();
+    public CollateralNotFoundException(Long id, EmptyResultDataAccessException e) {
+        super("error.msg.collateral.id.invalid", "Collateral with identifier " + id + " does not exist", id, e);
+    }
 }

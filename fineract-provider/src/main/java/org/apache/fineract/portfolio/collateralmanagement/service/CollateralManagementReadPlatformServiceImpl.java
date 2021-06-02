@@ -18,4 +18,35 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
-public class CollateralManagementReadPlatformServiceImpl {}
+import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class CollateralManagementReadPlatformServiceImpl implements CollateralManagementReadPlatformService{
+
+    private final PlatformSecurityContext context;
+    private final CollateralManagementRepositoryWrapper collateralManagementRepositoryWrapper;
+
+    @Autowired
+    public CollateralManagementReadPlatformServiceImpl(final PlatformSecurityContext context,
+                                                       final CollateralManagementRepositoryWrapper collateralManagementRepositoryWrapper) {
+        this.context = context;
+        this.collateralManagementRepositoryWrapper = collateralManagementRepositoryWrapper;
+    }
+
+    @Override
+    public CollateralManagementData getCollateralProduct(Long collateralId) {
+        return this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
+    }
+
+    @Override
+    public List<CollateralManagementData> getAllCollateralProducts() {
+        return this.collateralManagementRepositoryWrapper.getAllCollaterals();
+    }
+
+}

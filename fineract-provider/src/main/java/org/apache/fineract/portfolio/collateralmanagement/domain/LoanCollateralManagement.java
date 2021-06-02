@@ -42,14 +42,14 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "collateral_id", nullable = false)
-    private CollateralManagementDomain collateral;
+    private CollateralManagementData collateral;
 
     public LoanCollateralManagement() {
 
     }
 
     public LoanCollateralManagement(final Double quantity, final Double totalValue, final Loan loan,
-            final CollateralManagementDomain collateral) {
+            final CollateralManagementData collateral) {
         this.collateral = collateral;
         this.loan = loan;
         this.quantity = quantity;
@@ -68,7 +68,7 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
         return this.loan;
     }
 
-    public CollateralManagementDomain getCollateral() {
+    public CollateralManagementData getCollateral() {
         return this.collateral;
     }
 }
