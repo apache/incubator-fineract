@@ -49,4 +49,8 @@ public class CollateralManagementRepositoryWrapper {
     public CollateralManagementData update(CollateralManagementData collateralManagementData) {
         return this.collateralManagementDomainRepository.saveAndFlush(collateralManagementData);
     }
+
+    public void delete(final Long collateralId) {
+        this.collateralManagementDomainRepository.deleteById(collateralId);
+    }
 }

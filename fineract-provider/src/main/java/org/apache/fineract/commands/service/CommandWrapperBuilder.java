@@ -1839,6 +1839,14 @@ public class CommandWrapperBuilder {
         return this;
     }
 
+    public CommandWrapperBuilder deleteCollateralProduct(final Long collateralId) {
+        this.actionName = "DELETE";
+        this.entityName = "COLLATERAL_PRODUCT";
+        this.entityId = collateralId;
+        this.href = "/collateral-management/delete/" + collateralId;
+        return this;
+    }
+
     public CommandWrapperBuilder updateCollectionSheet(final Long groupId) {
         this.actionName = "UPDATE";
         this.entityName = "COLLECTIONSHEET";

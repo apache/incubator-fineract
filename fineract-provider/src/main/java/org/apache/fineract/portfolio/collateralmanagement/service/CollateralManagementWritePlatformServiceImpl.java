@@ -51,4 +51,9 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         this.collateralManagementRepositoryWrapper.update(collateral);
         return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(jsonCommand.entityId()).build();
     }
+
+    public CommandProcessingResult deleteCollateral(final Long collateralId) {
+        this.collateralManagementRepositoryWrapper.delete(collateralId);
+        return new CommandProcessingResultBuilder().withEntityId(collateralId).build();
+    }
 }

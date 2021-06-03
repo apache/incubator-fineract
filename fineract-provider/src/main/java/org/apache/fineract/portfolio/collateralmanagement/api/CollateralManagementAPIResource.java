@@ -126,4 +126,18 @@ public class CollateralManagementAPIResource {
 
     }
 
+    @DELETE
+    @Path("{collateralId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Delete a Collateral", description = "Delete Collateral")
+    public String deleteCollateral(@PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId) {
+
+        final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteCollateralProduct(collateralId).build();
+
+        final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+
+        return this.apiJsonSerializerService.serialize(commandProcessingResult);
+    }
+
 }
