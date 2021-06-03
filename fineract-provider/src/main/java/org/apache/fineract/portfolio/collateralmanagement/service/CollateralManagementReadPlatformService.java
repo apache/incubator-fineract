@@ -18,12 +18,12 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
-import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
-
 import java.util.List;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
 
 public interface CollateralManagementReadPlatformService {
 
     CollateralManagementData getCollateralProduct(Long collateralId);
+
     List<CollateralManagementData> getAllCollateralProducts();
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -27,24 +28,29 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
+import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants;
 
 @Entity
 @Table(name = "m_collateral_management")
 public class CollateralManagementData extends AbstractPersistableCustom {
 
-    @Column(name = "quality", nullable = false, length = 20)
+    @Column(name = "name", length = 20, columnDefinition = " ")
+    private String name;
+
+    @Column(name = "quality", nullable = false, length = 40)
     private String quality;
 
-    @Column(name = "base_price", nullable = false)
-    private Double basePrice;
+    @Column(name = "base_price", nullable = false, scale = 5, precision = 20)
+    private BigDecimal basePrice;
 
     @Column(name = "unit_type", nullable = false, length = 10)
     private String unitType;
 
-    @Column(name = "pct_to_base", nullable = false, length = 3)
-    private Double pctToBase;
+    @Column(name = "pct_to_base", nullable = false, scale = 5, precision = 20)
+    private BigDecimal pctToBase;
 
     @Column(name = "currency", nullable = false, columnDefinition = "USD", length = 10)
     private String currency;
@@ -56,22 +62,63 @@ public class CollateralManagementData extends AbstractPersistableCustom {
 
     }
 
-    private CollateralManagementData(final String quality, final Double basePrice, final String unitType, final Double pctToBase,
-                                     final String currency) {
+    private CollateralManagementData(final String quality, final BigDecimal basePrice, final String unitType, final BigDecimal pctToBase,
+            final String currency, final String name) {
         this.basePrice = basePrice;
         this.currency = currency;
         this.pctToBase = pctToBase;
         this.unitType = unitType;
         this.quality = quality;
+        this.name = name;
     }
 
     public static CollateralManagementData createNew(JsonCommand jsonCommand) {
         String quality = jsonCommand.stringValueOfParameterNamed("quality");
-        Double basePrice = jsonCommand.bigDecimalValueOfParameterNamed("basePrice").doubleValue();
-        Double pctToBase = jsonCommand.bigDecimalValueOfParameterNamedDefaultToNullIfZero("pctToBase").doubleValue();
+        BigDecimal basePrice = jsonCommand.bigDecimalValueOfParameterNamed("basePrice");
+        BigDecimal pctToBase = jsonCommand.bigDecimalValueOfParameterNamedDefaultToNullIfZero("pctToBase");
         String unitType = jsonCommand.stringValueOfParameterNamed("unityType");
         String currency = jsonCommand.stringValueOfParameterNamed("currency");
-        return new CollateralManagementData(quality, basePrice, unitType,pctToBase, currency);
+        String name = jsonCommand.stringValueOfParameterNamed("name");
+        return new CollateralManagementData(quality, basePrice, unitType, pctToBase, currency, name);
+    }
+
+    public void update(JsonCommand command) {
+        final String nameParamName = CollateralAPIConstants.CollateralJSONinputParams.NAME.getValue();
+        if (command.isChangeInStringParameterNamed(nameParamName, this.name)) {
+            final String newValue = command.stringValueOfParameterNamed(nameParamName);
+            this.name = StringUtils.defaultIfEmpty(newValue, null);
+        }
+
+        final String qualityParamName = CollateralAPIConstants.CollateralJSONinputParams.QUALITY.getValue();
+        if (command.isChangeInStringParameterNamed(qualityParamName, this.quality)) {
+            final String newValue = command.stringValueOfParameterNamed(qualityParamName);
+            this.quality = newValue;
+        }
+
+        final String unitTypeParamName = CollateralAPIConstants.CollateralJSONinputParams.UNIT_TYPE.getValue();
+        if (command.isChangeInStringParameterNamed(unitTypeParamName, this.unitType)) {
+            final String newValue = command.stringValueOfParameterNamed(unitTypeParamName);
+            this.unitType = newValue;
+        }
+
+        final String currencyParamName = CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue();
+        if (command.isChangeInStringParameterNamed(currencyParamName, this.currency)) {
+            final String newValue = command.stringValueOfParameterNamed(currencyParamName);
+            this.currency = newValue;
+        }
+
+        final String basePriceParamName = CollateralAPIConstants.CollateralJSONinputParams.BASE_PRICE.getValue();
+        if (command.isChangeInBigDecimalParameterNamed(basePriceParamName, this.basePrice)) {
+            final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(basePriceParamName);
+            this.basePrice = newValue;
+        }
+
+        final String pctToBaseParamName = CollateralAPIConstants.CollateralJSONinputParams.PCT_TO_BASE.getValue();
+        if (command.isChangeInBigDecimalParameterNamed(pctToBaseParamName, this.pctToBase)) {
+            final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(pctToBaseParamName);
+            this.pctToBase = newValue;
+        }
+
     }
 
     public String getQuality() {
@@ -86,12 +133,16 @@ public class CollateralManagementData extends AbstractPersistableCustom {
         return this.currency;
     }
 
-    public Double getBasePrice() {
+    public BigDecimal getBasePrice() {
         return this.basePrice;
     }
 
-    public Double getPctToBase() {
+    public BigDecimal getPctToBase() {
         return this.pctToBase;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     // public Set<LoanCollateralManagement> getLoanCollateralManagements() {

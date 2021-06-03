@@ -1822,6 +1822,14 @@ public class CommandWrapperBuilder {
         return this;
     }
 
+    public CommandWrapperBuilder updateCollateralProduct(final Long collateralId) {
+        this.actionName = "UPDATE";
+        this.entityName = "COLLATERAL_PRODUCT";
+        this.entityId = collateralId;
+        this.href = "/collateral-management/" + collateralId;
+        return this;
+    }
+
     public CommandWrapperBuilder deleteCollateral(final Long loanId, final Long collateralId) {
         this.actionName = "DELETE";
         this.entityName = "COLLATERAL";

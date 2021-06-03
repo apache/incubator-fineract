@@ -21,6 +21,7 @@ package org.apache.fineract.portfolio.collateralmanagement.service;
 import javax.transaction.Transactional;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
+import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,13 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
     public CommandProcessingResult createCollateral(final JsonCommand jsonCommand) {
         final CollateralManagementData collateral = CollateralManagementData.createNew(jsonCommand);
         this.collateralManagementRepositoryWrapper.create(collateral);
-        return CommandProcessingResult.empty();
+        return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(collateral.getId()).build();
+    }
+
+    public CommandProcessingResult updateCollateral(final Long collateralId, JsonCommand jsonCommand) {
+        final CollateralManagementData collateral = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
+        collateral.update(jsonCommand);
+        this.collateralManagementRepositoryWrapper.update(collateral);
+        return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(jsonCommand.entityId()).build();
     }
 }

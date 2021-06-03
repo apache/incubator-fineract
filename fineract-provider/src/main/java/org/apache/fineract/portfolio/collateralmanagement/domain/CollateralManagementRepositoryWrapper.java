@@ -18,11 +18,10 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
+import java.util.List;
 import org.apache.fineract.portfolio.collateral.exception.CollateralNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CollateralManagementRepositoryWrapper {
@@ -39,10 +38,15 @@ public class CollateralManagementRepositoryWrapper {
     }
 
     public CollateralManagementData getCollateral(Long collateralId) {
-        return this.collateralManagementDomainRepository.findById(collateralId).orElseThrow(() -> new CollateralNotFoundException(collateralId));
+        return this.collateralManagementDomainRepository.findById(collateralId)
+                .orElseThrow(() -> new CollateralNotFoundException(collateralId));
     }
 
     public List<CollateralManagementData> getAllCollaterals() {
         return this.collateralManagementDomainRepository.findAll();
+    }
+
+    public CollateralManagementData update(CollateralManagementData collateralManagementData) {
+        return this.collateralManagementDomainRepository.saveAndFlush(collateralManagementData);
     }
 }

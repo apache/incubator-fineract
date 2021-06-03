@@ -24,4 +24,5 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 public interface CollateralManagementWritePlatformService {
 
     CommandProcessingResult createCollateral(JsonCommand command);
+    CommandProcessingResult updateCollateral(Long collateralId, JsonCommand command);
 }
