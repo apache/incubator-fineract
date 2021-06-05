@@ -22,7 +22,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -35,7 +43,10 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants.CollateralJSONinputParams;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.service.ClientCollateralManagementReadPlatformService;
 import org.apache.fineract.portfolio.collateralmanagement.service.CollateralManagementReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -54,19 +65,22 @@ public class CollateralManagementAPIResource {
     private final CodeValueReadPlatformService codeValueReadPlatformService;
     private final CollateralManagementReadPlatformService collateralManagementReadPlatformService;
     private final String collateralReadPermission = "COLLATERAL_PRODUCT";
+    private final ClientCollateralManagementReadPlatformService clientCollateralManagementReadPlatformService;
 
     @Autowired
     public CollateralManagementAPIResource(final DefaultToApiJsonSerializer<CollateralManagementData> apiJsonSerializerService,
             final ApiRequestParameterHelper apiRequestParameterHelper,
             final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService, final PlatformSecurityContext context,
             final CodeValueReadPlatformService codeValueReadPlatformService,
-            final CollateralManagementReadPlatformService collateralManagementReadPlatformService) {
+            final CollateralManagementReadPlatformService collateralManagementReadPlatformService,
+            final ClientCollateralManagementReadPlatformService clientCollateralManagementReadPlatformService) {
         this.apiJsonSerializerService = apiJsonSerializerService;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
         this.context = context;
         this.codeValueReadPlatformService = codeValueReadPlatformService;
         this.collateralManagementReadPlatformService = collateralManagementReadPlatformService;
+        this.clientCollateralManagementReadPlatformService = clientCollateralManagementReadPlatformService;
     }
 
     @POST
@@ -87,7 +101,7 @@ public class CollateralManagementAPIResource {
     public String getCollateral(@PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId,
             @Context final UriInfo uriInfo) {
 
-        this.context.authenticatedUser().validateHasReadPermission(this.collateralReadPermission);
+        this.context.authenticatedUser().validateHasReadPermission(CollateralJSONinputParams.COLLATERAL_PRODUCT_READ_PERMISSION.getValue());
 
         final CollateralManagementData collateralManagementData = this.collateralManagementReadPlatformService
                 .getCollateralProduct(collateralId);
@@ -103,7 +117,7 @@ public class CollateralManagementAPIResource {
     @Operation(summary = "Get All Collaterals", description = "Fetch all Collateral Products")
     public String getAllCollaterals(@Context final UriInfo uriInfo) {
 
-        this.context.authenticatedUser().validateHasReadPermission(this.collateralReadPermission);
+        this.context.authenticatedUser().validateHasReadPermission(CollateralJSONinputParams.COLLATERAL_PRODUCT_READ_PERMISSION.getValue());
         List<CollateralManagementData> collateralManagementDataList = this.collateralManagementReadPlatformService
                 .getAllCollateralProducts();
         return this.apiJsonSerializerService.serialize(collateralManagementDataList);
@@ -115,10 +129,9 @@ public class CollateralManagementAPIResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Update Collateral", description = "Update Collateral")
-    public String updateCollateral(@PathParam("id") @Parameter(description = "collateralId") final Long collateralId,
-                                   @Parameter(hidden = true) final String jsonBody) {
-        final CommandWrapper commandWrapper = new CommandWrapperBuilder().updateCollateralProduct(collateralId).withJson(jsonBody)
-                .build();
+    public String updateCollateral(@PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId,
+            @Parameter(hidden = true) final String jsonBody) {
+        final CommandWrapper commandWrapper = new CommandWrapperBuilder().updateCollateralProduct(collateralId).withJson(jsonBody).build();
 
         final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
 
@@ -138,6 +151,69 @@ public class CollateralManagementAPIResource {
         final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
 
         return this.apiJsonSerializerService.serialize(commandProcessingResult);
+    }
+
+    @GET
+    @Path("/clients/{clientId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Get Clients Collateral Products", description = "Get Collateral Product of a Client")
+    public String getClientCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId) {
+
+        this.context.authenticatedUser()
+                .validateHasReadPermission(CollateralJSONinputParams.CLIENT_COLLATERAL_PRODUCT_READ_PERMISSION.getValue());
+
+        List<ClientCollateralManagement> collateralProductList = this.clientCollateralManagementReadPlatformService
+                .getCollateralProductsPerClient(clientId);
+
+        return this.apiJsonSerializerService.serialize(collateralProductList);
+    }
+
+    @POST
+    @Path("/clients/{clientId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Add New Collateral", description = "Add New Collateral")
+    public String addCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
+            @Parameter(hidden = true) String apiJsonRequestBody) {
+        final CommandWrapper commandWrapper = new CommandWrapperBuilder().addClientCollateralProduct(clientId).withJson(apiJsonRequestBody)
+                .build();
+
+        final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
+
+        return this.apiJsonSerializerService.serialize(commandProcessingResult);
+    }
+
+    @PUT
+    @Path("/clients/{clientId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Update New Collateral", description = "Update New Collateral")
+    public String updateCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
+            @QueryParam("collateralId") @Parameter(description = "collateralId") final Long collateralId,
+            @Parameter(hidden = true) String apiJsonRequestBody) {
+
+        final CommandWrapper commandWrapper = new CommandWrapperBuilder().updateClientCollateralProduct(clientId, collateralId)
+                .withJson(apiJsonRequestBody).build();
+
+        final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
+
+        return this.apiJsonSerializerService.serialize(commandProcessingResult);
+    }
+
+    @DELETE
+    @Path("/clients/{clientId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Delete Client Collateral", description = "Delete Client Collateral")
+    public String deleteCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
+            @QueryParam("collateralId") @Parameter(description = "collateralId") final Long collateralId) {
+        final CommandWrapper commandWrapper = new CommandWrapperBuilder().deleteClientCollateralProduct(collateralId, clientId).build();
+
+        final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
+
+        return this.apiJsonSerializerService.serialize(commandProcessingResult);
+
     }
 
 }

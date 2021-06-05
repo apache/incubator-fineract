@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.collateralmanagement.domain;
+package org.apache.fineract.portfolio.collateralmanagement.service;
 
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 
-public interface ClientCollateralManagementRepository
-        extends JpaRepository<ClientCollateralManagement, Long>, JpaSpecificationExecutor<ClientCollateralManagement> {
+public interface ClientCollateralManagementReadPlatformService {
 
-    List<ClientCollateralManagement> findByClientId(Long clientId);
+    List<ClientCollateralManagement> getCollateralProductsPerClient(Long clientId);
 }

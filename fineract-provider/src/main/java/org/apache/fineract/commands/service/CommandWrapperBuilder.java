@@ -1830,6 +1830,15 @@ public class CommandWrapperBuilder {
         return this;
     }
 
+    public CommandWrapperBuilder updateClientCollateralProduct(final Long clientId, final Long collateralId) {
+        this.actionName = "UPDATE";
+        this.entityName = "CLIENT_COLLATERAL_PRODUCT";
+        this.entityId = collateralId;
+        this.clientId = clientId;
+        this.href = "/collateral/" + collateralId + "/clients/" + clientId;
+        return this;
+    }
+
     public CommandWrapperBuilder deleteCollateral(final Long loanId, final Long collateralId) {
         this.actionName = "DELETE";
         this.entityName = "COLLATERAL";
@@ -1844,6 +1853,23 @@ public class CommandWrapperBuilder {
         this.entityName = "COLLATERAL_PRODUCT";
         this.entityId = collateralId;
         this.href = "/collateral-management/delete/" + collateralId;
+        return this;
+    }
+
+    public CommandWrapperBuilder deleteClientCollateralProduct(final Long collateralId, final Long clientId) {
+        this.actionName = "DELETE";
+        this.entityName = "CLIENT_COLLATERAL_PRODUCT";
+        this.entityId = collateralId;
+        this.clientId = clientId;
+        this.href = "/collateral-management/" + collateralId + "/clients/" + clientId;
+        return this;
+    }
+
+    public CommandWrapperBuilder addClientCollateralProduct(final Long clientId) {
+        this.actionName = "CREATE";
+        this.entityName = "CLIENT_COLLATERAL_PRODUCT";
+        this.entityId = clientId;
+        this.href = "/collateral/clients/" + clientId + "/create";
         return this;
     }
 

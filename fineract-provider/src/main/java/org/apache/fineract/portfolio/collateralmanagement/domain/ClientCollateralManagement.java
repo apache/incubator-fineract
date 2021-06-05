@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -26,47 +27,63 @@ import javax.persistence.Table;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.client.domain.Client;
+import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants;
 
 @Entity
 @Table(name = "m_client_collateral_management")
 public class ClientCollateralManagement extends AbstractPersistableCustom {
 
     @Column(name = "quantity", nullable = false)
-    private Double quantity;
+    private BigDecimal quantity;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @Column(name = "total_collateral", nullable = false)
-    private Double totalCollateral;
+    private BigDecimal totalCollateral;
 
     public ClientCollateralManagement() {
 
     }
 
-    public ClientCollateralManagement(final Double quantity, final Double totalCollateral, final Client client) {
+    public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral, final Client client) {
         this.client = client;
         this.totalCollateral = totalCollateral;
         this.quantity = quantity;
     }
 
-    public ClientCollateralManagement(final Double quantity, final Double totalCollateral) {
+    public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral) {
         this.totalCollateral = totalCollateral;
         this.quantity = quantity;
     }
 
     public ClientCollateralManagement createNew(JsonCommand jsonCommand) {
-        Double total = jsonCommand.bigDecimalValueOfParameterNamed("totalCollateral").doubleValue();
-        Double quantity = jsonCommand.bigDecimalValueOfParameterNamed("quantity").doubleValue();
+        BigDecimal total = jsonCommand.bigDecimalValueOfParameterNamed("totalCollateral");
+        BigDecimal quantity = jsonCommand.bigDecimalValueOfParameterNamed("quantity");
         return new ClientCollateralManagement(quantity, total);
     }
 
-    public Double getQuantity() {
+    public void update(JsonCommand command) {
+        final String quantity = CollateralAPIConstants.CollateralJSONinputParams.QUANTITY.getValue();
+        if (command.isChangeInBigDecimalParameterNamed(quantity, this.quantity)) {
+            final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(quantity);
+            this.quantity = newValue;
+        }
+
+        final String totalCollateralValue = CollateralAPIConstants.CollateralJSONinputParams.TOTAL_COLLATERAL_VALUE.getValue();
+        if (command.isChangeInBigDecimalParameterNamed(totalCollateralValue, this.totalCollateral)) {
+            final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(quantity);
+            this.totalCollateral = newValue;
+        }
+
+    }
+
+    public BigDecimal getQuantity() {
         return this.quantity;
     }
 
-    public Double getTotalCollateral() {
+    public BigDecimal getTotalCollateral() {
         return this.totalCollateral;
     }
 

@@ -18,7 +18,6 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
-import javax.transaction.Transactional;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -37,7 +36,6 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         this.collateralManagementRepositoryWrapper = collateralManagementRepositoryWrapper;
     }
 
-    @Transactional
     @Override
     public CommandProcessingResult createCollateral(final JsonCommand jsonCommand) {
         final CollateralManagementData collateral = CollateralManagementData.createNew(jsonCommand);
@@ -45,6 +43,7 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(collateral.getId()).build();
     }
 
+    @Override
     public CommandProcessingResult updateCollateral(final Long collateralId, JsonCommand jsonCommand) {
         final CollateralManagementData collateral = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
         collateral.update(jsonCommand);
@@ -52,6 +51,7 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(jsonCommand.entityId()).build();
     }
 
+    @Override
     public CommandProcessingResult deleteCollateral(final Long collateralId) {
         this.collateralManagementRepositoryWrapper.delete(collateralId);
         return new CommandProcessingResultBuilder().withEntityId(collateralId).build();

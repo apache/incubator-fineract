@@ -34,8 +34,7 @@ public class CreateCollateralProductCommandHandler implements NewCommandSourceHa
     private final CollateralManagementWritePlatformService collateralManagementWritePlatformService;
 
     @Autowired
-    public CreateCollateralProductCommandHandler(
-            final CollateralManagementWritePlatformService collateralManagementWritePlatformService) {
+    public CreateCollateralProductCommandHandler(final CollateralManagementWritePlatformService collateralManagementWritePlatformService) {
         this.collateralManagementWritePlatformService = collateralManagementWritePlatformService;
     }
 

@@ -26,4 +26,5 @@ public interface CollateralManagementReadPlatformService {
     CollateralManagementData getCollateralProduct(Long collateralId);
 
     List<CollateralManagementData> getAllCollateralProducts();
+
 }
