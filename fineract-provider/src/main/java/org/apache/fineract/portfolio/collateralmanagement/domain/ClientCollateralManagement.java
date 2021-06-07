@@ -40,6 +40,9 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
+    @Column(name = "total", nullable = false)
+    private BigDecimal total;
+
     @Column(name = "total_collateral", nullable = false)
     private BigDecimal totalCollateral;
 
@@ -47,10 +50,11 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
 
     }
 
-    public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral, final Client client) {
+    public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral, final Client client, final BigDecimal total) {
         this.client = client;
         this.totalCollateral = totalCollateral;
         this.quantity = quantity;
+        this.total = total;
     }
 
     public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral) {

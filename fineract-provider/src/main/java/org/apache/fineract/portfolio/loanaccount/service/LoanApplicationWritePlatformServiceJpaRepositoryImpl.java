@@ -24,13 +24,7 @@ import com.google.gson.JsonObject;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.persistence.PersistenceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -95,21 +89,7 @@ import org.apache.fineract.portfolio.group.exception.GroupNotActiveException;
 import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.data.LoanChargeData;
 import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
-import org.apache.fineract.portfolio.loanaccount.domain.DefaultLoanLifecycleStateMachine;
-import org.apache.fineract.portfolio.loanaccount.domain.GLIMAccountInfoRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.GroupLoanIndividualMonitoringAccount;
-import org.apache.fineract.portfolio.loanaccount.domain.Loan;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanCharge;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanDisbursementDetails;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanLifecycleStateMachine;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallmentRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleTransactionProcessorFactory;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepository;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanSummaryWrapper;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanTopupDetails;
+import org.apache.fineract.portfolio.loanaccount.domain.*;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationDateException;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationNotInSubmittedAndPendingApprovalStateCannotBeDeleted;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationNotInSubmittedAndPendingApprovalStateCannotBeModified;
@@ -194,6 +174,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
     private final GLIMAccountInfoRepository glimRepository;
     private final LoanRepository loanRepository;
     private final GSIMReadPlatformService gsimReadPlatformService;
+    private final LoanCollateralManagementRepository loanCollateralManagementRepository;
 
     @Autowired
     public LoanApplicationWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context, final FromJsonHelper fromJsonHelper,
@@ -220,7 +201,8 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
             final EntityDatatableChecksWritePlatformService entityDatatableChecksWritePlatformService,
             final GLIMAccountInfoWritePlatformService glimAccountInfoWritePlatformService, final GLIMAccountInfoRepository glimRepository,
             final LoanRepository loanRepository, final GSIMReadPlatformService gsimReadPlatformService, final RateAssembler rateAssembler,
-            final LoanProductReadPlatformService loanProductReadPlatformService) {
+            final LoanProductReadPlatformService loanProductReadPlatformService,
+            final LoanCollateralManagementRepository loanCollateralManagementRepository) {
         this.context = context;
         this.fromJsonHelper = fromJsonHelper;
         this.loanApplicationTransitionApiJsonValidator = loanApplicationTransitionApiJsonValidator;
@@ -261,6 +243,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
         this.glimRepository = glimRepository;
         this.loanRepository = loanRepository;
         this.gsimReadPlatformService = gsimReadPlatformService;
+        this.loanCollateralManagementRepository= loanCollateralManagementRepository;
     }
 
     private LoanLifecycleStateMachine defaultLoanLifecycleStateMachine() {
@@ -383,7 +366,29 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 }
             }
 
-            this.loanRepositoryWrapper.save(newLoanApplication);
+            final Loan loan = this.loanRepositoryWrapper.save(newLoanApplication);
+
+            /**
+             * TODO: Update `m_exchange_loan_collateral` table
+             */
+
+            boolean isUpdatable = isLoanCollateralUpdatable(command);
+
+            if (isUpdatable) {
+                Set<LoanCollateralManagement> loanCollateralManagementSet = new HashSet<>();
+
+                String[] collaterals = this.fromJsonHelper.extractArrayNamed("collaterals", command.parsedJson());
+
+                for (String collateral: collaterals) {
+                    LoanCollateralManagement loanCollateral = this.fromJsonHelper.fromJson(collateral, LoanCollateralManagement.class);
+                    loanCollateral.setLoan(loan);
+                    loanCollateralManagementSet.add(loanCollateral);
+                }
+
+                updateLoanCollateral(loanCollateralManagementSet);
+            }
+
+
 
             if (loanProduct.isInterestRecalculationEnabled()) {
                 this.fromApiJsonDeserializer.validateLoanForInterestRecalculation(newLoanApplication);
@@ -625,6 +630,25 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 }
             }
         }
+    }
+
+    private void updateLoanCollateral(Set<LoanCollateralManagement> loanCollateralManagementSet) {
+        this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
+    }
+
+    private boolean isLoanCollateralUpdatable(JsonCommand command) {
+        boolean isExist = this.fromJsonHelper.parameterExists("collaterals", command.parsedJson());
+        if (!isExist) {
+            return false;
+        }
+
+        int length = this.fromJsonHelper.extractJsonArrayNamed("collaterals", command.parsedJson()).size();
+
+        if (length == 0) {
+            return false;
+        }
+
+        return true;
     }
 
     private void updateProductRelatedDetails(LoanProductRelatedDetail productRelatedDetail, Loan loan) {
