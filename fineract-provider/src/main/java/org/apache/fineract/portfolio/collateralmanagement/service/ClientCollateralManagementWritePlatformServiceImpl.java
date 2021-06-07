@@ -26,6 +26,8 @@ import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollatera
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 public class ClientCollateralManagementWritePlatformServiceImpl implements ClientCollateralManagementWritePlatformService {
 
@@ -37,11 +39,13 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
         this.clientCollateralManagementRepositoryWrapper = clientCollateralManagementRepositoryWrapper;
     }
 
+    @Transactional
     @Override
     public CommandProcessingResult addClientCollateralProduct(final JsonCommand command) {
         return CommandProcessingResult.empty();
     }
 
+    @Transactional
     @Override
     public CommandProcessingResult updateClientCollateralProduct(final JsonCommand command) {
         final ClientCollateralManagement collateral = this.clientCollateralManagementRepositoryWrapper.getCollateral(command.entityId());
@@ -51,6 +55,7 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
                 .withClientId(command.getClientId()).build();
     }
 
+    @Transactional
     @Override
     public CommandProcessingResult deleteClientCollateralProduct(final Long collateralId) {
         this.clientCollateralManagementRepositoryWrapper.deleteClientCollateralProduct(collateralId);

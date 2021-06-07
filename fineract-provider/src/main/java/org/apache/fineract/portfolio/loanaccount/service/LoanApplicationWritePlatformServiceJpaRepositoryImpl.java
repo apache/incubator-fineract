@@ -367,6 +367,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
             }
 
             final Loan loan = this.loanRepositoryWrapper.save(newLoanApplication);
+            BigDecimal totalCollateralValue = new BigDecimal(0);
 
             /**
              * TODO: Update `m_exchange_loan_collateral` table
@@ -382,9 +383,14 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 for (String collateral: collaterals) {
                     LoanCollateralManagement loanCollateral = this.fromJsonHelper.fromJson(collateral, LoanCollateralManagement.class);
                     loanCollateral.setLoan(loan);
+                    totalCollateralValue = totalCollateralValue.add(loanCollateral.getTotalCollateralValue());
                     loanCollateralManagementSet.add(loanCollateral);
                 }
 
+                // validate the collateral
+                this.fromApiJsonDeserializer.validateLoanForCollaterals(loan, totalCollateralValue);
+
+                // update
                 updateLoanCollateral(loanCollateralManagementSet);
             }
 

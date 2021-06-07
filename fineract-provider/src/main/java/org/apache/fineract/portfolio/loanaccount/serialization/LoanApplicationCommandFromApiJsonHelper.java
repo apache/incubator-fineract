@@ -1201,6 +1201,20 @@ public final class LoanApplicationCommandFromApiJsonHelper {
         }
     }
 
+    public void validateLoanForCollaterals(final Loan loan, final BigDecimal total) {
+        String errorCode = "";
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("loan");
+        if (loan.getProposedPrincipal().compareTo(total) == 1) {
+            errorCode = LoanApiConstants.LOAN_COLLATERAL_TOTAL_VALUE_SHOULD_BE_SUFFICIENT;
+            baseDataValidator.reset().parameter("collaterals").failWithCode(errorCode);
+        }
+
+        if (!dataValidationErrors.isEmpty()) {
+            throw new PlatformApiDataValidationException(dataValidationErrors);
+        }
+    }
+
     private void validatePartialPeriodSupport(final Integer interestCalculationPeriodType, final DataValidatorBuilder baseDataValidator,
             final JsonElement element, final LoanProduct loanProduct) {
         if (interestCalculationPeriodType != null) {
