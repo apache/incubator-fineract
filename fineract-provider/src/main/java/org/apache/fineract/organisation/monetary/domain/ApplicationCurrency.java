@@ -18,12 +18,14 @@
  */
 package org.apache.fineract.organisation.monetary.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
 import org.apache.fineract.organisation.office.domain.OrganisationCurrency;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+
+import java.util.Collection;
 
 @Entity
 @Table(name = "m_currency")
@@ -46,6 +48,9 @@ public class ApplicationCurrency extends AbstractPersistableCustom {
 
     @Column(name = "display_symbol", nullable = true, length = 10)
     private String displaySymbol;
+
+    @OneToMany(mappedBy = "currency", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<CollateralManagementData> collateralManagementData;
 
     protected ApplicationCurrency() {
         this.code = null;
@@ -95,6 +100,8 @@ public class ApplicationCurrency extends AbstractPersistableCustom {
         return this.displaySymbol;
     }
 
+    public Collection<CollateralManagementData> getCollateralManagementData() { return this.collateralManagementData; }
+
     public CurrencyData toData() {
         return new CurrencyData(this.code, this.name, this.decimalPlaces, this.inMultiplesOf, this.displaySymbol, this.nameCode);
     }
@@ -105,5 +112,9 @@ public class ApplicationCurrency extends AbstractPersistableCustom {
 
     public OrganisationCurrency toOrganisationCurrency() {
         return new OrganisationCurrency(this.code, this.name, this.decimalPlaces, this.inMultiplesOf, this.nameCode, this.displaySymbol);
+    }
+
+    public void setCode(final String code) {
+        this.code = code;
     }
 }

@@ -1205,7 +1205,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
         String errorCode = "";
         final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("loan");
-        if (loan.getProposedPrincipal().compareTo(total) == 1) {
+        if (loan.getProposedPrincipal().compareTo(total) >= 0) {
             errorCode = LoanApiConstants.LOAN_COLLATERAL_TOTAL_VALUE_SHOULD_BE_SUFFICIENT;
             baseDataValidator.reset().parameter("collaterals").failWithCode(errorCode);
         }

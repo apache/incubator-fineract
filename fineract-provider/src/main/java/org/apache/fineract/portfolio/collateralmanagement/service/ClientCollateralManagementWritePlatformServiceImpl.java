@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
+import javax.transaction.Transactional;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -25,8 +26,6 @@ import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollatera
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepositoryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 
 @Service
 public class ClientCollateralManagementWritePlatformServiceImpl implements ClientCollateralManagementWritePlatformService {

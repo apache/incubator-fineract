@@ -30,7 +30,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -44,7 +43,6 @@ import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSeria
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants.CollateralJSONinputParams;
-import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.service.ClientCollateralManagementReadPlatformService;
 import org.apache.fineract.portfolio.collateralmanagement.service.CollateralManagementReadPlatformService;

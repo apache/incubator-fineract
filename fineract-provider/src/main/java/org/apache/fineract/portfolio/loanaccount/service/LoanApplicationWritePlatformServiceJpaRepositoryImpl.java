@@ -24,7 +24,14 @@ import com.google.gson.JsonObject;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.persistence.PersistenceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -93,7 +100,23 @@ import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.data.LoanChargeData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanCollateralManagementData;
 import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
-import org.apache.fineract.portfolio.loanaccount.domain.*;
+import org.apache.fineract.portfolio.loanaccount.domain.DefaultLoanLifecycleStateMachine;
+import org.apache.fineract.portfolio.loanaccount.domain.GLIMAccountInfoRepository;
+import org.apache.fineract.portfolio.loanaccount.domain.GroupLoanIndividualMonitoringAccount;
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanCharge;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagementRepository;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanDisbursementDetails;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanLifecycleStateMachine;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallmentRepository;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleTransactionProcessorFactory;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepository;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanSummaryWrapper;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanTopupDetails;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationDateException;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationNotInSubmittedAndPendingApprovalStateCannotBeDeleted;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationNotInSubmittedAndPendingApprovalStateCannotBeModified;
@@ -249,7 +272,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
         this.glimRepository = glimRepository;
         this.loanRepository = loanRepository;
         this.gsimReadPlatformService = gsimReadPlatformService;
-        this.loanCollateralManagementRepository= loanCollateralManagementRepository;
+        this.loanCollateralManagementRepository = loanCollateralManagementRepository;
         this.clientCollateralManagementRepository = clientCollateralManagementRepository;
     }
 
@@ -392,17 +415,20 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 LoanCollateralManagement loanCollateralManagement = null;
                 BigDecimal quantity = BigDecimal.valueOf(0);
 
-                for (String collateral: collaterals) {
+                for (String collateral : collaterals) {
 
                     // Extract the loan collateral data from the request body and map to the class
-                    LoanCollateralManagementData loanCollateral = this.fromJsonHelper.fromJson(collateral, LoanCollateralManagementData.class);
+                    LoanCollateralManagementData loanCollateral = this.fromJsonHelper.fromJson(collateral,
+                            LoanCollateralManagementData.class);
 
                     // Update the loanCollateralManagement class
                     loanCollateralManagement = new LoanCollateralManagement(loanCollateral.getQuantity());
                     loanCollateralManagement.setLoan(loan);
 
                     // Get the client collateral details
-                    ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepository.findById(loanCollateral.getClientId()).orElseThrow(() -> new ClientCollateralNotFoundException(loanCollateral.getClientId()));
+                    ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepository
+                            .findById(loanCollateral.getClientId())
+                            .orElseThrow(() -> new ClientCollateralNotFoundException(loanCollateral.getClientId()));
                     quantity = clientCollateralManagement.getQuantity().subtract(loanCollateralManagement.getQuantity());
                     clientCollateralManagement.updateQuantity(quantity);
 
@@ -427,8 +453,6 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 // update client collateral table
                 updateClientCollaterals(clientCollateralManagementSet);
             }
-
-
 
             if (loanProduct.isInterestRecalculationEnabled()) {
                 this.fromApiJsonDeserializer.validateLoanForInterestRecalculation(newLoanApplication);

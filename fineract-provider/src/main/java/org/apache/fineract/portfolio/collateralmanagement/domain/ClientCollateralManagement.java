@@ -19,10 +19,15 @@
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
-import javax.persistence.*;
-
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.client.domain.Client;
@@ -33,7 +38,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement
 @Table(name = "m_client_collateral_management")
 public class ClientCollateralManagement extends AbstractPersistableCustom {
 
-    @Column(name = "quantity", nullable = false)
+    @Column(name = "quantity", nullable = false, scale = 5, precision = 20)
     private BigDecimal quantity;
 
     @ManyToOne(optional = false)
@@ -47,32 +52,22 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "clientCollateralManagement", fetch = FetchType.EAGER)
     private Set<LoanCollateralManagement> loanCollateralManagementSet;
 
-//    @Column(name = "total", nullable = false)
-//    private BigDecimal total;
-//
-//    @Column(name = "total_collateral", nullable = false)
-//    private BigDecimal totalCollateral;
-
     public ClientCollateralManagement() {
 
     }
 
-    public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral, final Client client, final BigDecimal total) {
+    public ClientCollateralManagement(final BigDecimal quantity, final Client client) {
         this.client = client;
-//        this.totalCollateral = totalCollateral;
         this.quantity = quantity;
-//        this.total = total;
     }
 
-    public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral) {
-//        this.totalCollateral = totalCollateral;
+    public ClientCollateralManagement(final BigDecimal quantity) {
         this.quantity = quantity;
     }
 
     public ClientCollateralManagement createNew(JsonCommand jsonCommand) {
-        BigDecimal total = jsonCommand.bigDecimalValueOfParameterNamed("totalCollateral");
         BigDecimal quantity = jsonCommand.bigDecimalValueOfParameterNamed("quantity");
-        return new ClientCollateralManagement(quantity, total);
+        return new ClientCollateralManagement(quantity);
     }
 
     public void update(JsonCommand command) {
@@ -81,13 +76,6 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
             final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(quantity);
             this.quantity = newValue;
         }
-
-//        final String totalCollateralValue = CollateralAPIConstants.CollateralJSONinputParams.TOTAL_COLLATERAL_VALUE.getValue();
-//        if (command.isChangeInBigDecimalParameterNamed(totalCollateralValue, this.totalCollateral)) {
-//            final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(quantity);
-//            this.totalCollateral = newValue;
-//        }
-
     }
 
     public void updateQuantity(BigDecimal quantity) {
@@ -98,16 +86,16 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
         return this.quantity;
     }
 
-//    public BigDecimal getTotalCollateral() {
-//        return this.totalCollateral;
-//    }
-
     public Client getClient() {
         return this.client;
     }
 
-    public CollateralManagementData getCollaterals() { return this.collateral; }
+    public CollateralManagementData getCollaterals() {
+        return this.collateral;
+    }
 
-    public Set<LoanCollateralManagement> getLoanCollateralManagementSet() { return this.loanCollateralManagementSet; }
+    public Set<LoanCollateralManagement> getLoanCollateralManagementSet() {
+        return this.loanCollateralManagementSet;
+    }
 
 }

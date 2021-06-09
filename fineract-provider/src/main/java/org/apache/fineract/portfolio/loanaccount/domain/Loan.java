@@ -96,7 +96,6 @@ import org.apache.fineract.portfolio.charge.exception.LoanChargeCannotBeAddedExc
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.collateral.data.CollateralData;
 import org.apache.fineract.portfolio.collateral.domain.LoanCollateral;
-import org.apache.fineract.portfolio.collateralmanagement.domain.LoanCollateralManagement;
 import org.apache.fineract.portfolio.common.domain.DayOfWeekType;
 import org.apache.fineract.portfolio.common.domain.NthDayType;
 import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
