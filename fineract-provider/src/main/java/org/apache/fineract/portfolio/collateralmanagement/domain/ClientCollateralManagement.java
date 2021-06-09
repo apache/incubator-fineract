@@ -19,15 +19,15 @@
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
 import java.math.BigDecimal;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.*;
+
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 
 @Entity
 @Table(name = "m_client_collateral_management")
@@ -40,11 +40,18 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @Column(name = "total", nullable = false)
-    private BigDecimal total;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "collateral_id", nullable = false)
+    private CollateralManagementData collateral;
 
-    @Column(name = "total_collateral", nullable = false)
-    private BigDecimal totalCollateral;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "clientCollateralManagement", fetch = FetchType.EAGER)
+    private Set<LoanCollateralManagement> loanCollateralManagementSet;
+
+//    @Column(name = "total", nullable = false)
+//    private BigDecimal total;
+//
+//    @Column(name = "total_collateral", nullable = false)
+//    private BigDecimal totalCollateral;
 
     public ClientCollateralManagement() {
 
@@ -52,13 +59,13 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
 
     public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral, final Client client, final BigDecimal total) {
         this.client = client;
-        this.totalCollateral = totalCollateral;
+//        this.totalCollateral = totalCollateral;
         this.quantity = quantity;
-        this.total = total;
+//        this.total = total;
     }
 
     public ClientCollateralManagement(final BigDecimal quantity, final BigDecimal totalCollateral) {
-        this.totalCollateral = totalCollateral;
+//        this.totalCollateral = totalCollateral;
         this.quantity = quantity;
     }
 
@@ -75,24 +82,32 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
             this.quantity = newValue;
         }
 
-        final String totalCollateralValue = CollateralAPIConstants.CollateralJSONinputParams.TOTAL_COLLATERAL_VALUE.getValue();
-        if (command.isChangeInBigDecimalParameterNamed(totalCollateralValue, this.totalCollateral)) {
-            final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(quantity);
-            this.totalCollateral = newValue;
-        }
+//        final String totalCollateralValue = CollateralAPIConstants.CollateralJSONinputParams.TOTAL_COLLATERAL_VALUE.getValue();
+//        if (command.isChangeInBigDecimalParameterNamed(totalCollateralValue, this.totalCollateral)) {
+//            final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(quantity);
+//            this.totalCollateral = newValue;
+//        }
 
+    }
+
+    public void updateQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
     }
 
     public BigDecimal getQuantity() {
         return this.quantity;
     }
 
-    public BigDecimal getTotalCollateral() {
-        return this.totalCollateral;
-    }
+//    public BigDecimal getTotalCollateral() {
+//        return this.totalCollateral;
+//    }
 
     public Client getClient() {
         return this.client;
     }
+
+    public CollateralManagementData getCollaterals() { return this.collateral; }
+
+    public Set<LoanCollateralManagement> getLoanCollateralManagementSet() { return this.loanCollateralManagementSet; }
 
 }

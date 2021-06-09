@@ -55,7 +55,7 @@ public class CollateralManagementData extends AbstractPersistableCustom {
     private String currency;
 
     @OneToMany(mappedBy = "collateral", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<LoanCollateralManagement> loanCollateralManagements = new HashSet<>();
+    private Set<ClientCollateralManagement> clientCollateralManagements = new HashSet<>();
 
     public CollateralManagementData() {
 

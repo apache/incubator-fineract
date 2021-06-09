@@ -39,11 +39,11 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 
-    @Column(name = "total", nullable = false)
-    private BigDecimal totalValue;
-
-    @Column(name = "total_collateral", nullable = false)
-    private BigDecimal totalCollateralValue;
+//    @Column(name = "total", nullable = false)
+//    private BigDecimal totalValue;
+//
+//    @Column(name = "total_collateral", nullable = false)
+//    private BigDecimal totalCollateralValue;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "collateral_id", nullable = false)
@@ -58,19 +58,19 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
         this.collateral = collateral;
         this.loan = loan;
         this.quantity = quantity;
-        this.totalValue = totalValue;
-        this.totalCollateralValue = totalCollateralValue;
+//        this.totalValue = totalValue;
+//        this.totalCollateralValue = totalCollateralValue;
     }
 
     public BigDecimal getQuantity() {
         return this.quantity;
     }
 
-    public BigDecimal getTotalValue() {
-        return this.totalValue;
-    }
-
-    public BigDecimal getTotalCollateralValue() { return this.totalCollateralValue; }
+//    public BigDecimal getTotalValue() {
+//        return this.totalValue;
+//    }
+//
+//    public BigDecimal getTotalCollateralValue() { return this.totalCollateralValue; }
 
     public Loan getLoanData() {
         return this.loan;

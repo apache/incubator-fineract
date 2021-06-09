@@ -77,6 +77,9 @@ import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
 import org.apache.fineract.portfolio.collateral.domain.LoanCollateral;
 import org.apache.fineract.portfolio.collateral.service.CollateralAssembler;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepository;
+import org.apache.fineract.portfolio.collateralmanagement.exception.ClientCollateralNotFoundException;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEntity;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEvents;
 import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
@@ -88,6 +91,7 @@ import org.apache.fineract.portfolio.group.exception.GroupMemberNotFoundInGSIMEx
 import org.apache.fineract.portfolio.group.exception.GroupNotActiveException;
 import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.data.LoanChargeData;
+import org.apache.fineract.portfolio.loanaccount.data.LoanCollateralManagementData;
 import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
 import org.apache.fineract.portfolio.loanaccount.domain.*;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationDateException;
@@ -175,6 +179,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
     private final LoanRepository loanRepository;
     private final GSIMReadPlatformService gsimReadPlatformService;
     private final LoanCollateralManagementRepository loanCollateralManagementRepository;
+    private final ClientCollateralManagementRepository clientCollateralManagementRepository;
 
     @Autowired
     public LoanApplicationWritePlatformServiceJpaRepositoryImpl(final PlatformSecurityContext context, final FromJsonHelper fromJsonHelper,
@@ -202,7 +207,8 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
             final GLIMAccountInfoWritePlatformService glimAccountInfoWritePlatformService, final GLIMAccountInfoRepository glimRepository,
             final LoanRepository loanRepository, final GSIMReadPlatformService gsimReadPlatformService, final RateAssembler rateAssembler,
             final LoanProductReadPlatformService loanProductReadPlatformService,
-            final LoanCollateralManagementRepository loanCollateralManagementRepository) {
+            final LoanCollateralManagementRepository loanCollateralManagementRepository,
+            final ClientCollateralManagementRepository clientCollateralManagementRepository) {
         this.context = context;
         this.fromJsonHelper = fromJsonHelper;
         this.loanApplicationTransitionApiJsonValidator = loanApplicationTransitionApiJsonValidator;
@@ -244,6 +250,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
         this.loanRepository = loanRepository;
         this.gsimReadPlatformService = gsimReadPlatformService;
         this.loanCollateralManagementRepository= loanCollateralManagementRepository;
+        this.clientCollateralManagementRepository = clientCollateralManagementRepository;
     }
 
     private LoanLifecycleStateMachine defaultLoanLifecycleStateMachine() {
@@ -377,21 +384,48 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
 
             if (isUpdatable) {
                 Set<LoanCollateralManagement> loanCollateralManagementSet = new HashSet<>();
+                Set<ClientCollateralManagement> clientCollateralManagementSet = new HashSet<>();
 
+                // Extract array of collaterals as a string array
                 String[] collaterals = this.fromJsonHelper.extractArrayNamed("collaterals", command.parsedJson());
 
+                LoanCollateralManagement loanCollateralManagement = null;
+                BigDecimal quantity = BigDecimal.valueOf(0);
+
                 for (String collateral: collaterals) {
-                    LoanCollateralManagement loanCollateral = this.fromJsonHelper.fromJson(collateral, LoanCollateralManagement.class);
-                    loanCollateral.setLoan(loan);
-                    totalCollateralValue = totalCollateralValue.add(loanCollateral.getTotalCollateralValue());
-                    loanCollateralManagementSet.add(loanCollateral);
+
+                    // Extract the loan collateral data from the request body and map to the class
+                    LoanCollateralManagementData loanCollateral = this.fromJsonHelper.fromJson(collateral, LoanCollateralManagementData.class);
+
+                    // Update the loanCollateralManagement class
+                    loanCollateralManagement = new LoanCollateralManagement(loanCollateral.getQuantity());
+                    loanCollateralManagement.setLoan(loan);
+
+                    // Get the client collateral details
+                    ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepository.findById(loanCollateral.getClientId()).orElseThrow(() -> new ClientCollateralNotFoundException(loanCollateral.getClientId()));
+                    quantity = clientCollateralManagement.getQuantity().subtract(loanCollateralManagement.getQuantity());
+                    clientCollateralManagement.updateQuantity(quantity);
+
+                    // Put the updated classes into a set
+                    clientCollateralManagementSet.add(clientCollateralManagement);
+
+                    loanCollateralManagement.setClientCollateralManagement(clientCollateralManagement);
+
+                    // Calculate the total collateral value
+                    totalCollateralValue = totalCollateralValue.add(loanCollateral.getTotalCollateral());
+
+                    // Add the updated classes into the array
+                    loanCollateralManagementSet.add(loanCollateralManagement);
                 }
 
                 // validate the collateral
                 this.fromApiJsonDeserializer.validateLoanForCollaterals(loan, totalCollateralValue);
 
-                // update
+                // update loan collateral table
                 updateLoanCollateral(loanCollateralManagementSet);
+
+                // update client collateral table
+                updateClientCollaterals(clientCollateralManagementSet);
             }
 
 
@@ -640,6 +674,10 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
 
     private void updateLoanCollateral(Set<LoanCollateralManagement> loanCollateralManagementSet) {
         this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
+    }
+
+    private void updateClientCollaterals(Set<ClientCollateralManagement> clientCollateralManagementSet) {
+        this.clientCollateralManagementRepository.saveAll(clientCollateralManagementSet);
     }
 
     private boolean isLoanCollateralUpdatable(JsonCommand command) {
