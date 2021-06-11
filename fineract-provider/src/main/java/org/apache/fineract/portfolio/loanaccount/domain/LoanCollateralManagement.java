@@ -58,8 +58,12 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
         this.loan = loan;
     }
 
-    public void setClientCollateralManagement(ClientCollateralManagement clientCollateralManagement) {
+    public void setClientCollateralManagement(final ClientCollateralManagement clientCollateralManagement) {
         this.clientCollateralManagement = clientCollateralManagement;
+    }
+
+    public void setLoanTransactionData(final LoanTransaction loanTransaction) {
+        this.loanTransaction = loanTransaction;
     }
 
     public BigDecimal getQuantity() {

@@ -806,6 +806,8 @@ public class LoanTransaction extends AbstractPersistableCustom {
                 || this.isNonMonetaryTransaction() || this.isIncomePosting());
     }
 
+    public Set<LoanCollateralManagement> getLoanCollateralManagementSet() { return this.loanCollateralManagementSet; }
+
     // TODO missing hashCode(), equals(Object obj), but probably OK as long as
     // this is never stored in a Collection.
 }
