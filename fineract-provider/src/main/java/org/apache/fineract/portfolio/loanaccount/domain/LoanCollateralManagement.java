@@ -35,6 +35,10 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
     private BigDecimal quantity;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private LoanTransaction loanTransaction;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 
@@ -64,6 +68,10 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     public Loan getLoanData() {
         return this.loan;
+    }
+
+    public LoanTransaction getLoanTransaction() {
+        return this.loanTransaction;
     }
 
     public ClientCollateralManagement getClientCollateralManagement() {

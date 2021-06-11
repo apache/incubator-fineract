@@ -39,7 +39,9 @@ import org.apache.fineract.infrastructure.core.api.ApiRequestParameterHelper;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.apache.fineract.portfolio.collateralmanagement.data.ClientCollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.service.ClientCollateralManagementReadPlatformService;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -83,6 +85,22 @@ public class ClientCollateralManagementAPIResource {
                 .getCollateralProductsPerClient(clientId);
 
         return this.apiJsonSerializerService.serialize(collateralProductList);
+    }
+
+    @GET
+    @Path("{clientCollateralId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Get Client Collateral Data", description = "Get Client Collateral Data")
+    public String getClientCollateralData(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
+                                          @PathParam("clientCollateralId") @Parameter(description = "clientCollateralId") final Long collateralId) {
+
+        this.context.authenticatedUser().validateHasReadPermission(
+                CollateralAPIConstants.CollateralJSONinputParams.CLIENT_COLLATERAL_PRODUCT_READ_PERMISSION.getValue());
+
+        ClientCollateralManagementData clientCollateralManagementData = this.clientCollateralManagementReadPlatformService.getClientCollateralManagementData(collateralId);
+
+        return this.apiJsonSerializerService.serialize(clientCollateralManagementData);
     }
 
     @POST

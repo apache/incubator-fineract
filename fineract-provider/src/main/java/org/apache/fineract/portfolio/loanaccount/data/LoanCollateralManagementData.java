@@ -30,12 +30,15 @@ public class LoanCollateralManagementData {
 
     private final BigDecimal totalCollateral;
 
+    private final Long loanId;
+
     public LoanCollateralManagementData(final Long clientId, final BigDecimal quantity, final BigDecimal total,
-            final BigDecimal totalCollateral) {
+            final BigDecimal totalCollateral, final Long loanId) {
         this.clientId = clientId;
         this.quantity = quantity;
         this.totalCollateral = totalCollateral;
         this.total = total;
+        this.loanId = loanId;
     }
 
     public Long getClientId() {
@@ -53,4 +56,6 @@ public class LoanCollateralManagementData {
     public BigDecimal getTotalCollateral() {
         return this.totalCollateral;
     }
+
+    public Long getLoanId() { return this.loanId; }
 }

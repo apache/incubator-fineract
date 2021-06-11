@@ -30,13 +30,16 @@ public class CollateralManagementData {
 
     private final String currency;
 
+    private final String name;
+
     public CollateralManagementData(final String quality, final Double basePrice, final String unityType, final Double pctToBase,
-            final String currency) {
+            final String currency, final String name) {
         this.basePrice = basePrice;
         this.pctToBase = pctToBase;
         this.quality = quality;
         this.unityType = unityType;
         this.currency = currency;
+        this.name = name;
     }
 
 }
