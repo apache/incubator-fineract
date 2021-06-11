@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.accounting.journalentry.service.JournalEntryWritePlatformService;
 import org.apache.fineract.infrastructure.codes.domain.CodeValue;
@@ -111,6 +113,7 @@ import org.apache.fineract.portfolio.charge.exception.LoanChargeCannotBeWaivedEx
 import org.apache.fineract.portfolio.charge.exception.LoanChargeNotFoundException;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkDisbursalCommand;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkRepaymentCommand;
 import org.apache.fineract.portfolio.collectionsheet.command.SingleDisbursalCommand;
@@ -870,8 +873,17 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         LoanTransaction loanTransaction = this.loanAccountDomainService.makeRepayment(loan, commandProcessingResultBuilder, transactionDate, transactionAmount, paymentDetail,
                 noteText, txnExternalId, isRecoveryRepayment, isAccountTransfer, holidayDetailDto, isHolidayValidationDone);
 
-        Set<LoanCollateralManagement> loanCollateralManagements = loanTransaction.getLoanCollateralManagementSet();
-        this.loanAccountDomainService.updateLoanCollateralTransaction(loanCollateralManagements);
+        Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+
+        if (!loan.isClosed()) {
+            this.loanAccountDomainService.updateLoanCollateralTransaction(loanCollateralManagements, loanTransaction);
+        } else {
+            this.loanAccountDomainService.updateLoanCollateralStatus(loanCollateralManagements, Boolean.TRUE);
+            BigDecimal totalQuantity = this.loanAccountDomainService.getTotalQuantity(loan);
+            ClientCollateralManagement clientCollateralManagement = loanCollateralManagements.iterator().next().getClientCollateralManagement();
+            clientCollateralManagement.updateQuantityAfterLoanClosed(totalQuantity);
+        }
+
 
         return commandProcessingResultBuilder.withCommandId(command.commandId()) //
                 .withLoanId(loanId) //

@@ -82,6 +82,10 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
         this.quantity = quantity;
     }
 
+    public void updateQuantityAfterLoanClosed(BigDecimal quantity) {
+        this.quantity = this.quantity.add(quantity);
+    }
+
     public BigDecimal getQuantity() {
         return this.quantity;
     }

@@ -20,6 +20,14 @@ package org.apache.fineract.portfolio.loanaccount.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.math.BigDecimal;
 
 public interface LoanCollateralManagementRepository
-        extends JpaRepository<LoanCollateralManagement, Long>, JpaSpecificationExecutor<LoanCollateralManagement> {}
+        extends JpaRepository<LoanCollateralManagement, Long>, JpaSpecificationExecutor<LoanCollateralManagement> {
+
+    @Query("select SUM(loanCollaterals.quantity) from LoanCollateralManagement loanCollaterals where loanCollaterals.loan=:loan")
+    BigDecimal getTotalQuantity(@Param("loan") final Loan loan);
+}

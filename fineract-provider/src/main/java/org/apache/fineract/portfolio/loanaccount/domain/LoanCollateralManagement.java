@@ -42,6 +42,9 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
     @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan;
 
+    @Column(name = "is_released", nullable = false, columnDefinition = "FALSE")
+    private Boolean isReleased;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "client_collateral_id", nullable = false)
     private ClientCollateralManagement clientCollateralManagement;
@@ -50,8 +53,9 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     }
 
-    public LoanCollateralManagement(final BigDecimal quantity) {
+    public LoanCollateralManagement(final BigDecimal quantity, final Boolean isReleased) {
         this.quantity = quantity;
+        this.isReleased = isReleased;
     }
 
     public void setLoan(Loan loan) {
@@ -64,6 +68,10 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     public void setLoanTransactionData(final LoanTransaction loanTransaction) {
         this.loanTransaction = loanTransaction;
+    }
+
+    public void setIsReleased(final Boolean isReleased) {
+        this.isReleased = isReleased;
     }
 
     public BigDecimal getQuantity() {
@@ -81,5 +89,7 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
     public ClientCollateralManagement getClientCollateralManagement() {
         return this.clientCollateralManagement;
     }
+
+    public Boolean getIsReleased() { return this.isReleased; }
 
 }

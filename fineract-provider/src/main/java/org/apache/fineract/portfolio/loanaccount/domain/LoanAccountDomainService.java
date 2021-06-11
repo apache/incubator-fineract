@@ -51,7 +51,11 @@ public interface LoanAccountDomainService {
     LoanTransaction makeRefundForActiveLoan(Long accountId, CommandProcessingResultBuilder builderResult, LocalDate transactionDate,
             BigDecimal transactionAmount, PaymentDetail paymentDetail, String noteText, String txnExternalId);
 
-    void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementList);
+    void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementList, LoanTransaction loanTransaction);
+
+    BigDecimal getTotalQuantity(Loan loan);
+
+    void updateLoanCollateralStatus(Set<LoanCollateralManagement> loanCollateralManagementSet, Boolean isReleased);
 
     /**
      * This method is to recalculate and accrue the income till the last accrued date. this method is used when the

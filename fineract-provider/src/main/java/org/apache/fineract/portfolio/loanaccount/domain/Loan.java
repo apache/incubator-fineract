@@ -6639,4 +6639,6 @@ public class Loan extends AbstractPersistableCustom {
         this.loanType = loanType;
     }
 
+    public Set<LoanCollateralManagement> getLoanCollateralManagements() { return this.loanCollateralManagements; }
+
 }

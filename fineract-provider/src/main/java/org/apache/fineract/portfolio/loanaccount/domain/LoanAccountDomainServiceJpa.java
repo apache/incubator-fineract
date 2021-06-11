@@ -148,8 +148,25 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
     @Transactional
     @Override
-    public void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementList) {
-        this.loanCollateralManagementRepository.saveAll(loanCollateralManagementList);
+    public void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementSet, LoanTransaction loanTransaction) {
+        for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagementSet) {
+            loanCollateralManagement.setLoanTransactionData(loanTransaction);
+        }
+        this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
+    }
+
+    @Transactional
+    @Override
+    public void updateLoanCollateralStatus(Set<LoanCollateralManagement> loanCollateralManagementSet, Boolean isReleased) {
+        for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagementSet) {
+            loanCollateralManagement.setIsReleased(isReleased);
+        }
+        this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
+    }
+
+    @Override
+    public BigDecimal getTotalQuantity(Loan loan) {
+        return this.loanCollateralManagementRepository.getTotalQuantity(loan);
     }
 
     @Transactional
