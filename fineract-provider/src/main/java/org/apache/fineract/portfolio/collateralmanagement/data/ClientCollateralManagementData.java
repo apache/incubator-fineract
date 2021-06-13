@@ -36,7 +36,7 @@ public class ClientCollateralManagementData {
     private final List<LoanTransactionData> loanTransactionData;
 
     private ClientCollateralManagementData(final String name, final BigDecimal quantity, final BigDecimal total,
-                                          final BigDecimal totalCollateral, final Long clientId, final List<LoanTransactionData> loanTransactionData) {
+            final BigDecimal totalCollateral, final Long clientId, final List<LoanTransactionData> loanTransactionData) {
         this.clientId = clientId;
         this.totalCollateral = totalCollateral;
         this.total = total;
@@ -46,20 +46,32 @@ public class ClientCollateralManagementData {
     }
 
     public static ClientCollateralManagementData instance(final String name, final BigDecimal quantity, final BigDecimal total,
-                                          final BigDecimal totalCollateral, final Long clientId, final List<LoanTransactionData> loanTransactionData) {
+            final BigDecimal totalCollateral, final Long clientId, final List<LoanTransactionData> loanTransactionData) {
         return new ClientCollateralManagementData(name, quantity, total, totalCollateral, clientId, loanTransactionData);
     }
 
-    public String getName() { return this.name; }
+    public String getName() {
+        return this.name;
+    }
 
-    public Long getClientId() { return this.clientId; }
+    public Long getClientId() {
+        return this.clientId;
+    }
 
-    public BigDecimal getQuantity() { return this.quantity; }
+    public BigDecimal getQuantity() {
+        return this.quantity;
+    }
 
-    public BigDecimal getTotal() { return this.total; }
+    public BigDecimal getTotal() {
+        return this.total;
+    }
 
-    public BigDecimal getTotalCollateral() { return this.totalCollateral; }
+    public BigDecimal getTotalCollateral() {
+        return this.totalCollateral;
+    }
 
-    public List<LoanTransactionData> getLoanTransactionData() { return this.loanTransactionData; }
+    public List<LoanTransactionData> getLoanTransactionData() {
+        return this.loanTransactionData;
+    }
 
 }

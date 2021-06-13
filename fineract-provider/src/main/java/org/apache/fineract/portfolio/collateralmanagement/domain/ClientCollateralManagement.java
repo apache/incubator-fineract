@@ -65,9 +65,21 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
         this.quantity = quantity;
     }
 
+    private ClientCollateralManagement(final BigDecimal quantity, final Client client,
+            final CollateralManagementData collateralManagementData) {
+        this.quantity = quantity;
+        this.client = client;
+        this.collateral = collateralManagementData;
+    }
+
     public ClientCollateralManagement createNew(JsonCommand jsonCommand) {
         BigDecimal quantity = jsonCommand.bigDecimalValueOfParameterNamed("quantity");
         return new ClientCollateralManagement(quantity);
+    }
+
+    public static ClientCollateralManagement createNew(final BigDecimal quantity, final Client client,
+            final CollateralManagementData collateral) {
+        return new ClientCollateralManagement(quantity, client, collateral);
     }
 
     public void update(JsonCommand command) {

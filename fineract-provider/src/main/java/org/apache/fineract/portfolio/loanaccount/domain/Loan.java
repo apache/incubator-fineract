@@ -94,7 +94,6 @@ import org.apache.fineract.portfolio.charge.domain.ChargeCalculationType;
 import org.apache.fineract.portfolio.charge.domain.ChargeTimeType;
 import org.apache.fineract.portfolio.charge.exception.LoanChargeCannotBeAddedException;
 import org.apache.fineract.portfolio.client.domain.Client;
-import org.apache.fineract.portfolio.collateral.data.CollateralData;
 import org.apache.fineract.portfolio.collateral.domain.LoanCollateral;
 import org.apache.fineract.portfolio.common.domain.DayOfWeekType;
 import org.apache.fineract.portfolio.common.domain.NthDayType;
@@ -409,9 +408,10 @@ public class Loan extends AbstractPersistableCustom {
             final LoanProduct loanProduct, final Fund fund, final Staff officer, final CodeValue loanPurpose,
             final LoanTransactionProcessingStrategy transactionProcessingStrategy,
             final LoanProductRelatedDetail loanRepaymentScheduleDetail, final Set<LoanCharge> loanCharges,
-            final Set<LoanCollateral> collateral, final BigDecimal fixedEmiAmount, final List<LoanDisbursementDetails> disbursementDetails,
-            final BigDecimal maxOutstandingLoanBalance, final Boolean createStandingInstructionAtDisbursement,
-            final Boolean isFloatingInterestRate, final BigDecimal interestRateDifferential, final List<Rate> rates) {
+            final Set<LoanCollateralManagement> collateral, final BigDecimal fixedEmiAmount,
+            final List<LoanDisbursementDetails> disbursementDetails, final BigDecimal maxOutstandingLoanBalance,
+            final Boolean createStandingInstructionAtDisbursement, final Boolean isFloatingInterestRate,
+            final BigDecimal interestRateDifferential, final List<Rate> rates) {
         final LoanStatus status = null;
         final Group group = null;
         final Boolean syncDisbursementWithMeeting = null;
@@ -425,7 +425,7 @@ public class Loan extends AbstractPersistableCustom {
             final LoanProduct loanProduct, final Fund fund, final Staff officer, final CodeValue loanPurpose,
             final LoanTransactionProcessingStrategy transactionProcessingStrategy,
             final LoanProductRelatedDetail loanRepaymentScheduleDetail, final Set<LoanCharge> loanCharges,
-            final Set<LoanCollateral> collateral, final Boolean syncDisbursementWithMeeting, final BigDecimal fixedEmiAmount,
+            final Set<LoanCollateralManagement> collateral, final Boolean syncDisbursementWithMeeting, final BigDecimal fixedEmiAmount,
             final List<LoanDisbursementDetails> disbursementDetails, final BigDecimal maxOutstandingLoanBalance,
             final Boolean createStandingInstructionAtDisbursement, final Boolean isFloatingInterestRate,
             final BigDecimal interestRateDifferential, final List<Rate> rates) {
@@ -441,7 +441,7 @@ public class Loan extends AbstractPersistableCustom {
             final Integer loanType, final LoanProduct loanProduct, final Fund fund, final Staff officer, final CodeValue loanPurpose,
             final LoanTransactionProcessingStrategy transactionProcessingStrategy,
             final LoanProductRelatedDetail loanRepaymentScheduleDetail, final Set<LoanCharge> loanCharges,
-            final Set<LoanCollateral> collateral, final Boolean syncDisbursementWithMeeting, final BigDecimal fixedEmiAmount,
+            final Set<LoanCollateralManagement> collateral, final Boolean syncDisbursementWithMeeting, final BigDecimal fixedEmiAmount,
             final List<LoanDisbursementDetails> disbursementDetails, final BigDecimal maxOutstandingLoanBalance,
             final Boolean createStandingInstructionAtDisbursement, final Boolean isFloatingInterestRate,
             final BigDecimal interestRateDifferential, final List<Rate> rates) {
@@ -459,7 +459,7 @@ public class Loan extends AbstractPersistableCustom {
     private Loan(final String accountNo, final Client client, final Group group, final Integer loanType, final Fund fund,
             final Staff loanOfficer, final CodeValue loanPurpose, final LoanTransactionProcessingStrategy transactionProcessingStrategy,
             final LoanProduct loanProduct, final LoanProductRelatedDetail loanRepaymentScheduleDetail, final LoanStatus loanStatus,
-            final Set<LoanCharge> loanCharges, final Set<LoanCollateral> collateral, final Boolean syncDisbursementWithMeeting,
+            final Set<LoanCharge> loanCharges, final Set<LoanCollateralManagement> collateral, final Boolean syncDisbursementWithMeeting,
             final BigDecimal fixedEmiAmount, final List<LoanDisbursementDetails> disbursementDetails,
             final BigDecimal maxOutstandingLoanBalance, final Boolean createStandingInstructionAtDisbursement,
             final Boolean isFloatingInterestRate, final BigDecimal interestRateDifferential, final List<Rate> rates) {
@@ -498,7 +498,7 @@ public class Loan extends AbstractPersistableCustom {
             this.summary = new LoanSummary();
         }
         if (collateral != null && !collateral.isEmpty()) {
-            this.collateral = associateWithThisLoan(collateral);
+            this.loanCollateralManagements = associateWithThisLoan(collateral);
         } else {
             this.collateral = null;
         }
@@ -555,9 +555,9 @@ public class Loan extends AbstractPersistableCustom {
         return loanCharges;
     }
 
-    private Set<LoanCollateral> associateWithThisLoan(final Set<LoanCollateral> collateral) {
-        for (final LoanCollateral item : collateral) {
-            item.associateWith(this);
+    private Set<LoanCollateralManagement> associateWithThisLoan(final Set<LoanCollateralManagement> collateral) {
+        for (final LoanCollateralManagement item : collateral) {
+            item.setLoan(this);
         }
         return collateral;
     }
@@ -1177,12 +1177,12 @@ public class Loan extends AbstractPersistableCustom {
         updateSummaryWithTotalFeeChargesDueAtDisbursement(deriveSumTotalOfChargesDueAtDisbursement());
     }
 
-    public void updateLoanCollateral(final Set<LoanCollateral> loanCollateral) {
-        if (this.collateral == null) {
-            this.collateral = new HashSet<>();
+    public void updateLoanCollateral(final Set<LoanCollateralManagement> loanCollateral) {
+        if (this.loanCollateralManagements == null) {
+            this.loanCollateralManagements = new HashSet<>();
         }
-        this.collateral.clear();
-        this.collateral.addAll(associateWithThisLoan(loanCollateral));
+        this.loanCollateralManagements.clear();
+        this.loanCollateralManagements.addAll(associateWithThisLoan(loanCollateral));
     }
 
     public void updateLoanRates(final List<Rate> loanRates) {
@@ -1331,8 +1331,8 @@ public class Loan extends AbstractPersistableCustom {
     }
 
     public Map<String, Object> loanApplicationModification(final JsonCommand command, final Set<LoanCharge> possiblyModifedLoanCharges,
-            final Set<LoanCollateral> possiblyModifedLoanCollateralItems, final AprCalculator aprCalculator, boolean isChargesModified,
-            final LoanProduct loanProduct) {
+            final Set<LoanCollateralManagement> possiblyModifedLoanCollateralItems, final AprCalculator aprCalculator,
+            boolean isChargesModified, final LoanProduct loanProduct) {
 
         final Map<String, Object> actualChanges = this.loanRepaymentScheduleDetail.updateLoanApplicationAttributes(command, aprCalculator);
         final MonetaryCurrency currency = new MonetaryCurrency(loanProduct.getCurrency().getCode(),
@@ -1546,8 +1546,8 @@ public class Loan extends AbstractPersistableCustom {
         final String collateralParamName = "collateral";
         if (command.parameterExists(collateralParamName)) {
 
-            if (!possiblyModifedLoanCollateralItems.equals(this.collateral)) {
-                actualChanges.put(collateralParamName, listOfLoanCollateralData(possiblyModifedLoanCollateralItems));
+            if (!possiblyModifedLoanCollateralItems.equals(this.loanCollateralManagements)) {
+                actualChanges.put(collateralParamName, possiblyModifedLoanCollateralItems);
             }
         }
 
@@ -1919,22 +1919,24 @@ public class Loan extends AbstractPersistableCustom {
         return list;
     }
 
-    private CollateralData[] listOfLoanCollateralData(final Set<LoanCollateral> setOfLoanCollateral) {
-
-        CollateralData[] existingLoanCollateral = null;
-
-        final List<CollateralData> loanCollateralList = new ArrayList<>();
-        for (final LoanCollateral loanCollateral : setOfLoanCollateral) {
-
-            final CollateralData data = loanCollateral.toData();
-
-            loanCollateralList.add(data);
-        }
-
-        existingLoanCollateral = loanCollateralList.toArray(new CollateralData[loanCollateralList.size()]);
-
-        return existingLoanCollateral;
-    }
+    // private LoanCollateralManagement[] listOfLoanCollateralData(final Set<LoanCollateralManagement>
+    // setOfLoanCollateral) {
+    //
+    // CollateralData[] existingLoanCollateral = null;
+    // LoanCollateral
+    //
+    // final List<LoanCollateralManagement> loanCollateralList = new ArrayList<>();
+    // for (final LoanCollateralManagement loanCollateral : setOfLoanCollateral) {
+    //
+    // final CollateralData data = loanCollateral;
+    //
+    // loanCollateralList.add(data);
+    // }
+    //
+    // existingLoanCollateral = loanCollateralList.toArray(new CollateralData[loanCollateralList.size()]);
+    //
+    // return existingLoanCollateral;
+    // }
 
     private LoanChargeCommand[] getLoanCharges(final Set<LoanCharge> setOfLoanCharges) {
 
@@ -6639,6 +6641,8 @@ public class Loan extends AbstractPersistableCustom {
         this.loanType = loanType;
     }
 
-    public Set<LoanCollateralManagement> getLoanCollateralManagements() { return this.loanCollateralManagements; }
+    public Set<LoanCollateralManagement> getLoanCollateralManagements() {
+        return this.loanCollateralManagements;
+    }
 
 }

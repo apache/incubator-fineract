@@ -32,7 +32,7 @@ public class LoanTransactionData {
     private final LocalDateTime lastRepaymentDate;
 
     private LoanTransactionData(final Long loanId, final LocalDateTime lastRepaymentDate, final BigDecimal remainingAmount,
-                                final BigDecimal lastRepayment) {
+            final BigDecimal lastRepayment) {
         this.lastRepayment = lastRepayment;
         this.lastRepaymentDate = lastRepaymentDate;
         this.remainingAmount = remainingAmount;
@@ -40,7 +40,7 @@ public class LoanTransactionData {
     }
 
     public static LoanTransactionData instance(final Long loanId, final LocalDateTime lastRepaymentDate, final BigDecimal remainingAmount,
-                                final BigDecimal lastRepayment) {
-        return  new LoanTransactionData(loanId, lastRepaymentDate, remainingAmount, lastRepayment);
+            final BigDecimal lastRepayment) {
+        return new LoanTransactionData(loanId, lastRepaymentDate, remainingAmount, lastRepayment);
     }
 }

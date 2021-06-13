@@ -98,6 +98,7 @@ import org.apache.fineract.portfolio.charge.service.ChargeReadPlatformService;
 import org.apache.fineract.portfolio.client.data.ClientData;
 import org.apache.fineract.portfolio.collateral.data.CollateralData;
 import org.apache.fineract.portfolio.collateral.service.CollateralReadPlatformService;
+import org.apache.fineract.portfolio.collateralmanagement.service.LoanCollateralManagementReadPlatformService;
 import org.apache.fineract.portfolio.floatingrates.data.InterestRatePeriodData;
 import org.apache.fineract.portfolio.fund.data.FundData;
 import org.apache.fineract.portfolio.fund.service.FundReadPlatformService;
@@ -112,6 +113,7 @@ import org.apache.fineract.portfolio.loanaccount.data.LoanTermVariationsData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTransactionData;
 import org.apache.fineract.portfolio.loanaccount.data.PaidInAdvanceData;
 import org.apache.fineract.portfolio.loanaccount.data.RepaymentScheduleRelatedLoanData;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTermVariationType;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanTemplateTypeRequiredException;
 import org.apache.fineract.portfolio.loanaccount.exception.NotSupportedLoanTemplateTypeException;
@@ -253,6 +255,7 @@ public class LoansApiResource {
     private final ConfigurationDomainService configurationDomainService;
     private final DefaultToApiJsonSerializer<GlimRepaymentTemplate> glimTemplateToApiJsonSerializer;
     private final GLIMAccountInfoReadPlatformService glimAccountInfoReadPlatformService;
+    private final LoanCollateralManagementReadPlatformService loanCollateralManagementReadPlatformService;
 
     @Autowired
     public LoansApiResource(final PlatformSecurityContext context, final LoanReadPlatformService loanReadPlatformService,
@@ -278,7 +281,8 @@ public class LoansApiResource {
             final BulkImportWorkbookPopulatorService bulkImportWorkbookPopulatorService, final RateReadService rateReadService,
             final ConfigurationDomainService configurationDomainService,
             final DefaultToApiJsonSerializer<GlimRepaymentTemplate> glimTemplateToApiJsonSerializer,
-            final GLIMAccountInfoReadPlatformService glimAccountInfoReadPlatformService) {
+            final GLIMAccountInfoReadPlatformService glimAccountInfoReadPlatformService,
+            final LoanCollateralManagementReadPlatformService loanCollateralManagementReadPlatformService) {
         this.context = context;
         this.loanReadPlatformService = loanReadPlatformService;
         this.loanProductReadPlatformService = loanProductReadPlatformService;
@@ -310,6 +314,7 @@ public class LoansApiResource {
         this.configurationDomainService = configurationDomainService;
         this.glimTemplateToApiJsonSerializer = glimTemplateToApiJsonSerializer;
         this.glimAccountInfoReadPlatformService = glimAccountInfoReadPlatformService;
+        this.loanCollateralManagementReadPlatformService = loanCollateralManagementReadPlatformService;
     }
 
     /*
@@ -535,6 +540,7 @@ public class LoansApiResource {
         PortfolioAccountData linkedAccount = null;
         Collection<DisbursementData> disbursementData = null;
         Collection<LoanTermVariationsData> emiAmountVariations = null;
+        Collection<LoanCollateralManagement> loanCollateralManagements = null;
 
         final Set<String> mandatoryResponseParameters = new HashSet<>();
         final Set<String> associationParameters = ApiParameterHelper.extractAssociationsForResponseIfProvided(uriInfo.getQueryParameters());
@@ -599,6 +605,14 @@ public class LoansApiResource {
                 charges = this.loanChargeReadPlatformService.retrieveLoanCharges(loanId);
                 if (CollectionUtils.isEmpty(charges)) {
                     charges = null;
+                }
+            }
+
+            if (associationParameters.contains("collateral")) {
+                mandatoryResponseParameters.add("collateral");
+                loanCollateralManagements = this.loanCollateralManagementReadPlatformService.getLoanCollaterals(loanId);
+                if (CollectionUtils.isEmpty(loanCollateralManagements)) {
+                    loanCollateralManagements = null;
                 }
             }
 
@@ -725,12 +739,12 @@ public class LoansApiResource {
         }
 
         final LoanAccountData loanAccount = LoanAccountData.associationsAndTemplate(loanBasicDetails, repaymentSchedule, loanRepayments,
-                charges, collateral, guarantors, meeting, productOptions, loanTermFrequencyTypeOptions, repaymentFrequencyTypeOptions,
-                repaymentFrequencyNthDayTypeOptions, repaymentFrequencyDayOfWeekTypeOptions, repaymentStrategyOptions,
-                interestRateFrequencyTypeOptions, amortizationTypeOptions, interestTypeOptions, interestCalculationPeriodTypeOptions,
-                fundOptions, chargeOptions, chargeTemplate, allowedLoanOfficers, loanPurposeOptions, loanCollateralOptions, calendarOptions,
-                notes, accountLinkingOptions, linkedAccount, disbursementData, emiAmountVariations, overdueCharges, paidInAdvanceTemplate,
-                interestRatesPeriods, clientActiveLoanOptions, rates, isRatesEnabled);
+                charges, loanCollateralManagements, guarantors, meeting, productOptions, loanTermFrequencyTypeOptions,
+                repaymentFrequencyTypeOptions, repaymentFrequencyNthDayTypeOptions, repaymentFrequencyDayOfWeekTypeOptions,
+                repaymentStrategyOptions, interestRateFrequencyTypeOptions, amortizationTypeOptions, interestTypeOptions,
+                interestCalculationPeriodTypeOptions, fundOptions, chargeOptions, chargeTemplate, allowedLoanOfficers, loanPurposeOptions,
+                loanCollateralOptions, calendarOptions, notes, accountLinkingOptions, linkedAccount, disbursementData, emiAmountVariations,
+                overdueCharges, paidInAdvanceTemplate, interestRatesPeriods, clientActiveLoanOptions, rates, isRatesEnabled);
 
         final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters(),
                 mandatoryResponseParameters);

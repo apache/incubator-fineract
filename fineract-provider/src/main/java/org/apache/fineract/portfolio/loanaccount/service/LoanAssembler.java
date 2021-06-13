@@ -47,8 +47,7 @@ import org.apache.fineract.portfolio.accountdetails.service.AccountEnumerations;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
-import org.apache.fineract.portfolio.collateral.domain.LoanCollateral;
-import org.apache.fineract.portfolio.collateral.service.CollateralAssembler;
+import org.apache.fineract.portfolio.collateralmanagement.service.LoanCollateralAssembler;
 import org.apache.fineract.portfolio.fund.domain.Fund;
 import org.apache.fineract.portfolio.fund.domain.FundRepository;
 import org.apache.fineract.portfolio.fund.exception.FundNotFoundException;
@@ -61,6 +60,7 @@ import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.domain.DefaultLoanLifecycleStateMachine;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCharge;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanDisbursementDetails;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanLifecycleStateMachine;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleTransactionProcessorFactory;
@@ -101,7 +101,8 @@ public class LoanAssembler {
     private final CodeValueRepositoryWrapper codeValueRepository;
     private final LoanScheduleAssembler loanScheduleAssembler;
     private final LoanChargeAssembler loanChargeAssembler;
-    private final CollateralAssembler loanCollateralAssembler;
+    private final LoanCollateralAssembler collateralAssembler;
+    // private final CollateralAssembler loanCollateralAssembler;
     private final LoanSummaryWrapper loanSummaryWrapper;
     private final LoanRepaymentScheduleTransactionProcessorFactory loanRepaymentScheduleTransactionProcessorFactory;
     private final HolidayRepository holidayRepository;
@@ -117,7 +118,7 @@ public class LoanAssembler {
             final LoanTransactionProcessingStrategyRepository loanTransactionProcessingStrategyRepository,
             final StaffRepository staffRepository, final CodeValueRepositoryWrapper codeValueRepository,
             final LoanScheduleAssembler loanScheduleAssembler, final LoanChargeAssembler loanChargeAssembler,
-            final CollateralAssembler loanCollateralAssembler, final LoanSummaryWrapper loanSummaryWrapper,
+            final LoanCollateralAssembler collateralAssembler, final LoanSummaryWrapper loanSummaryWrapper,
             final LoanRepaymentScheduleTransactionProcessorFactory loanRepaymentScheduleTransactionProcessorFactory,
             final HolidayRepository holidayRepository, final ConfigurationDomainService configurationDomainService,
             final WorkingDaysRepositoryWrapper workingDaysRepository, final LoanUtilService loanUtilService, RateAssembler rateAssembler) {
@@ -132,7 +133,7 @@ public class LoanAssembler {
         this.codeValueRepository = codeValueRepository;
         this.loanScheduleAssembler = loanScheduleAssembler;
         this.loanChargeAssembler = loanChargeAssembler;
-        this.loanCollateralAssembler = loanCollateralAssembler;
+        this.collateralAssembler = collateralAssembler;
         this.loanSummaryWrapper = loanSummaryWrapper;
         this.loanRepaymentScheduleTransactionProcessorFactory = loanRepaymentScheduleTransactionProcessorFactory;
         this.holidayRepository = holidayRepository;
@@ -209,7 +210,8 @@ public class LoanAssembler {
                         loanProduct.maxTrancheCount(), disbursementDetails.size());
             }
         }
-        final Set<LoanCollateral> collateral = this.loanCollateralAssembler.fromParsedJson(element);
+        final Set<LoanCollateralManagement> collateral = this.collateralAssembler.fromParsedJson(element);
+        // final Set<LoanCollateral> collateral = this.loanCollateralAssembler.fromParsedJson(element);
         final Set<LoanCharge> loanCharges = this.loanChargeAssembler.fromParsedJson(element, disbursementDetails);
         for (final LoanCharge loanCharge : loanCharges) {
             if (!loanProduct.hasCurrencyCodeOf(loanCharge.currencyCode())) {
@@ -269,7 +271,6 @@ public class LoanAssembler {
                     createStandingInstructionAtDisbursement, isFloatingInterestRate, interestRateDifferential, rates);
 
         } else if (group != null) {
-
             loanApplication = Loan.newGroupLoanApplication(accountNo, group, loanType.getId().intValue(), loanProduct, fund, loanOfficer,
                     loanPurpose, loanTransactionProcessingStrategy, loanProductRelatedDetail, loanCharges, collateral,
                     syncDisbursementWithMeeting, fixedEmiAmount, disbursementDetails, maxOutstandingLoanBalance,

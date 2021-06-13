@@ -19,14 +19,14 @@
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
 import java.math.BigDecimal;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.collateralmanagement.data.ClientCollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.data.LoanTransactionData;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepositoryWrapper;
-import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionRepository;
@@ -42,7 +42,8 @@ public class ClientCollateralManagementReadPlatformServiceImpl implements Client
 
     @Autowired
     public ClientCollateralManagementReadPlatformServiceImpl(final PlatformSecurityContext context,
-            final ClientCollateralManagementRepositoryWrapper clientCollateralManagementRepositoryWrapper, final LoanTransactionRepository loanTransactionRepository) {
+            final ClientCollateralManagementRepositoryWrapper clientCollateralManagementRepositoryWrapper,
+            final LoanTransactionRepository loanTransactionRepository) {
         this.context = context;
         this.clientCollateralManagementRepositoryWrapper = clientCollateralManagementRepositoryWrapper;
         this.loanTransactionRepository = loanTransactionRepository;
@@ -55,7 +56,8 @@ public class ClientCollateralManagementReadPlatformServiceImpl implements Client
 
     @Override
     public ClientCollateralManagementData getClientCollateralManagementData(final Long collateralId) {
-        final ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepositoryWrapper.getCollateral(collateralId);
+        final ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepositoryWrapper
+                .getCollateral(collateralId);
         BigDecimal basePrice = clientCollateralManagement.getCollaterals().getBasePrice();
         BigDecimal pctToBase = clientCollateralManagement.getCollaterals().getPctToBase();
         BigDecimal quantity = clientCollateralManagement.getQuantity();
@@ -63,19 +65,21 @@ public class ClientCollateralManagementReadPlatformServiceImpl implements Client
         BigDecimal totalCollateral = total.multiply(pctToBase);
         Set<LoanCollateralManagement> loanCollateralManagementSet = clientCollateralManagement.getLoanCollateralManagementSet();
 
-//        Comparator<LoanCollateralManagement> byTransactionDate = new Comparator<LoanCollateralManagement>() {
-//            public int compare(LoanCollateralManagement c1, LoanCollateralManagement c2) {
-//                if (c1.getLoanTransaction().getCreatedDateTime().isBefore(c2.getLoanTransaction().getCreatedDateTime())) return 1;
-//                else return -1;
-//            }
-//        };
+        // Comparator<LoanCollateralManagement> byTransactionDate = new Comparator<LoanCollateralManagement>() {
+        // public int compare(LoanCollateralManagement c1, LoanCollateralManagement c2) {
+        // if (c1.getLoanTransaction().getCreatedDateTime().isBefore(c2.getLoanTransaction().getCreatedDateTime()))
+        // return 1;
+        // else return -1;
+        // }
+        // };
 
         List<LoanTransactionData> loanTransactionDataList = new ArrayList<>();
-        for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagementSet) {
+        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagementSet) {
             Long transactionId = loanCollateralManagement.getLoanTransaction().getId();
             LoanTransaction loanTransaction = this.loanTransactionRepository.findById(transactionId).orElseThrow();
-            LoanTransactionData loanTransactionData = LoanTransactionData.instance(loanTransaction.getLoan().getId(), loanTransaction.getCreatedDateTime(),
-                                         loanTransaction.getOutstandingLoanBalance(), loanTransaction.getPrincipalPortion());
+            LoanTransactionData loanTransactionData = LoanTransactionData.instance(loanTransaction.getLoan().getId(),
+                    loanTransaction.getCreatedDateTime(), loanTransaction.getOutstandingLoanBalance(),
+                    loanTransaction.getPrincipalPortion());
             loanTransactionDataList.add(loanTransactionData);
         }
 

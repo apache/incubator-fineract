@@ -115,7 +115,8 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
             final LoanRepaymentScheduleInstallmentRepository repaymentScheduleInstallmentRepository,
             final LoanAccrualPlatformService loanAccrualPlatformService, final PlatformSecurityContext context,
             final BusinessEventNotifierService businessEventNotifierService, final LoanUtilService loanUtilService,
-            final StandingInstructionRepository standingInstructionRepository, final LoanCollateralManagementRepository loanCollateralManagementRepository) {
+            final StandingInstructionRepository standingInstructionRepository,
+            final LoanCollateralManagementRepository loanCollateralManagementRepository) {
         this.loanAccountAssembler = loanAccountAssembler;
         this.loanRepositoryWrapper = loanRepositoryWrapper;
         this.loanTransactionRepository = loanTransactionRepository;
@@ -148,8 +149,9 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
     @Transactional
     @Override
-    public void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementSet, LoanTransaction loanTransaction) {
-        for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagementSet) {
+    public void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementSet,
+            LoanTransaction loanTransaction) {
+        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagementSet) {
             loanCollateralManagement.setLoanTransactionData(loanTransaction);
         }
         this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
@@ -157,8 +159,8 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
     @Transactional
     @Override
-    public void updateLoanCollateralStatus(Set<LoanCollateralManagement> loanCollateralManagementSet, Boolean isReleased) {
-        for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagementSet) {
+    public void updateLoanCollateralStatus(Set<LoanCollateralManagement> loanCollateralManagementSet, Integer isReleased) {
+        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagementSet) {
             loanCollateralManagement.setIsReleased(isReleased);
         }
         this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
@@ -257,7 +259,7 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
     private void saveLoanTransactionWithDataIntegrityViolationChecks(LoanTransaction newRepaymentTransaction) {
         try {
-            LoanTransaction loanTransaction =  this.loanTransactionRepository.save(newRepaymentTransaction);
+            LoanTransaction loanTransaction = this.loanTransactionRepository.save(newRepaymentTransaction);
 
         } catch (final JpaSystemException | DataIntegrityViolationException e) {
             final Throwable realCause = e.getCause();

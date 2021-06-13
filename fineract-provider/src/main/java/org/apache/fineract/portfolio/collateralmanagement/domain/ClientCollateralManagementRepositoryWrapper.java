@@ -19,6 +19,7 @@
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
 import java.util.List;
+import org.apache.fineract.portfolio.collateralmanagement.exception.ClientCollateralNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,8 @@ public class ClientCollateralManagementRepositoryWrapper {
     }
 
     public ClientCollateralManagement getCollateral(final Long collateralId) {
-        return this.clientCollateralManagementRepository.findById(collateralId).orElseThrow();
+        return this.clientCollateralManagementRepository.findById(collateralId)
+                .orElseThrow(() -> new ClientCollateralNotFoundException(collateralId));
     }
 
     public ClientCollateralManagement updateClientCollateralProduct(final ClientCollateralManagement clientCollateralManagement) {
@@ -46,5 +48,13 @@ public class ClientCollateralManagementRepositoryWrapper {
 
     public void deleteClientCollateralProduct(final Long collateralId) {
         this.clientCollateralManagementRepository.deleteById(collateralId);
+    }
+
+    public void save(ClientCollateralManagement clientCollateralManagement) {
+        this.clientCollateralManagementRepository.save(clientCollateralManagement);
+    }
+
+    public void saveAndFlush(ClientCollateralManagement clientCollateralManagement) {
+        this.clientCollateralManagementRepository.saveAndFlush(clientCollateralManagement);
     }
 }

@@ -82,11 +82,10 @@ import org.apache.fineract.portfolio.client.domain.AccountNumberGenerator;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
-import org.apache.fineract.portfolio.collateral.domain.LoanCollateral;
-import org.apache.fineract.portfolio.collateral.service.CollateralAssembler;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepository;
 import org.apache.fineract.portfolio.collateralmanagement.exception.ClientCollateralNotFoundException;
+import org.apache.fineract.portfolio.collateralmanagement.service.LoanCollateralAssembler;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEntity;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEvents;
 import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
@@ -117,6 +116,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.LoanRepositoryWrapper;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanSummaryWrapper;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTopupDetails;
+import org.apache.fineract.portfolio.loanaccount.exception.InvalidAmountOfCollateralQuantity;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationDateException;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationNotInSubmittedAndPendingApprovalStateCannotBeDeleted;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanApplicationNotInSubmittedAndPendingApprovalStateCannotBeModified;
@@ -172,7 +172,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
     private final ClientRepositoryWrapper clientRepository;
     private final LoanProductRepository loanProductRepository;
     private final LoanChargeAssembler loanChargeAssembler;
-    private final CollateralAssembler loanCollateralAssembler;
+    private final LoanCollateralAssembler loanCollateralAssembler;
     private final AprCalculator aprCalculator;
     private final AccountNumberGenerator accountNumberGenerator;
     private final LoanSummaryWrapper loanSummaryWrapper;
@@ -210,7 +210,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
             final LoanApplicationCommandFromApiJsonHelper fromApiJsonDeserializer,
             final LoanProductDataValidator loanProductCommandFromApiJsonDeserializer, final AprCalculator aprCalculator,
             final LoanAssembler loanAssembler, final LoanChargeAssembler loanChargeAssembler,
-            final CollateralAssembler loanCollateralAssembler, final LoanRepositoryWrapper loanRepositoryWrapper,
+            final LoanCollateralAssembler loanCollateralAssembler, final LoanRepositoryWrapper loanRepositoryWrapper,
             final NoteRepository noteRepository, final LoanScheduleCalculationPlatformService calculationPlatformService,
             final ClientRepositoryWrapper clientRepository, final LoanProductRepository loanProductRepository,
             final AccountNumberGenerator accountNumberGenerator, final LoanSummaryWrapper loanSummaryWrapper,
@@ -422,14 +422,27 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                             LoanCollateralManagementData.class);
 
                     // Update the loanCollateralManagement class
-                    loanCollateralManagement = new LoanCollateralManagement(loanCollateral.getQuantity());
+                    loanCollateralManagement = new LoanCollateralManagement(loanCollateral.getQuantity(), Integer.valueOf(0));
                     loanCollateralManagement.setLoan(loan);
 
                     // Get the client collateral details
                     ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepository
-                            .findById(loanCollateral.getClientId())
-                            .orElseThrow(() -> new ClientCollateralNotFoundException(loanCollateral.getClientId()));
+                            .findById(loanCollateral.getClientCollateralId())
+                            .orElseThrow(() -> new ClientCollateralNotFoundException(loanCollateral.getClientCollateralId()));
                     quantity = clientCollateralManagement.getQuantity().subtract(loanCollateralManagement.getQuantity());
+
+                    /**
+                     * TODO: Validate total & totalCollateral
+                     */
+                    // BigDecimal pctToBase = clientCollateralManagement.getCollaterals().getPctToBase();
+                    // BigDecimal basePrice = clientCollateralManagement.getCollaterals().getBasePrice();
+                    // BigDecimal total = loanCollateralManagement.getQuantity().multiply(basePrice);
+                    // BigDecimal totalCollateral = total.multiply(pctToBase);
+
+                    if (BigDecimal.ZERO.compareTo(quantity) > 0) {
+                        throw new InvalidAmountOfCollateralQuantity(quantity);
+                    }
+
                     clientCollateralManagement.updateQuantity(quantity);
 
                     // Put the updated classes into a set
@@ -905,7 +918,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 }
             }
 
-            final Set<LoanCollateral> possiblyModifedLoanCollateralItems = this.loanCollateralAssembler
+            final Set<LoanCollateralManagement> possiblyModifedLoanCollateralItems = this.loanCollateralAssembler
                     .fromParsedJson(command.parsedJson());
 
             final Map<String, Object> changes = existingLoanApplication.loanApplicationModification(command, possiblyModifedLoanCharges,
@@ -1085,7 +1098,7 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
 
             final String collateralParamName = "collateral";
             if (changes.containsKey(collateralParamName)) {
-                final Set<LoanCollateral> loanCollateral = this.loanCollateralAssembler.fromParsedJson(command.parsedJson());
+                final Set<LoanCollateralManagement> loanCollateral = this.loanCollateralAssembler.fromParsedJson(command.parsedJson());
                 existingLoanApplication.updateLoanCollateral(loanCollateral);
             }
 

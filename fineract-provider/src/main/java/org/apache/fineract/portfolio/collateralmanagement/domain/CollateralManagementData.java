@@ -21,8 +21,14 @@ package org.apache.fineract.portfolio.collateralmanagement.domain;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
-
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
@@ -73,7 +79,7 @@ public class CollateralManagementData extends AbstractPersistableCustom {
         String quality = jsonCommand.stringValueOfParameterNamed("quality");
         BigDecimal basePrice = jsonCommand.bigDecimalValueOfParameterNamed("basePrice");
         BigDecimal pctToBase = jsonCommand.bigDecimalValueOfParameterNamedDefaultToNullIfZero("pctToBase");
-        String unitType = jsonCommand.stringValueOfParameterNamed("unityType");
+        String unitType = jsonCommand.stringValueOfParameterNamed("unitType");
         String name = jsonCommand.stringValueOfParameterNamed("name");
         return new CollateralManagementData(quality, basePrice, unitType, pctToBase, applicationCurrency, name);
     }

@@ -18,12 +18,22 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.data.ApiParameterError;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.apache.fineract.infrastructure.core.data.DataValidatorBuilder;
+import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidationException;
+import org.apache.fineract.portfolio.client.domain.Client;
+import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepositoryWrapper;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,17 +41,72 @@ import org.springframework.stereotype.Service;
 public class ClientCollateralManagementWritePlatformServiceImpl implements ClientCollateralManagementWritePlatformService {
 
     private final ClientCollateralManagementRepositoryWrapper clientCollateralManagementRepositoryWrapper;
+    private final CollateralManagementRepositoryWrapper collateralManagementRepositoryWrapper;
+    private final ClientRepositoryWrapper clientRepositoryWrapper;
 
     @Autowired
     public ClientCollateralManagementWritePlatformServiceImpl(
-            final ClientCollateralManagementRepositoryWrapper clientCollateralManagementRepositoryWrapper) {
+            final ClientCollateralManagementRepositoryWrapper clientCollateralManagementRepositoryWrapper,
+            final CollateralManagementRepositoryWrapper collateralManagementRepositoryWrapper,
+            final ClientRepositoryWrapper clientRepositoryWrapper) {
         this.clientCollateralManagementRepositoryWrapper = clientCollateralManagementRepositoryWrapper;
+        this.collateralManagementRepositoryWrapper = collateralManagementRepositoryWrapper;
+        this.clientRepositoryWrapper = clientRepositoryWrapper;
     }
 
     @Transactional
     @Override
     public CommandProcessingResult addClientCollateralProduct(final JsonCommand command) {
-        return CommandProcessingResult.empty();
+
+        validateClientCollateralData(command);
+
+        /**
+         * TODO: Create client collaterals one by one or all in one
+         */
+
+        Long collateralId = command.longValueOfParameterNamed("collateralId");
+        BigDecimal quantity = command.bigDecimalValueOfParameterNamed("quantity");
+        Long clientId = command.longValueOfParameterNamed("clientId");
+
+        final Client client = this.clientRepositoryWrapper.findOneWithNotFoundDetection(clientId, false);
+
+        final CollateralManagementData collateralManagementData = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
+        final ClientCollateralManagement clientCollateralManagement = ClientCollateralManagement.createNew(quantity, client,
+                collateralManagementData);
+        this.clientCollateralManagementRepositoryWrapper.save(clientCollateralManagement);
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(command.entityId())
+                .withClientId(clientId).build();
+    }
+
+    private void validateClientCollateralData(final JsonCommand command) {
+        boolean isValid = true;
+        String errorCode = "parameter.";
+
+        if (!command.parameterExists("collateralId")) {
+            isValid = false;
+            errorCode += "collateralId";
+        }
+
+        if (!command.parameterExists("clientId")) {
+            isValid = false;
+            errorCode += ".clientId";
+        }
+
+        if (!command.parameterExists("quantity")) {
+            isValid = false;
+            errorCode += ".quantity";
+        }
+
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("loan");
+        if (!isValid) {
+            errorCode += ".not.exist";
+            baseDataValidator.reset().parameter("client-collaterals").failWithCode(errorCode);
+        }
+
+        if (!dataValidationErrors.isEmpty()) {
+            throw new PlatformApiDataValidationException(dataValidationErrors);
+        }
     }
 
     @Transactional

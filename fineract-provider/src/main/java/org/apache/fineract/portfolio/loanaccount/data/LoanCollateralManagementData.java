@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 
 public class LoanCollateralManagementData {
 
-    private final Long clientId;
+    private final Long clientCollateralId;
 
     private final BigDecimal quantity;
 
@@ -30,19 +30,16 @@ public class LoanCollateralManagementData {
 
     private final BigDecimal totalCollateral;
 
-    private final Long loanId;
-
-    public LoanCollateralManagementData(final Long clientId, final BigDecimal quantity, final BigDecimal total,
-            final BigDecimal totalCollateral, final Long loanId) {
-        this.clientId = clientId;
+    public LoanCollateralManagementData(final Long clientCollateralIdId, final BigDecimal quantity, final BigDecimal total,
+            final BigDecimal totalCollateral) {
+        this.clientCollateralId = clientCollateralIdId;
         this.quantity = quantity;
         this.totalCollateral = totalCollateral;
         this.total = total;
-        this.loanId = loanId;
     }
 
-    public Long getClientId() {
-        return this.clientId;
+    public Long getClientCollateralId() {
+        return this.clientCollateralId;
     }
 
     public BigDecimal getQuantity() {
@@ -57,5 +54,4 @@ public class LoanCollateralManagementData {
         return this.totalCollateral;
     }
 
-    public Long getLoanId() { return this.loanId; }
 }

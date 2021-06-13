@@ -37,14 +37,15 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
 
     @Autowired
     public CollateralManagementWritePlatformServiceImpl(final CollateralManagementRepositoryWrapper collateralManagementRepositoryWrapper,
-                                                        final ApplicationCurrencyRepository applicationCurrencyRepository) {
+            final ApplicationCurrencyRepository applicationCurrencyRepository) {
         this.collateralManagementRepositoryWrapper = collateralManagementRepositoryWrapper;
         this.applicationCurrencyRepository = applicationCurrencyRepository;
     }
 
     @Override
     public CommandProcessingResult createCollateral(final JsonCommand jsonCommand) {
-        final String currencyParamName = CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue();
+        final String currencyParamName = jsonCommand
+                .stringValueOfParameterNamed(CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue());
         final ApplicationCurrency applicationCurrency = this.applicationCurrencyRepository.findOneByCode(currencyParamName);
         final CollateralManagementData collateral = CollateralManagementData.createNew(jsonCommand, applicationCurrency);
         this.collateralManagementRepositoryWrapper.create(collateral);
@@ -55,7 +56,8 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
     public CommandProcessingResult updateCollateral(final Long collateralId, JsonCommand jsonCommand) {
         final CollateralManagementData collateral = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
         final String currencyParamName = CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue();
-        final ApplicationCurrency applicationCurrency = this.applicationCurrencyRepository.findOneByCode(jsonCommand.stringValueOfParameterNamed(currencyParamName));
+        final ApplicationCurrency applicationCurrency = this.applicationCurrencyRepository
+                .findOneByCode(jsonCommand.stringValueOfParameterNamed(currencyParamName));
         if (jsonCommand.isChangeInStringParameterNamed(currencyParamName, applicationCurrency.getCode())) {
             final String newValue = jsonCommand.stringValueOfParameterNamed(currencyParamName);
             applicationCurrency.setCode(newValue);
