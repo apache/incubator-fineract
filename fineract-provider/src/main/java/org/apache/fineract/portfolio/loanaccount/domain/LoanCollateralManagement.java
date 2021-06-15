@@ -36,7 +36,7 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
     private BigDecimal quantity;
 
     @ManyToOne()
-    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    @JoinColumn(name = "transaction_id")
     private LoanTransaction loanTransaction = null;
 
     @ManyToOne(optional = false)
@@ -47,7 +47,7 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
     private Integer isReleased = Integer.valueOf(0);
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "client_collateral_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "client_collateral_id", nullable = false)
     private ClientCollateralManagement clientCollateralManagement;
 
     public LoanCollateralManagement() {
@@ -70,6 +70,15 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     public static LoanCollateralManagement from(final ClientCollateralManagement clientCollateralManagement, final BigDecimal quantity) {
         return new LoanCollateralManagement(quantity, clientCollateralManagement);
+    }
+
+    public static LoanCollateralManagement fromExisting(final ClientCollateralManagement clientCollateralManagement,
+            final BigDecimal quantity, final Loan loan, final LoanTransaction transaction, final Long id) {
+        LoanCollateralManagement loanCollateralManagementInstance = new LoanCollateralManagement(quantity, clientCollateralManagement);
+        loanCollateralManagementInstance.setLoan(loan);
+        loanCollateralManagementInstance.setLoanTransactionData(transaction);
+        loanCollateralManagementInstance.setId(id);
+        return loanCollateralManagementInstance;
     }
 
     public void setClientCollateralManagement(final ClientCollateralManagement clientCollateralManagement) {

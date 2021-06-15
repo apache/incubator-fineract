@@ -130,7 +130,7 @@ public class LoanTransaction extends AbstractPersistableCustom {
     private boolean manuallyAdjustedOrReversed;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "loanTransaction")
-    private Set<LoanCollateralManagement> loanCollateralManagementSet;
+    private Set<LoanCollateralManagement> loanCollateralManagementSet = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "loan_transaction_id", referencedColumnName = "id", nullable = false)

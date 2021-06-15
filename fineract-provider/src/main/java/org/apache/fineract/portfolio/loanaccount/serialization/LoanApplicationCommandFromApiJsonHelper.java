@@ -898,8 +898,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                     this.fromApiJsonHelper.checkForUnsupportedParameters(collateralParameterTypeOfMap, collateralJson, supportedParameters);
 
                     final Long id = this.fromApiJsonHelper.extractLongNamed("id", collateralItemElement);
-                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("id", i).value(id).notNull()
-                            .integerGreaterThanZero();
+                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("id", i).value(id).ignoreIfNull();
 
                     final Long clientCollateralId = this.fromApiJsonHelper.extractLongNamed("clientCollateralId", collateralItemElement);
                     baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("clientCollateralId", i)

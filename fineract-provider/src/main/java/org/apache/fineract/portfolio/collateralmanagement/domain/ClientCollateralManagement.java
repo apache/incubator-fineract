@@ -19,6 +19,7 @@
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -50,7 +51,7 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
     private CollateralManagementData collateral;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "clientCollateralManagement", fetch = FetchType.EAGER)
-    private Set<LoanCollateralManagement> loanCollateralManagementSet;
+    private Set<LoanCollateralManagement> loanCollateralManagementSet = new HashSet<>();
 
     public ClientCollateralManagement() {
 

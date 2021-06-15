@@ -82,16 +82,20 @@ public class LoanCollateralAssembler {
                     // this.clientCollateralManagementRepositoryWrapper.saveAndFlush(clientCollateral);
                     collateralItems.add(LoanCollateralManagement.from(clientCollateral, quantity));
                 } else {
-                    LoanCollateralManagement loanCollateralManagement = this.loanCollateralRepository.findById(id).orElseThrow(()-> new LoanCollateralManagementNotFoundException(id));
+                    LoanCollateralManagement loanCollateralManagement = this.loanCollateralRepository.findById(id)
+                            .orElseThrow(() -> new LoanCollateralManagementNotFoundException(id));
                     updatedClientQuantity = clientCollateral.getQuantity().add(loanCollateralManagement.getQuantity()).subtract(quantity);
                     if (BigDecimal.ZERO.compareTo(updatedClientQuantity) > 0) {
                         throw new InvalidAmountOfCollateralQuantity(quantity);
                     }
-                    loanCollateralManagement.setQuantity(quantity);
-                    loanCollateralManagement.setClientCollateralManagement(clientCollateral);
+
+                    // loanCollateralManagement.setQuantity(quantity);
                     clientCollateral.updateQuantity(updatedClientQuantity);
+                    // loanCollateralManagement.setClientCollateralManagement(clientCollateral);
                     // this.clientCollateralManagementRepositoryWrapper.saveAndFlush(clientCollateral);
-                    collateralItems.add(loanCollateralManagement);
+                    collateralItems
+                            .add(LoanCollateralManagement.fromExisting(clientCollateral, quantity, loanCollateralManagement.getLoanData(),
+                                    loanCollateralManagement.getLoanTransaction(), loanCollateralManagement.getId()));
                 }
             }
         }
