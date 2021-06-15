@@ -18,7 +18,12 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.domain;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.fineract.portfolio.client.domain.Client;
+import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
+import org.apache.fineract.portfolio.collateralmanagement.data.ClientCollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.exception.ClientCollateralNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,14 +32,42 @@ import org.springframework.stereotype.Service;
 public class ClientCollateralManagementRepositoryWrapper {
 
     private final ClientCollateralManagementRepository clientCollateralManagementRepository;
+    private final ClientRepositoryWrapper clientRepositoryWrapper;
 
     @Autowired
-    public ClientCollateralManagementRepositoryWrapper(final ClientCollateralManagementRepository clientCollateralManagementRepository) {
+    public ClientCollateralManagementRepositoryWrapper(final ClientCollateralManagementRepository clientCollateralManagementRepository,
+            final ClientRepositoryWrapper clientRepositoryWrapper) {
         this.clientCollateralManagementRepository = clientCollateralManagementRepository;
+        this.clientRepositoryWrapper = clientRepositoryWrapper;
     }
 
     public List<ClientCollateralManagement> getCollateralsPerClient(final Long clientId) {
-        return this.clientCollateralManagementRepository.findByClientId(clientId);
+        final Client client = this.clientRepositoryWrapper.findOneWithNotFoundDetection(clientId);
+        return this.clientCollateralManagementRepository.findByClientId(client);
+    }
+
+    public List<ClientCollateralManagementData> getClientCollateralData(final Long clientId) {
+        final Client client = this.clientRepositoryWrapper.findOneWithNotFoundDetection(clientId);
+        List<ClientCollateralManagement> clientCollateralManagements = this.clientCollateralManagementRepository.findByClientId(client);
+        List<ClientCollateralManagementData> clientCollateralManagementDataSet = new ArrayList<>();
+        for (ClientCollateralManagement clientCollateralManagement : clientCollateralManagements) {
+            BigDecimal quantity = clientCollateralManagement.getQuantity();
+            BigDecimal basePrice = null;
+            BigDecimal pctToBase = null;
+            if (BigDecimal.ZERO.compareTo(quantity) == 0) {
+                basePrice = BigDecimal.ZERO;
+                pctToBase = BigDecimal.ZERO;
+            } else {
+                basePrice = clientCollateralManagement.getCollaterals().getBasePrice();
+                pctToBase = clientCollateralManagement.getCollaterals().getPctToBase().divide(BigDecimal.valueOf(100));
+            }
+            BigDecimal total = quantity.multiply(basePrice);
+            BigDecimal totalCollateralValue = total.multiply(pctToBase);
+            clientCollateralManagementDataSet.add(ClientCollateralManagementData.instance(
+                    clientCollateralManagement.getCollaterals().getName(), quantity, total, totalCollateralValue, clientId, null));
+        }
+
+        return clientCollateralManagementDataSet;
     }
 
     public ClientCollateralManagement getCollateral(final Long collateralId) {

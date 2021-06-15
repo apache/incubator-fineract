@@ -16,18 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.collateralmanagement.domain;
+package org.apache.fineract.portfolio.collateralmanagement.exception;
 
-import java.util.List;
-import org.apache.fineract.portfolio.client.domain.Client;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 
-public interface ClientCollateralManagementRepository
-        extends JpaRepository<ClientCollateralManagement, Long>, JpaSpecificationExecutor<ClientCollateralManagement> {
+public class LoanCollateralManagementNotFoundException extends AbstractPlatformResourceNotFoundException {
 
-    @Query("select clientCollateral from ClientCollateralManagement clientCollateral where clientCollateral.client=:client")
-    List<ClientCollateralManagement> findByClientId(@Param("client") Client client);
+    public LoanCollateralManagementNotFoundException(final Long id) {
+        super("error.msg.loan.collateral.id.invalid", "Loan Collateral with identifier " + id + " does not exist", id);
+    }
+
+    public LoanCollateralManagementNotFoundException(Long id, EmptyResultDataAccessException e) {
+        super("error.msg.loan.collateral.id.invalid", "Loan Collateral with identifier " + id + " does not exist", id, e);
+    }
+
 }

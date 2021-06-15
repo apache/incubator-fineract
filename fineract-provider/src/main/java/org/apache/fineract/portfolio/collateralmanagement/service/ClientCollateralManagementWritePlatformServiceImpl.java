@@ -66,42 +66,32 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
 
         Long collateralId = command.longValueOfParameterNamed("collateralId");
         BigDecimal quantity = command.bigDecimalValueOfParameterNamed("quantity");
-        Long clientId = command.longValueOfParameterNamed("clientId");
 
-        final Client client = this.clientRepositoryWrapper.findOneWithNotFoundDetection(clientId, false);
+        final Client client = this.clientRepositoryWrapper.findOneWithNotFoundDetection(command.getClientId(), false);
 
         final CollateralManagementData collateralManagementData = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
         final ClientCollateralManagement clientCollateralManagement = ClientCollateralManagement.createNew(quantity, client,
                 collateralManagementData);
         this.clientCollateralManagementRepositoryWrapper.save(clientCollateralManagement);
-        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(command.entityId())
-                .withClientId(clientId).build();
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withClientId(command.getClientId()).build();
     }
 
     private void validateClientCollateralData(final JsonCommand command) {
-        boolean isValid = true;
         String errorCode = "parameter.";
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("client-collateral");
 
         if (!command.parameterExists("collateralId")) {
-            isValid = false;
-            errorCode += "collateralId";
-        }
-
-        if (!command.parameterExists("clientId")) {
-            isValid = false;
-            errorCode += ".clientId";
+            errorCode += "collateralId.not.exists";
+            baseDataValidator.reset().parameter("collateralId").failWithCode(errorCode);
         }
 
         if (!command.parameterExists("quantity")) {
-            isValid = false;
-            errorCode += ".quantity";
-        }
-
-        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
-        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("loan");
-        if (!isValid) {
-            errorCode += ".not.exist";
-            baseDataValidator.reset().parameter("client-collaterals").failWithCode(errorCode);
+            errorCode += ".quantity.not.exists";
+            baseDataValidator.reset().parameter("quantity").failWithCode(errorCode);
+        } else {
+            BigDecimal quantity = command.bigDecimalValueOfParameterNamed("quantity");
+            baseDataValidator.reset().parameter("quantity").value(quantity).notNull().positiveAmount();
         }
 
         if (!dataValidationErrors.isEmpty()) {

@@ -41,7 +41,6 @@ import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
 import org.apache.fineract.portfolio.floatingrates.data.InterestRatePeriodData;
 import org.apache.fineract.portfolio.fund.data.FundData;
 import org.apache.fineract.portfolio.group.data.GroupGeneralData;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
 import org.apache.fineract.portfolio.loanaccount.guarantor.data.GuarantorData;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.data.LoanScheduleData;
@@ -135,7 +134,7 @@ public final class LoanAccountData {
     private final LoanScheduleData repaymentSchedule;
     private final Collection<LoanTransactionData> transactions;
     private final Collection<LoanChargeData> charges;
-    private final Collection<LoanCollateralManagement> collateral;
+    private final Collection<LoanCollateralManagementData> collateral;
     private final Collection<GuarantorData> guarantors;
     private final CalendarData meeting;
     private final Collection<NoteData> notes;
@@ -524,7 +523,7 @@ public final class LoanAccountData {
         final LoanScheduleData repaymentSchedule = null;
         final Collection<LoanTransactionData> transactions = null;
         final Collection<LoanChargeData> charges = null;
-        final Collection<LoanCollateralManagement> collateral = null;
+        final Collection<LoanCollateralManagementData> collateral = null;
         final Collection<GuarantorData> guarantors = null;
         final Collection<NoteData> notes = null;
         final CalendarData calendarData = null;
@@ -665,7 +664,7 @@ public final class LoanAccountData {
         final LoanScheduleData repaymentSchedule = null;
         final Collection<LoanTransactionData> transactions = null;
         final Collection<LoanChargeData> charges = null;
-        final Collection<LoanCollateralManagement> collateral = null;
+        final Collection<LoanCollateralManagementData> collateral = null;
         final Collection<GuarantorData> guarantors = null;
         final Collection<NoteData> notes = null;
         final CalendarData calendarData = null;
@@ -839,7 +838,7 @@ public final class LoanAccountData {
         final LoanScheduleData repaymentSchedule = null;
         final Collection<LoanTransactionData> transactions = null;
         final Collection<LoanChargeData> charges = null;
-        final Collection<LoanCollateralManagement> collateral = null;
+        final Collection<LoanCollateralManagementData> collateral = null;
         final Collection<GuarantorData> guarantors = null;
         final Collection<NoteData> notes = null;
         final CalendarData calendarData = null;
@@ -1006,7 +1005,7 @@ public final class LoanAccountData {
 
         final LoanScheduleData repaymentSchedule = null;
         final Collection<LoanTransactionData> transactions = null;
-        final Collection<LoanCollateralManagement> collateral = null;
+        final Collection<LoanCollateralManagementData> collateral = null;
         final Collection<GuarantorData> guarantors = null;
         final Collection<NoteData> notes = null;
         final CalendarData calendarData = null;
@@ -1112,7 +1111,7 @@ public final class LoanAccountData {
 
         final LoanScheduleData repaymentSchedule = null;
         final Collection<LoanTransactionData> transactions = null;
-        final Collection<LoanCollateralManagement> collateral = null;
+        final Collection<LoanCollateralManagementData> collateral = null;
         final Collection<GuarantorData> guarantors = null;
         final Collection<NoteData> notes = null;
         final CalendarData calendarData = null;
@@ -1203,7 +1202,7 @@ public final class LoanAccountData {
         final LoanScheduleData repaymentSchedule = null;
         final Collection<LoanTransactionData> transactions = null;
         final Collection<LoanChargeData> charges = null;
-        final Collection<LoanCollateralManagement> collateral = null;
+        final Collection<LoanCollateralManagementData> collateral = null;
         final Collection<GuarantorData> guarantors = null;
         final Collection<NoteData> notes = null;
         final CalendarData calendarData = null;
@@ -1265,7 +1264,7 @@ public final class LoanAccountData {
      */
     public static LoanAccountData associationsAndTemplate(final LoanAccountData acc, final LoanScheduleData repaymentSchedule,
             final Collection<LoanTransactionData> transactions, final Collection<LoanChargeData> charges,
-            final Collection<LoanCollateralManagement> collateral, final Collection<GuarantorData> guarantors,
+            final Collection<LoanCollateralManagementData> collateral, final Collection<GuarantorData> guarantors,
             final CalendarData calendarData, final Collection<LoanProductData> productOptions,
             final Collection<EnumOptionData> termFrequencyTypeOptions, final Collection<EnumOptionData> repaymentFrequencyTypeOptions,
             final Collection<EnumOptionData> repaymentFrequencyNthDayTypeOptions,
@@ -1535,7 +1534,7 @@ public final class LoanAccountData {
             final Integer graceOnInterestPayment, final Integer graceOnInterestCharged, final LocalDate interestChargedFromDate,
             final LoanApplicationTimelineData timeline, final LoanSummaryData summary, final BigDecimal feeChargesDueAtDisbursementCharged,
             final LoanScheduleData repaymentSchedule, final Collection<LoanTransactionData> transactions,
-            final Collection<LoanChargeData> charges, final Collection<LoanCollateralManagement> collateral,
+            final Collection<LoanChargeData> charges, final Collection<LoanCollateralManagementData> collateral,
             final Collection<GuarantorData> guarantors, final CalendarData meeting, final Collection<LoanProductData> productOptions,
             final Collection<EnumOptionData> termFrequencyTypeOptions, final Collection<EnumOptionData> repaymentFrequencyTypeOptions,
             final Collection<EnumOptionData> repaymentFrequencyNthDayTypeOptions,

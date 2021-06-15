@@ -28,6 +28,7 @@ import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManag
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CollateralManagementWritePlatformServiceImpl implements CollateralManagementWritePlatformService {
@@ -42,8 +43,12 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         this.applicationCurrencyRepository = applicationCurrencyRepository;
     }
 
+    @Transactional
     @Override
     public CommandProcessingResult createCollateral(final JsonCommand jsonCommand) {
+        /**
+         * TODO: Authenticate User
+         */
         final String currencyParamName = jsonCommand
                 .stringValueOfParameterNamed(CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue());
         final ApplicationCurrency applicationCurrency = this.applicationCurrencyRepository.findOneByCode(currencyParamName);
@@ -52,6 +57,7 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(collateral.getId()).build();
     }
 
+    @Transactional
     @Override
     public CommandProcessingResult updateCollateral(final Long collateralId, JsonCommand jsonCommand) {
         final CollateralManagementData collateral = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
@@ -67,6 +73,7 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(jsonCommand.entityId()).build();
     }
 
+    @Transactional
     @Override
     public CommandProcessingResult deleteCollateral(final Long collateralId) {
         this.collateralManagementRepositoryWrapper.delete(collateralId);

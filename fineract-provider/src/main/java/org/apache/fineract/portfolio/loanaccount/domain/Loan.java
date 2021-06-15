@@ -106,6 +106,7 @@ import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.command.LoanChargeCommand;
 import org.apache.fineract.portfolio.loanaccount.data.DisbursementData;
 import org.apache.fineract.portfolio.loanaccount.data.HolidayDetailDTO;
+import org.apache.fineract.portfolio.loanaccount.data.LoanCollateralManagementData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTermVariationsData;
 import org.apache.fineract.portfolio.loanaccount.data.ScheduleGeneratorDTO;
 import org.apache.fineract.portfolio.loanaccount.domain.transactionprocessor.LoanRepaymentScheduleTransactionProcessor;
@@ -312,7 +313,7 @@ public class Loan extends AbstractPersistableCustom {
     private Set<LoanCollateral> collateral = null;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "loan", orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<LoanCollateralManagement> loanCollateralManagements;
+    private Set<LoanCollateralManagement> loanCollateralManagements = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "loan", orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<LoanOfficerAssignmentHistory> loanOfficerHistory;
@@ -500,7 +501,7 @@ public class Loan extends AbstractPersistableCustom {
         if (collateral != null && !collateral.isEmpty()) {
             this.loanCollateralManagements = associateWithThisLoan(collateral);
         } else {
-            this.collateral = null;
+            this.loanCollateralManagements = null;
         }
         this.loanOfficerHistory = null;
 
@@ -1544,10 +1545,12 @@ public class Loan extends AbstractPersistableCustom {
         }
 
         final String collateralParamName = "collateral";
+
         if (command.parameterExists(collateralParamName)) {
 
-            if (!possiblyModifedLoanCollateralItems.equals(this.loanCollateralManagements)) {
-                actualChanges.put(collateralParamName, possiblyModifedLoanCollateralItems);
+            Set<LoanCollateralManagement> loanCollateralManagements = this.loanCollateralManagements;
+            if (!possiblyModifedLoanCollateralItems.equals(loanCollateralManagements)) {
+                actualChanges.put(collateralParamName, getLoanCollateralDataFormCommand(possiblyModifedLoanCollateralItems));
             }
         }
 
@@ -1919,24 +1922,21 @@ public class Loan extends AbstractPersistableCustom {
         return list;
     }
 
-    // private LoanCollateralManagement[] listOfLoanCollateralData(final Set<LoanCollateralManagement>
-    // setOfLoanCollateral) {
-    //
-    // CollateralData[] existingLoanCollateral = null;
-    // LoanCollateral
-    //
-    // final List<LoanCollateralManagement> loanCollateralList = new ArrayList<>();
-    // for (final LoanCollateralManagement loanCollateral : setOfLoanCollateral) {
-    //
-    // final CollateralData data = loanCollateral;
-    //
-    // loanCollateralList.add(data);
-    // }
-    //
-    // existingLoanCollateral = loanCollateralList.toArray(new CollateralData[loanCollateralList.size()]);
-    //
-    // return existingLoanCollateral;
-    // }
+    private LoanCollateralManagementData[] getLoanCollateralDataFormCommand(final Set<LoanCollateralManagement> setOfLoanCollateral) {
+
+        LoanCollateralManagementData[] existingLoanCollateral = null;
+
+        final List<LoanCollateralManagementData> loanCollateralList = new ArrayList<>();
+        for (final LoanCollateralManagement loanCollateral : setOfLoanCollateral) {
+
+            loanCollateralList.add(loanCollateral.toCommand());
+
+        }
+
+        existingLoanCollateral = loanCollateralList.toArray(new LoanCollateralManagementData[loanCollateralList.size()]);
+
+        return existingLoanCollateral;
+    }
 
     private LoanChargeCommand[] getLoanCharges(final Set<LoanCharge> setOfLoanCharges) {
 
@@ -6597,6 +6597,7 @@ public class Loan extends AbstractPersistableCustom {
         checkAndFetchLazyCollection(this.loanTermVariations);
         checkAndFetchLazyCollection(this.collateral);
         checkAndFetchLazyCollection(this.loanOfficerHistory);
+        checkAndFetchLazyCollection(this.loanCollateralManagements);
     }
 
     private void checkAndFetchLazyCollection(Collection lazyCollection) {

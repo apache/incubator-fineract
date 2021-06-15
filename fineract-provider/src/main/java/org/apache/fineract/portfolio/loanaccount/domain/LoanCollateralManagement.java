@@ -26,6 +26,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
+import org.apache.fineract.portfolio.loanaccount.data.LoanCollateralManagementData;
 
 @Entity
 @Table(name = "m_loan_collateral_management")
@@ -35,18 +36,18 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
     private BigDecimal quantity;
 
     @ManyToOne()
-    @JoinColumn(name = "transaction_id")
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
     private LoanTransaction loanTransaction = null;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "loan_id", nullable = false)
+    @JoinColumn(name = "loan_id", referencedColumnName = "id", nullable = false)
     private Loan loan;
 
     @Column(name = "is_released", nullable = false, columnDefinition = "0")
     private Integer isReleased = Integer.valueOf(0);
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "client_collateral_id", nullable = false)
+    @JoinColumn(name = "client_collateral_id", referencedColumnName = "id", nullable = false)
     private ClientCollateralManagement clientCollateralManagement;
 
     public LoanCollateralManagement() {
@@ -83,6 +84,10 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
         this.isReleased = isReleased;
     }
 
+    public void setQuantity(final BigDecimal quantity) {
+        this.quantity = quantity;
+    }
+
     public BigDecimal getQuantity() {
         return this.quantity;
     }
@@ -101,6 +106,10 @@ public class LoanCollateralManagement extends AbstractPersistableCustom {
 
     public Integer getIsReleased() {
         return this.isReleased;
+    }
+
+    public LoanCollateralManagementData toCommand() {
+        return new LoanCollateralManagementData(this.clientCollateralManagement.getId(), this.getQuantity(), null, null, getId());
     }
 
 }

@@ -1835,7 +1835,16 @@ public class CommandWrapperBuilder {
         this.entityName = "CLIENT_COLLATERAL_PRODUCT";
         this.entityId = collateralId;
         this.clientId = clientId;
-        this.href = "/collateral/" + collateralId + "/clients/" + clientId;
+        this.href = "/clients/" + clientId + "/collateral" + collateralId;
+        return this;
+    }
+
+    public CommandWrapperBuilder deleteLoanCollateral(final Long loanId, final Long collateralId) {
+        this.actionName = "DELETE";
+        this.entityName = "LOAN_COLLATERAL_PRODUCT";
+        this.entityId = collateralId;
+        this.loanId = loanId;
+        this.href = "/loans/" + loanId + "/collateral" + collateralId;
         return this;
     }
 
@@ -1868,7 +1877,7 @@ public class CommandWrapperBuilder {
     public CommandWrapperBuilder addClientCollateralProduct(final Long clientId) {
         this.actionName = "CREATE";
         this.entityName = "CLIENT_COLLATERAL_PRODUCT";
-        this.entityId = clientId;
+        this.clientId = clientId;
         this.href = "/collateral/clients/" + clientId + "/create";
         return this;
     }

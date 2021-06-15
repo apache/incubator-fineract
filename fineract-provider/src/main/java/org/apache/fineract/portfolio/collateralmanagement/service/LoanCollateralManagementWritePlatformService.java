@@ -16,18 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.collateralmanagement.domain;
+package org.apache.fineract.portfolio.collateralmanagement.service;
 
-import java.util.List;
-import org.apache.fineract.portfolio.client.domain.Client;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 
-public interface ClientCollateralManagementRepository
-        extends JpaRepository<ClientCollateralManagement, Long>, JpaSpecificationExecutor<ClientCollateralManagement> {
+public interface LoanCollateralManagementWritePlatformService {
 
-    @Query("select clientCollateral from ClientCollateralManagement clientCollateral where clientCollateral.client=:client")
-    List<ClientCollateralManagement> findByClientId(@Param("client") Client client);
+    CommandProcessingResult deleteLoanCollateral(JsonCommand command);
 }

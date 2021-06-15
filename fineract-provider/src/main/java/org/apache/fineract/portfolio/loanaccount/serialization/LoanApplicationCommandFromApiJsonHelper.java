@@ -889,7 +889,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             if (topLevelJsonElement.get("collateral").isJsonArray()) {
 
                 final Type collateralParameterTypeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
-                final Set<String> supportedParameters = new HashSet<>(Arrays.asList("id", "type", "value", "description"));
+                final Set<String> supportedParameters = new HashSet<>(Arrays.asList("id", "clientCollateralId", "quantity"));
                 final JsonArray array = topLevelJsonElement.get("collateral").getAsJsonArray();
                 for (int i = 1; i <= array.size(); i++) {
                     final JsonObject collateralItemElement = array.get(i - 1).getAsJsonObject();
@@ -897,19 +897,18 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                     final String collateralJson = this.fromApiJsonHelper.toJson(collateralItemElement);
                     this.fromApiJsonHelper.checkForUnsupportedParameters(collateralParameterTypeOfMap, collateralJson, supportedParameters);
 
-                    final Long collateralTypeId = this.fromApiJsonHelper.extractLongNamed("type", collateralItemElement);
-                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("type", i).value(collateralTypeId).notNull()
+                    final Long id = this.fromApiJsonHelper.extractLongNamed("id", collateralItemElement);
+                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("id", i).value(id).notNull()
                             .integerGreaterThanZero();
 
-                    final BigDecimal collateralValue = this.fromApiJsonHelper.extractBigDecimalNamed("value", collateralItemElement,
+                    final Long clientCollateralId = this.fromApiJsonHelper.extractLongNamed("clientCollateralId", collateralItemElement);
+                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("clientCollateralId", i)
+                            .value(clientCollateralId).notNull().integerGreaterThanZero();
+
+                    final BigDecimal collateralValue = this.fromApiJsonHelper.extractBigDecimalNamed("quantity", collateralItemElement,
                             locale);
-                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("value", i).value(collateralValue)
+                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("quantity", i).value(collateralValue)
                             .ignoreIfNull().positiveAmount();
-
-                    final String description = this.fromApiJsonHelper.extractStringNamed("description", collateralItemElement);
-                    baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("description", i).value(description).notBlank()
-                            .notExceedingLengthOf(500);
-
                 }
             } else {
                 baseDataValidator.reset().parameter(collateralParameterName).expectedArrayButIsNot();

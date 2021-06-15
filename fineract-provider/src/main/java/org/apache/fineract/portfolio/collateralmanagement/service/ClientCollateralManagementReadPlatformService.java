@@ -28,4 +28,6 @@ public interface ClientCollateralManagementReadPlatformService {
 
     ClientCollateralManagementData getClientCollateralManagementData(Long collateralId);
 
+    List<ClientCollateralManagementData> getClientCollaterals(Long clientId);
+
 }

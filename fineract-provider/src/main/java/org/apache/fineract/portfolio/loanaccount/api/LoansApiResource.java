@@ -109,6 +109,7 @@ import org.apache.fineract.portfolio.loanaccount.data.GlimRepaymentTemplate;
 import org.apache.fineract.portfolio.loanaccount.data.LoanAccountData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanApprovalData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanChargeData;
+import org.apache.fineract.portfolio.loanaccount.data.LoanCollateralManagementData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTermVariationsData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTransactionData;
 import org.apache.fineract.portfolio.loanaccount.data.PaidInAdvanceData;
@@ -541,6 +542,7 @@ public class LoansApiResource {
         Collection<DisbursementData> disbursementData = null;
         Collection<LoanTermVariationsData> emiAmountVariations = null;
         Collection<LoanCollateralManagement> loanCollateralManagements = null;
+        Collection<LoanCollateralManagementData> loanCollateralManagementData = null;
 
         final Set<String> mandatoryResponseParameters = new HashSet<>();
         final Set<String> associationParameters = ApiParameterHelper.extractAssociationsForResponseIfProvided(uriInfo.getQueryParameters());
@@ -611,6 +613,9 @@ public class LoansApiResource {
             if (associationParameters.contains("collateral")) {
                 mandatoryResponseParameters.add("collateral");
                 loanCollateralManagements = this.loanCollateralManagementReadPlatformService.getLoanCollaterals(loanId);
+                for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+                    loanCollateralManagementData.add(loanCollateralManagement.toCommand());
+                }
                 if (CollectionUtils.isEmpty(loanCollateralManagements)) {
                     loanCollateralManagements = null;
                 }
@@ -739,7 +744,7 @@ public class LoansApiResource {
         }
 
         final LoanAccountData loanAccount = LoanAccountData.associationsAndTemplate(loanBasicDetails, repaymentSchedule, loanRepayments,
-                charges, loanCollateralManagements, guarantors, meeting, productOptions, loanTermFrequencyTypeOptions,
+                charges, loanCollateralManagementData, guarantors, meeting, productOptions, loanTermFrequencyTypeOptions,
                 repaymentFrequencyTypeOptions, repaymentFrequencyNthDayTypeOptions, repaymentFrequencyDayOfWeekTypeOptions,
                 repaymentStrategyOptions, interestRateFrequencyTypeOptions, amortizationTypeOptions, interestTypeOptions,
                 interestCalculationPeriodTypeOptions, fundOptions, chargeOptions, chargeTemplate, allowedLoanOfficers, loanPurposeOptions,
