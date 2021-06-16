@@ -351,8 +351,10 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
         final Loan loan = this.loanAssembler.assembleFrom(loanId);
 
+        // Get disbursedAmount
         final BigDecimal disbursedAmount = loan.getDisbursedAmount();
 
+        // Get relevant loan collateral modules
         final Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
 
         BigDecimal totalCollateral = BigDecimal.valueOf(0);
@@ -364,6 +366,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             totalCollateral = totalCollateral.add(quantity.multiply(basePrice).multiply(pctToBase));
         }
 
+        // Validate the loan collateral value against the disbursedAmount
         if (disbursedAmount.compareTo(totalCollateral) > 0) {
             throw new LoanCollateralAmountNotSufficientException(disbursedAmount);
         }
