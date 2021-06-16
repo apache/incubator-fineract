@@ -112,6 +112,7 @@ import org.apache.fineract.portfolio.charge.exception.LoanChargeNotFoundExceptio
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
+import org.apache.fineract.portfolio.collateralmanagement.exception.LoanCollateralAmountNotSufficientException;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkDisbursalCommand;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkRepaymentCommand;
 import org.apache.fineract.portfolio.collectionsheet.command.SingleDisbursalCommand;
@@ -349,6 +350,23 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         this.loanEventApiJsonValidator.validateDisbursement(command.json(), isAccountTransfer);
 
         final Loan loan = this.loanAssembler.assembleFrom(loanId);
+
+        final BigDecimal disbursedAmount = loan.getDisbursedAmount();
+
+        final Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+
+        BigDecimal totalCollateral = BigDecimal.valueOf(0);
+
+        for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagements) {
+            BigDecimal quantity = loanCollateralManagement.getQuantity();
+            BigDecimal pctToBase = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getPctToBase();
+            BigDecimal basePrice = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getBasePrice();
+            totalCollateral = totalCollateral.add(quantity.multiply(basePrice).multiply(pctToBase));
+        }
+
+        if (disbursedAmount.compareTo(totalCollateral) > 0) {
+            throw new LoanCollateralAmountNotSufficientException(disbursedAmount);
+        }
 
         final LocalDate actualDisbursementDate = command.localDateValueOfParameterNamed("actualDisbursementDate");
 
@@ -898,19 +916,23 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 transactionAmount, paymentDetail, noteText, txnExternalId, isRecoveryRepayment, isAccountTransfer, holidayDetailDto,
                 isHolidayValidationDone);
 
-        Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+        /**
+         * TODO: Implement repayment with collaterals.
+         */
 
-        if (loanTransaction.isRepayment() || loanTransaction.isRepaymentAtDisbursement()) {
-            if (!loan.isClosed()) {
-                this.loanAccountDomainService.updateLoanCollateralTransaction(loanCollateralManagements, loanTransaction);
-            } else {
-                this.loanAccountDomainService.updateLoanCollateralStatus(loanCollateralManagements, Integer.valueOf(1));
-                BigDecimal totalQuantity = this.loanAccountDomainService.getTotalQuantity(loan);
-                ClientCollateralManagement clientCollateralManagement = loanCollateralManagements.iterator().next()
-                        .getClientCollateralManagement();
-                clientCollateralManagement.updateQuantityAfterLoanClosed(totalQuantity);
-            }
-        }
+//        Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+//
+//        if (loanTransaction.isRepayment() || loanTransaction.isRepaymentAtDisbursement()) {
+//            if (!loan.isClosed()) {
+//                this.loanAccountDomainService.updateLoanCollateralTransaction(loanCollateralManagements, loanTransaction);
+//            } else {
+//                this.loanAccountDomainService.updateLoanCollateralStatus(loanCollateralManagements, Integer.valueOf(1));
+//                BigDecimal totalQuantity = this.loanAccountDomainService.getTotalQuantity(loan);
+//                ClientCollateralManagement clientCollateralManagement = loanCollateralManagements.iterator().next()
+//                        .getClientCollateralManagement();
+//                clientCollateralManagement.updateQuantityAfterLoanClosed(totalQuantity);
+//            }
+//        }
 
         return commandProcessingResultBuilder.withCommandId(command.commandId()) //
                 .withLoanId(loanId) //
