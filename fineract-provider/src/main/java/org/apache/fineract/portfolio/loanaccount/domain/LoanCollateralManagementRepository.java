@@ -28,10 +28,7 @@ import org.springframework.data.repository.query.Param;
 public interface LoanCollateralManagementRepository
         extends JpaRepository<LoanCollateralManagement, Long>, JpaSpecificationExecutor<LoanCollateralManagement> {
 
-    @Query("select SUM(loanCollaterals.quantity) from LoanCollateralManagement loanCollaterals where loanCollaterals.loan=:loan")
-    BigDecimal getTotalQuantity(@Param("loan") final Loan loan);
-
     @Query("select loanCollaterals.id,loanCollaterals.quantity from LoanCollateralManagement loanCollaterals where loanCollaterals.loan=:loan")
-    List<LoanCollateralManagement> findByLoan(final Loan loan);
+    List<LoanCollateralManagement> findByLoan(Loan loan);
 
 }

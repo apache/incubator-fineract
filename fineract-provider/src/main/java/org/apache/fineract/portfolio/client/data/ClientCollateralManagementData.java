@@ -21,7 +21,7 @@ package org.apache.fineract.portfolio.client.data;
 import java.math.BigDecimal;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 
-public class ClientCollateralManagementData {
+public final class ClientCollateralManagementData {
 
     private final BigDecimal quantity;
 
