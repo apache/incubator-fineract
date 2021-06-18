@@ -111,7 +111,6 @@ import org.apache.fineract.portfolio.charge.exception.LoanChargeCannotBeWaivedEx
 import org.apache.fineract.portfolio.charge.exception.LoanChargeNotFoundException;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
-import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.exception.LoanCollateralAmountNotSufficientException;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkDisbursalCommand;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkRepaymentCommand;
@@ -359,7 +358,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
         BigDecimal totalCollateral = BigDecimal.valueOf(0);
 
-        for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagements) {
+        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
             BigDecimal quantity = loanCollateralManagement.getQuantity();
             BigDecimal pctToBase = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getPctToBase();
             BigDecimal basePrice = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getBasePrice();
@@ -923,19 +922,19 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
          * TODO: Implement repayment with collaterals.
          */
 
-//        Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
-//
-//        if (loanTransaction.isRepayment() || loanTransaction.isRepaymentAtDisbursement()) {
-//            if (!loan.isClosed()) {
-//                this.loanAccountDomainService.updateLoanCollateralTransaction(loanCollateralManagements, loanTransaction);
-//            } else {
-//                this.loanAccountDomainService.updateLoanCollateralStatus(loanCollateralManagements, Integer.valueOf(1));
-//                BigDecimal totalQuantity = this.loanAccountDomainService.getTotalQuantity(loan);
-//                ClientCollateralManagement clientCollateralManagement = loanCollateralManagements.iterator().next()
-//                        .getClientCollateralManagement();
-//                clientCollateralManagement.updateQuantityAfterLoanClosed(totalQuantity);
-//            }
-//        }
+        // Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+        //
+        // if (loanTransaction.isRepayment() || loanTransaction.isRepaymentAtDisbursement()) {
+        // if (!loan.isClosed()) {
+        // this.loanAccountDomainService.updateLoanCollateralTransaction(loanCollateralManagements, loanTransaction);
+        // } else {
+        // this.loanAccountDomainService.updateLoanCollateralStatus(loanCollateralManagements, Integer.valueOf(1));
+        // BigDecimal totalQuantity = this.loanAccountDomainService.getTotalQuantity(loan);
+        // ClientCollateralManagement clientCollateralManagement = loanCollateralManagements.iterator().next()
+        // .getClientCollateralManagement();
+        // clientCollateralManagement.updateQuantityAfterLoanClosed(totalQuantity);
+        // }
+        // }
 
         return commandProcessingResultBuilder.withCommandId(command.commandId()) //
                 .withLoanId(loanId) //
