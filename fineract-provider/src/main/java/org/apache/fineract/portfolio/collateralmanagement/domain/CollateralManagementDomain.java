@@ -20,7 +20,6 @@ package org.apache.fineract.portfolio.collateralmanagement.domain;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -32,8 +31,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.core.data.ApiParameterError;
-import org.apache.fineract.infrastructure.core.data.DataValidatorBuilder;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.organisation.monetary.domain.ApplicationCurrency;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants;
@@ -78,8 +75,7 @@ public class CollateralManagementDomain extends AbstractPersistableCustom {
         this.name = name;
     }
 
-    public static CollateralManagementDomain createNew(JsonCommand jsonCommand, final ApplicationCurrency applicationCurrency,
-            List<ApiParameterError> dataValidationErrors, DataValidatorBuilder baseDataValidator) {
+    public static CollateralManagementDomain createNew(JsonCommand jsonCommand, final ApplicationCurrency applicationCurrency) {
         /**
          * TODO: Add data validity errors.
          */
