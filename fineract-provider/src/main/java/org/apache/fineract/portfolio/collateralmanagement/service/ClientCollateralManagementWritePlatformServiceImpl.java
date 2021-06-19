@@ -102,6 +102,9 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
     @Transactional
     @Override
     public CommandProcessingResult updateClientCollateralProduct(final JsonCommand command) {
+        /**
+         * TODO: Add validations for updating
+         */
         final ClientCollateralManagement collateral = this.clientCollateralManagementRepositoryWrapper.getCollateral(command.entityId());
         collateral.update(command);
         this.clientCollateralManagementRepositoryWrapper.updateClientCollateralProduct(collateral);
