@@ -20,6 +20,7 @@ package org.apache.fineract.portfolio.collateralmanagement.domain;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,13 +32,15 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.data.ApiParameterError;
+import org.apache.fineract.infrastructure.core.data.DataValidatorBuilder;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.organisation.monetary.domain.ApplicationCurrency;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants;
 
 @Entity
 @Table(name = "m_collateral_management")
-public class CollateralManagementData extends AbstractPersistableCustom {
+public class CollateralManagementDomain extends AbstractPersistableCustom {
 
     @Column(name = "name", length = 20, columnDefinition = " ")
     private String name;
@@ -61,11 +64,11 @@ public class CollateralManagementData extends AbstractPersistableCustom {
     @OneToMany(mappedBy = "collateral", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ClientCollateralManagement> clientCollateralManagements = new HashSet<>();
 
-    public CollateralManagementData() {
+    public CollateralManagementDomain() {
 
     }
 
-    private CollateralManagementData(final String quality, final BigDecimal basePrice, final String unitType, final BigDecimal pctToBase,
+    private CollateralManagementDomain(final String quality, final BigDecimal basePrice, final String unitType, final BigDecimal pctToBase,
             final ApplicationCurrency currency, final String name) {
         this.basePrice = basePrice;
         this.currency = currency;
@@ -75,13 +78,18 @@ public class CollateralManagementData extends AbstractPersistableCustom {
         this.name = name;
     }
 
-    public static CollateralManagementData createNew(JsonCommand jsonCommand, final ApplicationCurrency applicationCurrency) {
+    public static CollateralManagementDomain createNew(JsonCommand jsonCommand, final ApplicationCurrency applicationCurrency,
+            List<ApiParameterError> dataValidationErrors, DataValidatorBuilder baseDataValidator) {
+        /**
+         * TODO: Add data validity errors.
+         */
+
         String quality = jsonCommand.stringValueOfParameterNamed("quality");
         BigDecimal basePrice = jsonCommand.bigDecimalValueOfParameterNamed("basePrice");
         BigDecimal pctToBase = jsonCommand.bigDecimalValueOfParameterNamedDefaultToNullIfZero("pctToBase");
         String unitType = jsonCommand.stringValueOfParameterNamed("unitType");
         String name = jsonCommand.stringValueOfParameterNamed("name");
-        return new CollateralManagementData(quality, basePrice, unitType, pctToBase, applicationCurrency, name);
+        return new CollateralManagementDomain(quality, basePrice, unitType, pctToBase, applicationCurrency, name);
     }
 
     public void update(final JsonCommand command, final ApplicationCurrency applicationCurrency) {

@@ -32,7 +32,7 @@ import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepositoryWrapper;
-import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,7 +69,7 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
 
         final Client client = this.clientRepositoryWrapper.findOneWithNotFoundDetection(command.getClientId(), false);
 
-        final CollateralManagementData collateralManagementData = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
+        final CollateralManagementDomain collateralManagementData = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
         final ClientCollateralManagement clientCollateralManagement = ClientCollateralManagement.createNew(quantity, client,
                 collateralManagementData);
         this.clientCollateralManagementRepositoryWrapper.save(clientCollateralManagement);

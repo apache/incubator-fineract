@@ -19,7 +19,7 @@
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
 import java.util.List;
-import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.data.CollateralManagementData;
 
 public interface CollateralManagementReadPlatformService {
 

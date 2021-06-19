@@ -28,7 +28,7 @@ import javax.persistence.Table;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
 import org.apache.fineract.organisation.office.domain.OrganisationCurrency;
-import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
 
 @Entity
 @Table(name = "m_currency")
@@ -53,7 +53,7 @@ public class ApplicationCurrency extends AbstractPersistableCustom {
     private String displaySymbol;
 
     @OneToMany(mappedBy = "currency", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<CollateralManagementData> collateralManagementData;
+    private Collection<CollateralManagementDomain> collateralManagementData;
 
     protected ApplicationCurrency() {
         this.code = null;
@@ -103,7 +103,7 @@ public class ApplicationCurrency extends AbstractPersistableCustom {
         return this.displaySymbol;
     }
 
-    public Collection<CollateralManagementData> getCollateralManagementData() {
+    public Collection<CollateralManagementDomain> getCollateralManagementData() {
         return this.collateralManagementData;
     }
 

@@ -166,10 +166,10 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
         this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
     }
 
-    @Override
-    public BigDecimal getTotalQuantity(Loan loan) {
-        return this.loanCollateralManagementRepository.getTotalQuantity(loan);
-    }
+    // @Override
+    // public BigDecimal getTotalQuantity(Loan loan) {
+    // return this.loanCollateralManagementRepository.getTotalQuantity(loan);
+    // }
 
     @Transactional
     @Override

@@ -48,7 +48,7 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "collateral_id", nullable = false)
-    private CollateralManagementData collateral;
+    private CollateralManagementDomain collateral;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "clientCollateralManagement", fetch = FetchType.EAGER)
     private Set<LoanCollateralManagement> loanCollateralManagementSet = new HashSet<>();
@@ -67,7 +67,7 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
     }
 
     private ClientCollateralManagement(final BigDecimal quantity, final Client client,
-            final CollateralManagementData collateralManagementData) {
+            final CollateralManagementDomain collateralManagementData) {
         this.quantity = quantity;
         this.client = client;
         this.collateral = collateralManagementData;
@@ -79,7 +79,7 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
     }
 
     public static ClientCollateralManagement createNew(final BigDecimal quantity, final Client client,
-            final CollateralManagementData collateral) {
+            final CollateralManagementDomain collateral) {
         return new ClientCollateralManagement(quantity, client, collateral);
     }
 
@@ -107,7 +107,7 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
         return this.client;
     }
 
-    public CollateralManagementData getCollaterals() {
+    public CollateralManagementDomain getCollaterals() {
         return this.collateral;
     }
 

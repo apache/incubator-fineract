@@ -20,8 +20,14 @@ package org.apache.fineract.portfolio.collateralmanagement.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
+import java.util.Collection;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -39,11 +45,10 @@ import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformS
 import org.apache.fineract.infrastructure.codes.service.CodeValueReadPlatformService;
 import org.apache.fineract.infrastructure.core.api.ApiRequestParameterHelper;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
-import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants.CollateralJSONinputParams;
-import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.data.CollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.service.ClientCollateralManagementReadPlatformService;
 import org.apache.fineract.portfolio.collateralmanagement.service.CollateralManagementReadPlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +90,9 @@ public class CollateralManagementAPIResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Create a new collateral", description = "Collateral Creation")
+    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.PostCollateralManagementProductRequest.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "OK", content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.PostCollateralManagementProductResponse.class))) })
     public String createCollateral(@Parameter(hidden = true) final String apiRequestBodyAsJson) {
         final CommandWrapper commandWrapper = new CommandWrapperBuilder().createCollateral().withJson(apiRequestBodyAsJson).build();
         final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
@@ -96,6 +104,8 @@ public class CollateralManagementAPIResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Get Collateral", description = "Fetch Collateral")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.GetCollateralManagementsResponse.class))) })
     public String getCollateral(@PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId,
             @Context final UriInfo uriInfo) {
 
@@ -104,8 +114,6 @@ public class CollateralManagementAPIResource {
         final CollateralManagementData collateralManagementData = this.collateralManagementReadPlatformService
                 .getCollateralProduct(collateralId);
 
-        final ApiRequestJsonSerializationSettings settings = this.apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-
         return this.apiJsonSerializerService.serialize(collateralManagementData);
     }
 
@@ -113,10 +121,12 @@ public class CollateralManagementAPIResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Get All Collaterals", description = "Fetch all Collateral Products")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.GetCollateralManagementsResponse.class)))) })
     public String getAllCollaterals(@Context final UriInfo uriInfo) {
 
         this.context.authenticatedUser().validateHasReadPermission(CollateralJSONinputParams.COLLATERAL_PRODUCT_READ_PERMISSION.getValue());
-        List<CollateralManagementData> collateralManagementDataList = this.collateralManagementReadPlatformService
+        Collection<CollateralManagementData> collateralManagementDataList = this.collateralManagementReadPlatformService
                 .getAllCollateralProducts();
         return this.apiJsonSerializerService.serialize(collateralManagementDataList);
 
@@ -127,6 +137,9 @@ public class CollateralManagementAPIResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Update Collateral", description = "Update Collateral")
+    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.PutCollateralProductRequest.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.PutCollateralProductResponse.class))) })
     public String updateCollateral(@PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId,
             @Parameter(hidden = true) final String jsonBody) {
         final CommandWrapper commandWrapper = new CommandWrapperBuilder().updateCollateralProduct(collateralId).withJson(jsonBody).build();
@@ -137,11 +150,19 @@ public class CollateralManagementAPIResource {
 
     }
 
+    /**
+     * TODO: Finalize this DELETE method for collaterals.
+     *
+     * @param collateralId
+     * @return
+     */
     @DELETE
     @Path("{collateralId}")
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Delete a Collateral", description = "Delete Collateral")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.DeleteCollateralProductResponse.class))) })
     public String deleteCollateral(@PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId) {
 
         final CommandWrapper commandRequest = new CommandWrapperBuilder().deleteCollateralProduct(collateralId).build();

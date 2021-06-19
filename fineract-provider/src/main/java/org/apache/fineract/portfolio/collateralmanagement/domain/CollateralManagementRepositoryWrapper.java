@@ -33,20 +33,20 @@ public class CollateralManagementRepositoryWrapper {
         this.collateralManagementDomainRepository = collateralManagementDomainRepository;
     }
 
-    public CollateralManagementData create(CollateralManagementData collateralData) {
+    public CollateralManagementDomain create(CollateralManagementDomain collateralData) {
         return this.collateralManagementDomainRepository.save(collateralData);
     }
 
-    public CollateralManagementData getCollateral(Long collateralId) {
+    public CollateralManagementDomain getCollateral(Long collateralId) {
         return this.collateralManagementDomainRepository.findById(collateralId)
                 .orElseThrow(() -> new CollateralNotFoundException(collateralId));
     }
 
-    public List<CollateralManagementData> getAllCollaterals() {
+    public List<CollateralManagementDomain> getAllCollaterals() {
         return this.collateralManagementDomainRepository.findAll();
     }
 
-    public CollateralManagementData update(CollateralManagementData collateralManagementData) {
+    public CollateralManagementDomain update(CollateralManagementDomain collateralManagementData) {
         return this.collateralManagementDomainRepository.saveAndFlush(collateralManagementData);
     }
 

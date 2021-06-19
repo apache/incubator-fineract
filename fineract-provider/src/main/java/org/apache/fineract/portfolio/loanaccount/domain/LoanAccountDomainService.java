@@ -51,7 +51,7 @@ public interface LoanAccountDomainService {
 
     void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementList, LoanTransaction loanTransaction);
 
-    BigDecimal getTotalQuantity(Loan loan);
+    // BigDecimal getTotalQuantity(Loan loan);
 
     void updateLoanCollateralStatus(Set<LoanCollateralManagement> loanCollateralManagementSet, Integer isReleased);
 

@@ -18,13 +18,18 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.data.ApiParameterError;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.apache.fineract.infrastructure.core.data.DataValidatorBuilder;
+import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidationException;
 import org.apache.fineract.organisation.monetary.domain.ApplicationCurrency;
 import org.apache.fineract.organisation.monetary.domain.ApplicationCurrencyRepository;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants;
-import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,10 +54,27 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         /**
          * TODO: Authenticate User
          */
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("collateral-management");
+
+        if (!jsonCommand.parameterExists(CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue())) {
+            baseDataValidator.reset().parameter(CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue()).notNull()
+                    .failWithCode("currency.not.exists");
+        }
+
+        if (!dataValidationErrors.isEmpty()) {
+            throw new PlatformApiDataValidationException(dataValidationErrors);
+        }
+
         final String currencyParamName = jsonCommand
                 .stringValueOfParameterNamed(CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue());
         final ApplicationCurrency applicationCurrency = this.applicationCurrencyRepository.findOneByCode(currencyParamName);
-        final CollateralManagementData collateral = CollateralManagementData.createNew(jsonCommand, applicationCurrency);
+
+        /**
+         * TODO: Check if application currency is empty.
+         */
+        final CollateralManagementDomain collateral = CollateralManagementDomain.createNew(jsonCommand, applicationCurrency,
+                dataValidationErrors, baseDataValidator);
         this.collateralManagementRepositoryWrapper.create(collateral);
         return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(collateral.getId()).build();
     }
@@ -60,7 +82,7 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
     @Transactional
     @Override
     public CommandProcessingResult updateCollateral(final Long collateralId, JsonCommand jsonCommand) {
-        final CollateralManagementData collateral = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
+        final CollateralManagementDomain collateral = this.collateralManagementRepositoryWrapper.getCollateral(collateralId);
         final String currencyParamName = CollateralAPIConstants.CollateralJSONinputParams.CURRENCY.getValue();
         final ApplicationCurrency applicationCurrency = this.applicationCurrencyRepository
                 .findOneByCode(jsonCommand.stringValueOfParameterNamed(currencyParamName));
@@ -70,6 +92,9 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
         }
         collateral.update(jsonCommand, applicationCurrency);
         this.collateralManagementRepositoryWrapper.update(collateral);
+        /**
+         * TODO: Return changes.
+         */
         return new CommandProcessingResultBuilder().withCommandId(jsonCommand.commandId()).withEntityId(jsonCommand.entityId()).build();
     }
 
