@@ -21,6 +21,7 @@ package org.apache.fineract.portfolio.collateralmanagement.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.transaction.Transactional;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.ApiParameterError;
@@ -73,7 +74,8 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
         final ClientCollateralManagement clientCollateralManagement = ClientCollateralManagement.createNew(quantity, client,
                 collateralManagementData);
         this.clientCollateralManagementRepositoryWrapper.save(clientCollateralManagement);
-        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withClientId(command.getClientId()).build();
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withClientId(command.getClientId())
+                .withEntityId(clientCollateralManagement.getId()).build();
     }
 
     private void validateClientCollateralData(final JsonCommand command) {
@@ -106,10 +108,10 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
          * TODO: Add validations for updating
          */
         final ClientCollateralManagement collateral = this.clientCollateralManagementRepositoryWrapper.getCollateral(command.entityId());
-        collateral.update(command);
+        final Map<String, Object> changes = collateral.update(command);
         this.clientCollateralManagementRepositoryWrapper.updateClientCollateralProduct(collateral);
         return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(command.entityId())
-                .withClientId(command.getClientId()).build();
+                .withClientId(command.getClientId()).with(changes).build();
     }
 
     @Transactional

@@ -20,6 +20,12 @@ package org.apache.fineract.portfolio.collateralmanagement.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -84,6 +90,8 @@ public class ClientCollateralManagementAPIResource {
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Get Clients Collateral Products", description = "Get Collateral Product of a Client")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.GetClientCollateralManagementsResponse.class)))) })
     public String getClientCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
             @Context final UriInfo uriInfo) {
 
@@ -101,6 +109,8 @@ public class ClientCollateralManagementAPIResource {
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Get Client Collateral Data", description = "Get Client Collateral Data")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.GetClientCollateralManagementsResponse.class))) })
     public String getClientCollateralData(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
             @PathParam("clientCollateralId") @Parameter(description = "clientCollateralId") final Long collateralId) {
 
@@ -117,6 +127,9 @@ public class ClientCollateralManagementAPIResource {
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Add New Collateral For a Client", description = "Add New Collateral For a Client")
+    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PostClientCollateralRequest.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PostClientCollateralResponse.class))) })
     public String addCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
             @Parameter(hidden = true) String apiJsonRequestBody) {
         final CommandWrapper commandWrapper = new CommandWrapperBuilder().addClientCollateralProduct(clientId).withJson(apiJsonRequestBody)
@@ -132,6 +145,9 @@ public class ClientCollateralManagementAPIResource {
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Update New Collateral of a Client", description = "Update New Collateral of a Client")
+    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PutClientCollateralRequest.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PutClientCollateralResponse.class))) })
     public String updateCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
             @PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId,
             @Parameter(hidden = true) String apiJsonRequestBody) {

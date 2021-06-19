@@ -20,6 +20,8 @@ package org.apache.fineract.portfolio.collateralmanagement.domain;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -83,12 +85,15 @@ public class ClientCollateralManagement extends AbstractPersistableCustom {
         return new ClientCollateralManagement(quantity, client, collateral);
     }
 
-    public void update(JsonCommand command) {
+    public Map<String, Object> update(JsonCommand command) {
+        final Map<String, Object> changes = new LinkedHashMap<>(3);
         final String quantity = CollateralAPIConstants.CollateralJSONinputParams.QUANTITY.getValue();
         if (command.isChangeInBigDecimalParameterNamed(quantity, this.quantity)) {
             final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(quantity);
             this.quantity = newValue;
+            changes.put(quantity, this.quantity);
         }
+        return changes;
     }
 
     public void updateQuantity(BigDecimal quantity) {
