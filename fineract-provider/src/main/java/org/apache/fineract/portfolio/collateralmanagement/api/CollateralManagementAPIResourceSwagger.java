@@ -21,7 +21,7 @@ package org.apache.fineract.portfolio.collateralmanagement.api;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
-public class CollateralManagementAPIResourceSwagger {
+final class CollateralManagementAPIResourceSwagger {
 
     private CollateralManagementAPIResourceSwagger() {}
 
