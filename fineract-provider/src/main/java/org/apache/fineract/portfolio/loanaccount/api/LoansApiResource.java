@@ -542,7 +542,7 @@ public class LoansApiResource {
         Collection<DisbursementData> disbursementData = null;
         Collection<LoanTermVariationsData> emiAmountVariations = null;
         Collection<LoanCollateralManagement> loanCollateralManagements = null;
-        Collection<LoanCollateralManagementData> loanCollateralManagementData = null;
+        Collection<LoanCollateralManagementData> loanCollateralManagementData = new ArrayList<>();
 
         final Set<String> mandatoryResponseParameters = new HashSet<>();
         final Set<String> associationParameters = ApiParameterHelper.extractAssociationsForResponseIfProvided(uriInfo.getQueryParameters());
