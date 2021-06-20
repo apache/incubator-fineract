@@ -92,6 +92,6 @@ public class ClientCollateralManagementReadPlatformServiceImpl implements Client
 
         return ClientCollateralManagementData.instance(clientCollateralManagement.getCollaterals().getName(),
                 clientCollateralManagement.getQuantity(), total, totalCollateral, clientCollateralManagement.getClient().getId(),
-                loanTransactionDataList);
+                loanTransactionDataList, clientCollateralManagement.getId());
     }
 }

@@ -122,4 +122,14 @@ final class ClientCollateralManagementAPIResourceSwagger {
         public PutClientCollateralRequest changes;
     }
 
+    @Schema(description = "DeleteClientCollateralResponse")
+    public static final class DeleteClientCollateralResponse {
+
+        private DeleteClientCollateralResponse() {}
+
+        @Schema(example = "12")
+        public Integer resourceId;
+
+    }
+
 }

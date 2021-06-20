@@ -32,8 +32,11 @@ import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
 import org.apache.fineract.organisation.monetary.domain.ApplicationCurrency;
 import org.apache.fineract.organisation.monetary.domain.ApplicationCurrencyRepository;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
+import org.apache.fineract.portfolio.collateralmanagement.exception.CollateralCannotBeDeletedException;
+import org.apache.fineract.portfolio.collateralmanagement.exception.CollateralNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,7 +159,26 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
     @Transactional
     @Override
     public CommandProcessingResult deleteCollateral(final Long collateralId) {
+        final CollateralManagementDomain collateralManagementDomain = this.collateralManagementRepositoryWrapper
+                .getCollateral(collateralId);
+        validateForDeletion(collateralManagementDomain, collateralId);
         this.collateralManagementRepositoryWrapper.delete(collateralId);
         return new CommandProcessingResultBuilder().withEntityId(collateralId).build();
+    }
+
+    private void validateForDeletion(final CollateralManagementDomain collateralManagementDomain, final Long collateralId) {
+        if (collateralManagementDomain == null) {
+            throw new CollateralNotFoundException(collateralId);
+        }
+
+        if (collateralManagementDomain.getClientCollateralManagements().size() > 0) {
+            for (ClientCollateralManagement clientCollateralManagement : collateralManagementDomain.getClientCollateralManagements()) {
+                if (clientCollateralManagement.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
+                    throw new CollateralCannotBeDeletedException(
+                            CollateralCannotBeDeletedException.CollateralCannotBeDeletedReason.COLLATERAL_IS_ALREADY_ATTACHED,
+                            collateralId);
+                }
+            }
+        }
     }
 }

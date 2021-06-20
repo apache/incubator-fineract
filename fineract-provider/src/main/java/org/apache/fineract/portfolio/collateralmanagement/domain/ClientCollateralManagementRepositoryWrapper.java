@@ -63,8 +63,9 @@ public class ClientCollateralManagementRepositoryWrapper {
             }
             BigDecimal total = quantity.multiply(basePrice);
             BigDecimal totalCollateralValue = total.multiply(pctToBase);
-            clientCollateralManagementDataSet.add(ClientCollateralManagementData.instance(
-                    clientCollateralManagement.getCollaterals().getName(), quantity, total, totalCollateralValue, clientId, null));
+            clientCollateralManagementDataSet
+                    .add(ClientCollateralManagementData.instance(clientCollateralManagement.getCollaterals().getName(), quantity, total,
+                            totalCollateralValue, clientId, null, clientCollateralManagement.getId()));
         }
 
         return clientCollateralManagementDataSet;

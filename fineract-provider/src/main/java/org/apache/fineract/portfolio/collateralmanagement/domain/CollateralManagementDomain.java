@@ -147,4 +147,8 @@ public class CollateralManagementDomain extends AbstractPersistableCustom {
         return this.name;
     }
 
+    public Set<ClientCollateralManagement> getClientCollateralManagements() {
+        return this.clientCollateralManagements;
+    }
+
 }

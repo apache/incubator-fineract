@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -160,21 +161,19 @@ public class ClientCollateralManagementAPIResource {
         return this.apiJsonSerializerService.serialize(commandProcessingResult);
     }
 
-    // @DELETE
-    // @Path("{collateralId}")
-    // @Produces({ MediaType.APPLICATION_JSON })
-    // @Consumes({ MediaType.APPLICATION_JSON })
-    // @Operation(summary = "Delete Client Collateral", description = "Delete Client Collateral")
-    // public String deleteCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
-    // @PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId) {
-    // final CommandWrapper commandWrapper = new CommandWrapperBuilder().deleteClientCollateralProduct(collateralId,
-    // clientId).build();
-    //
-    // final CommandProcessingResult commandProcessingResult =
-    // this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
-    //
-    // return this.apiJsonSerializerService.serialize(commandProcessingResult);
-    //
-    // }
+    @DELETE
+    @Path("{collateralId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Delete Client Collateral", description = "Delete Client Collateral")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.DeleteClientCollateralResponse.class))) })
+    public String deleteCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
+            @PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId) {
+        final CommandWrapper commandWrapper = new CommandWrapperBuilder().deleteClientCollateralProduct(collateralId, clientId).build();
+        final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);
+        return this.apiJsonSerializerService.serialize(commandProcessingResult);
+
+    }
 
 }

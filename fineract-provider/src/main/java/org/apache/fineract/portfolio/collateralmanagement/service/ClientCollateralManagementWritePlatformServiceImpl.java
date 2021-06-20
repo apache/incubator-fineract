@@ -35,6 +35,9 @@ import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollatera
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepositoryWrapper;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
+import org.apache.fineract.portfolio.collateralmanagement.exception.ClientCollateralCannotBeDeletedException;
+import org.apache.fineract.portfolio.collateralmanagement.exception.CollateralNotFoundException;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -117,8 +120,27 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
     @Transactional
     @Override
     public CommandProcessingResult deleteClientCollateralProduct(final Long collateralId) {
+        final ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepositoryWrapper
+                .getCollateral(collateralId);
+        validateForDeletion(clientCollateralManagement, collateralId);
         this.clientCollateralManagementRepositoryWrapper.deleteClientCollateralProduct(collateralId);
         return new CommandProcessingResultBuilder().withEntityId(collateralId).build();
+    }
+
+    private void validateForDeletion(final ClientCollateralManagement clientCollateralManagement, final Long clientCollateralId) {
+        if (clientCollateralManagement == null) {
+            throw new CollateralNotFoundException(clientCollateralId);
+        }
+
+        if (clientCollateralManagement.getLoanCollateralManagementSet().size() > 0) {
+            for (LoanCollateralManagement loanCollateralManagement : clientCollateralManagement.getLoanCollateralManagementSet()) {
+                if (loanCollateralManagement.getIsReleased() == 1) {
+                    throw new ClientCollateralCannotBeDeletedException(
+                            ClientCollateralCannotBeDeletedException.ClientCollateralCannotBeDeletedReason.CLIENT_COLLATERAL_IS_ALREADY_ATTACHED,
+                            clientCollateralId);
+                }
+            }
+        }
     }
 
 }
