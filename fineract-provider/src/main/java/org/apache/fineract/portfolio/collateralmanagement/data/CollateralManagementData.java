@@ -27,7 +27,7 @@ public final class CollateralManagementData {
 
     private BigDecimal basePrice;
 
-    private String unityType;
+    private String unitType;
 
     private BigDecimal pctToBase;
 
@@ -37,12 +37,12 @@ public final class CollateralManagementData {
 
     private Long id;
 
-    private CollateralManagementData(final String quality, final BigDecimal basePrice, final String unityType, final BigDecimal pctToBase,
+    private CollateralManagementData(final String quality, final BigDecimal basePrice, final String unitType, final BigDecimal pctToBase,
             final String currency, final String name, final Long id) {
         this.basePrice = basePrice;
         this.pctToBase = pctToBase;
         this.quality = quality;
-        this.unityType = unityType;
+        this.unitType = unitType;
         this.currency = currency;
         this.name = name;
         this.id = id;
