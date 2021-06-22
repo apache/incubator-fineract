@@ -36,6 +36,7 @@ import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollatera
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
 import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementRepositoryWrapper;
 import org.apache.fineract.portfolio.collateralmanagement.exception.ClientCollateralCannotBeDeletedException;
+import org.apache.fineract.portfolio.collateralmanagement.exception.ClientCollateralNotFoundException;
 import org.apache.fineract.portfolio.collateralmanagement.exception.CollateralNotFoundException;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +63,7 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
     @Override
     public CommandProcessingResult addClientCollateralProduct(final JsonCommand command) {
 
-        validateClientCollateralData(command);
-
-        /**
-         * TODO: Create client collaterals one by one or all in one
-         */
+        validateForCreation(command);
 
         Long collateralId = command.longValueOfParameterNamed("collateralId");
         BigDecimal quantity = command.bigDecimalValueOfParameterNamed("quantity");
@@ -81,7 +78,8 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
                 .withEntityId(clientCollateralManagement.getId()).build();
     }
 
-    private void validateClientCollateralData(final JsonCommand command) {
+    private void validateForCreation(final JsonCommand command) {
+
         String errorCode = "parameter.";
         final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
         final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("client-collateral");
@@ -110,11 +108,51 @@ public class ClientCollateralManagementWritePlatformServiceImpl implements Clien
         /**
          * TODO: Add validations for updating
          */
+        validateForUpdate(command);
         final ClientCollateralManagement collateral = this.clientCollateralManagementRepositoryWrapper.getCollateral(command.entityId());
         final Map<String, Object> changes = collateral.update(command);
         this.clientCollateralManagementRepositoryWrapper.updateClientCollateralProduct(collateral);
         return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(command.entityId())
                 .withClientId(command.getClientId()).with(changes).build();
+    }
+
+    private void validateForUpdate(final JsonCommand command) {
+        final Long clientCollateralId = command.entityId();
+        String errorCode = "parameter.";
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors).resource("client-collateral");
+        BigDecimal quantity = null;
+
+        if (!command.parameterExists("quantity")) {
+            errorCode += ".quantity.not.exists";
+            baseDataValidator.reset().parameter("quantity").failWithCode(errorCode);
+        } else {
+            quantity = command.bigDecimalValueOfParameterNamed("quantity");
+            baseDataValidator.reset().parameter("quantity").value(quantity).notNull().positiveAmount();
+        }
+
+        final ClientCollateralManagement clientCollateralManagement = this.clientCollateralManagementRepositoryWrapper
+                .getCollateral(clientCollateralId);
+
+        if (clientCollateralManagement == null) {
+            throw new ClientCollateralNotFoundException(clientCollateralId);
+        }
+
+        BigDecimal totalQuantity = BigDecimal.ZERO;
+        if (clientCollateralManagement.getLoanCollateralManagementSet().size() > 0) {
+            for (LoanCollateralManagement loanCollateralManagement : clientCollateralManagement.getLoanCollateralManagementSet()) {
+                totalQuantity = totalQuantity.add(loanCollateralManagement.getQuantity());
+            }
+        }
+
+        if (totalQuantity.compareTo(quantity) >= 0) {
+            baseDataValidator.reset().parameter("quantity").value(quantity).notLessThanMin(totalQuantity);
+        }
+
+        if (!dataValidationErrors.isEmpty()) {
+            throw new PlatformApiDataValidationException(dataValidationErrors);
+        }
+
     }
 
     @Transactional
