@@ -51,6 +51,7 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.collateralmanagement.data.ClientCollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.data.LoanCollateralTemplateData;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.service.ClientCollateralManagementReadPlatformService;
 import org.springframework.context.annotation.Scope;
@@ -64,6 +65,7 @@ public class ClientCollateralManagementAPIResource {
 
     private final DefaultToApiJsonSerializer<ClientCollateralManagement> apiJsonSerializerService;
     private final DefaultToApiJsonSerializer<ClientCollateralManagementData> apiJsonSerializerDataService;
+    private final DefaultToApiJsonSerializer<LoanCollateralTemplateData> apiJsonSerializerForLoanCollateralTemplateService;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
     private final PlatformSecurityContext context;
@@ -77,7 +79,8 @@ public class ClientCollateralManagementAPIResource {
             final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService, final PlatformSecurityContext context,
             final CodeValueReadPlatformService codeValueReadPlatformService,
             final ClientCollateralManagementReadPlatformService clientCollateralManagementReadPlatformService,
-            final DefaultToApiJsonSerializer<ClientCollateralManagementData> apiJsonSerializerDataService) {
+            final DefaultToApiJsonSerializer<ClientCollateralManagementData> apiJsonSerializerDataService,
+            final DefaultToApiJsonSerializer<LoanCollateralTemplateData> apiJsonSerializerForLoanCollateralTemplateService) {
         this.apiJsonSerializerService = apiJsonSerializerService;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
@@ -85,6 +88,7 @@ public class ClientCollateralManagementAPIResource {
         this.codeValueReadPlatformService = codeValueReadPlatformService;
         this.clientCollateralManagementReadPlatformService = clientCollateralManagementReadPlatformService;
         this.apiJsonSerializerDataService = apiJsonSerializerDataService;
+        this.apiJsonSerializerForLoanCollateralTemplateService = apiJsonSerializerForLoanCollateralTemplateService;
     }
 
     @GET
@@ -122,6 +126,20 @@ public class ClientCollateralManagementAPIResource {
                 .getClientCollateralManagementData(collateralId);
 
         return this.apiJsonSerializerDataService.serialize(clientCollateralManagementData);
+    }
+
+    @GET
+    @Path("template")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Get Client Collateral Template", description = "Get Client Collateral Template")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.GetLoanCollateralManagementTemplate.class)))) })
+    public String getClientCollateralTemplate(@Context final UriInfo uriInfo,
+            @PathParam("clientId") @Parameter(description = "clientId") final Long clientId) {
+        List<LoanCollateralTemplateData> loanCollateralTemplateDataList = this.clientCollateralManagementReadPlatformService
+                .getLoanCollateralTemplate(clientId);
+        return this.apiJsonSerializerForLoanCollateralTemplateService.serialize(loanCollateralTemplateDataList);
     }
 
     @POST

@@ -74,6 +74,24 @@ final class ClientCollateralManagementAPIResourceSwagger {
 
     }
 
+    @Schema(description = "GetLoanCollateralManagementTemplate")
+    public static final class GetLoanCollateralManagementTemplate {
+
+        private GetLoanCollateralManagementTemplate() {}
+
+        @Schema(example = "1")
+        public Long collateralId;
+        @Schema(example = "10000.00")
+        public BigDecimal basePrice;
+        @Schema(example = "40")
+        public BigDecimal pctToBase;
+        @Schema(example = "10")
+        public BigDecimal quantity;
+        @Schema(example = "Vehicle")
+        public String name;
+
+    }
+
     @Schema(description = "PostClientCollateralRequest")
     public static final class PostClientCollateralRequest {
 
@@ -83,6 +101,8 @@ final class ClientCollateralManagementAPIResourceSwagger {
         public BigDecimal quantity;
         @Schema(example = "1")
         public Long collateralId;
+        @Schema(example = "en")
+        public String locale;
 
     }
 

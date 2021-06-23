@@ -47,6 +47,8 @@ import org.apache.fineract.infrastructure.core.api.ApiRequestParameterHelper;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.apache.fineract.organisation.monetary.data.CurrencyData;
+import org.apache.fineract.organisation.monetary.service.CurrencyReadPlatformService;
 import org.apache.fineract.portfolio.collateralmanagement.api.CollateralAPIConstants.CollateralJSONinputParams;
 import org.apache.fineract.portfolio.collateralmanagement.data.CollateralManagementData;
 import org.apache.fineract.portfolio.collateralmanagement.service.ClientCollateralManagementReadPlatformService;
@@ -62,6 +64,7 @@ import org.springframework.stereotype.Component;
 public class CollateralManagementAPIResource {
 
     private final DefaultToApiJsonSerializer<CollateralManagementData> apiJsonSerializerService;
+    private final DefaultToApiJsonSerializer<CurrencyData> apiJsonSerializerServiceForCurrency;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
     private final PlatformSecurityContext context;
@@ -69,6 +72,7 @@ public class CollateralManagementAPIResource {
     private final CollateralManagementReadPlatformService collateralManagementReadPlatformService;
     private final String collateralReadPermission = "COLLATERAL_PRODUCT";
     private final ClientCollateralManagementReadPlatformService clientCollateralManagementReadPlatformService;
+    private final CurrencyReadPlatformService currencyReadPlatformService;
 
     @Autowired
     public CollateralManagementAPIResource(final DefaultToApiJsonSerializer<CollateralManagementData> apiJsonSerializerService,
@@ -76,7 +80,9 @@ public class CollateralManagementAPIResource {
             final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService, final PlatformSecurityContext context,
             final CodeValueReadPlatformService codeValueReadPlatformService,
             final CollateralManagementReadPlatformService collateralManagementReadPlatformService,
-            final ClientCollateralManagementReadPlatformService clientCollateralManagementReadPlatformService) {
+            final ClientCollateralManagementReadPlatformService clientCollateralManagementReadPlatformService,
+            final CurrencyReadPlatformService currencyReadPlatformService,
+            final DefaultToApiJsonSerializer<CurrencyData> apiJsonSerializerServiceForCurrency) {
         this.apiJsonSerializerService = apiJsonSerializerService;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
@@ -84,6 +90,8 @@ public class CollateralManagementAPIResource {
         this.codeValueReadPlatformService = codeValueReadPlatformService;
         this.collateralManagementReadPlatformService = collateralManagementReadPlatformService;
         this.clientCollateralManagementReadPlatformService = clientCollateralManagementReadPlatformService;
+        this.currencyReadPlatformService = currencyReadPlatformService;
+        this.apiJsonSerializerServiceForCurrency = apiJsonSerializerServiceForCurrency;
     }
 
     @POST
@@ -124,12 +132,23 @@ public class CollateralManagementAPIResource {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.GetCollateralManagementsResponse.class)))) })
     public String getAllCollaterals(@Context final UriInfo uriInfo) {
-
         this.context.authenticatedUser().validateHasReadPermission(CollateralJSONinputParams.COLLATERAL_PRODUCT_READ_PERMISSION.getValue());
         Collection<CollateralManagementData> collateralManagementDataList = this.collateralManagementReadPlatformService
                 .getAllCollateralProducts();
         return this.apiJsonSerializerService.serialize(collateralManagementDataList);
+    }
 
+    @GET
+    @Path("template")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Get Collateral Template", description = "Get Collateral Template")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.GetCollateralProductTemplate.class)))) })
+    public String getCollateralTemplate(@Context final UriInfo uriInfo) {
+        // this.context.authenticatedUser().validateHasReadPermission(CollateralJSONinputParams.COLLATERAL_PRODUCT_READ_PERMISSION.getValue());
+        Collection<CurrencyData> currencyDataCollection = this.currencyReadPlatformService.retrieveAllPlatformCurrencies();
+        return this.apiJsonSerializerServiceForCurrency.serialize(currencyDataCollection);
     }
 
     @PUT

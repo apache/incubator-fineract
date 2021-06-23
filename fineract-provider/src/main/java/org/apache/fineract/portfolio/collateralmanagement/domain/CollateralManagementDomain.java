@@ -58,7 +58,7 @@ public class CollateralManagementDomain extends AbstractPersistableCustom {
     @JoinColumn(name = "currency")
     private ApplicationCurrency currency;
 
-    @OneToMany(mappedBy = "collateral", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "collateral", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<ClientCollateralManagement> clientCollateralManagements = new HashSet<>();
 
     public CollateralManagementDomain() {

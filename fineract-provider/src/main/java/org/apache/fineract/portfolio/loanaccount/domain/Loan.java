@@ -3017,6 +3017,14 @@ public class Loan extends AbstractPersistableCustom {
             final String errorMessage = "Transfer funds is allowed only for loan accounts with overpaid status ";
             throw new InvalidLoanStateTransitionException("transaction", "is.not.a.overpaid.loan", errorMessage);
         }
+
+        // // Update the transaction in loan collateral module.
+        // Set<LoanCollateralManagement> loanCollateralManagements =
+        // loanTransaction.getLoan().getLoanCollateralManagements();
+        // for (LoanCollateralManagement loanCollateralManagement: loanCollateralManagements) {
+        // loanCollateralManagement.setLoanTransactionData(loanTransaction);
+        // }
+
         loanTransaction.updateLoan(this);
 
         if (loanTransaction.isNotZero(loanCurrency())) {

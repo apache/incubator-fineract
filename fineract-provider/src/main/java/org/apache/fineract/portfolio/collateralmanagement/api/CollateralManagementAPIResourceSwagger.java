@@ -71,6 +71,35 @@ final class CollateralManagementAPIResourceSwagger {
         public CollateralManagementAPIResourceSwagger.GetCollateralManagementsResponse.GetCollateralCurrencyResponse currency;
     }
 
+    @Schema(description = "GetCollateralProductTemplate")
+    public static final class GetCollateralProductTemplate {
+
+        private GetCollateralProductTemplate() {}
+
+        static final class GetCurrencyData {
+
+            private GetCurrencyData() {}
+
+            @Schema(example = "USD")
+            public String code;
+            @Schema(example = "Dollars")
+            public String name;
+            @Schema(example = "10")
+            public int decimalPlaces;
+            @Schema(example = "2")
+            public Integer inMultiplesOf;
+            @Schema(example = "USD")
+            public String displaySymbol;
+            @Schema(example = "Dollars")
+            public String nameCode;
+            @Schema(example = "Dollars")
+            public String displayLabel;
+
+        }
+
+        public GetCurrencyData currency;
+    }
+
     @Schema(description = "PostCollateralManagementProductRequest")
     public static final class PostCollateralManagementProductRequest {
 

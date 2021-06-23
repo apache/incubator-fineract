@@ -47,6 +47,7 @@ import org.apache.fineract.portfolio.accountdetails.service.AccountEnumerations;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
 import org.apache.fineract.portfolio.collateralmanagement.service.LoanCollateralAssembler;
 import org.apache.fineract.portfolio.fund.domain.Fund;
 import org.apache.fineract.portfolio.fund.domain.FundRepository;
@@ -69,6 +70,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanSummaryWrapper;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionProcessingStrategyRepository;
 import org.apache.fineract.portfolio.loanaccount.exception.ExceedingTrancheCountException;
+import org.apache.fineract.portfolio.loanaccount.exception.InvalidAmountOfCollaterals;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanTransactionProcessingStrategyNotFoundException;
 import org.apache.fineract.portfolio.loanaccount.exception.MultiDisbursementDataRequiredException;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanApplicationTerms;
@@ -178,7 +180,8 @@ public class LoanAssembler {
 
         final LoanProduct loanProduct = this.loanProductRepository.findById(productId)
                 .orElseThrow(() -> new LoanProductNotFoundException(productId));
-
+        final BigDecimal amount = this.fromApiJsonHelper
+                .extractBigDecimalWithLocaleNamed(LoanApiConstants.disbursementPrincipalParameterName, element);
         final Fund fund = findFundByIdIfProvided(fundId);
         final Staff loanOfficer = findLoanOfficerByIdIfProvided(loanOfficerId);
         final LoanTransactionProcessingStrategy loanTransactionProcessingStrategy = findStrategyByIdIfProvided(
@@ -210,6 +213,24 @@ public class LoanAssembler {
             }
         }
         final Set<LoanCollateralManagement> collateral = this.collateralAssembler.fromParsedJson(element);
+
+        if (collateral.size() == 0) {
+            throw new InvalidAmountOfCollaterals(BigDecimal.ZERO);
+        }
+
+        BigDecimal totalValue = BigDecimal.ZERO;
+        for (LoanCollateralManagement collateralManagement : collateral) {
+            final CollateralManagementDomain collateralManagementDomain = collateralManagement.getClientCollateralManagement()
+                    .getCollaterals();
+            BigDecimal totalCollateral = collateralManagement.getQuantity().multiply(collateralManagementDomain.getBasePrice())
+                    .multiply(collateralManagementDomain.getPctToBase()).divide(BigDecimal.valueOf(100));
+            totalValue = totalValue.add(totalCollateral);
+        }
+
+        if (amount.compareTo(totalValue) > 0) {
+            throw new InvalidAmountOfCollaterals(totalValue);
+        }
+
         // final Set<LoanCollateral> collateral = this.loanCollateralAssembler.fromParsedJson(element);
         final Set<LoanCharge> loanCharges = this.loanChargeAssembler.fromParsedJson(element, disbursementDetails);
         for (final LoanCharge loanCharge : loanCharges) {

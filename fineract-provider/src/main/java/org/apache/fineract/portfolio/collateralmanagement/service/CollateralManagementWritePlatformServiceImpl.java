@@ -173,7 +173,7 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
 
         if (collateralManagementDomain.getClientCollateralManagements().size() > 0) {
             for (ClientCollateralManagement clientCollateralManagement : collateralManagementDomain.getClientCollateralManagements()) {
-                if (clientCollateralManagement.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
+                if (clientCollateralManagement.getQuantity().compareTo(BigDecimal.ZERO) > 0) {
                     throw new CollateralCannotBeDeletedException(
                             CollateralCannotBeDeletedException.CollateralCannotBeDeletedReason.COLLATERAL_IS_ALREADY_ATTACHED,
                             collateralId);
@@ -181,4 +181,5 @@ public class CollateralManagementWritePlatformServiceImpl implements CollateralM
             }
         }
     }
+
 }

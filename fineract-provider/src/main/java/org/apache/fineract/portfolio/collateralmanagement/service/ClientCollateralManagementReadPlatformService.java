@@ -20,6 +20,7 @@ package org.apache.fineract.portfolio.collateralmanagement.service;
 
 import java.util.List;
 import org.apache.fineract.portfolio.collateralmanagement.data.ClientCollateralManagementData;
+import org.apache.fineract.portfolio.collateralmanagement.data.LoanCollateralTemplateData;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 
 public interface ClientCollateralManagementReadPlatformService {
@@ -29,5 +30,7 @@ public interface ClientCollateralManagementReadPlatformService {
     ClientCollateralManagementData getClientCollateralManagementData(Long collateralId);
 
     List<ClientCollateralManagementData> getClientCollaterals(Long clientId);
+
+    List<LoanCollateralTemplateData> getLoanCollateralTemplate(Long clientId);
 
 }

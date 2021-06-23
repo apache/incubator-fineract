@@ -98,6 +98,7 @@ import org.apache.fineract.portfolio.charge.service.ChargeReadPlatformService;
 import org.apache.fineract.portfolio.client.data.ClientData;
 import org.apache.fineract.portfolio.collateral.data.CollateralData;
 import org.apache.fineract.portfolio.collateral.service.CollateralReadPlatformService;
+import org.apache.fineract.portfolio.collateralmanagement.data.LoanCollateralResponseData;
 import org.apache.fineract.portfolio.collateralmanagement.service.LoanCollateralManagementReadPlatformService;
 import org.apache.fineract.portfolio.floatingrates.data.InterestRatePeriodData;
 import org.apache.fineract.portfolio.fund.data.FundData;
@@ -114,7 +115,6 @@ import org.apache.fineract.portfolio.loanaccount.data.LoanTermVariationsData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanTransactionData;
 import org.apache.fineract.portfolio.loanaccount.data.PaidInAdvanceData;
 import org.apache.fineract.portfolio.loanaccount.data.RepaymentScheduleRelatedLoanData;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTermVariationType;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanTemplateTypeRequiredException;
 import org.apache.fineract.portfolio.loanaccount.exception.NotSupportedLoanTemplateTypeException;
@@ -541,7 +541,7 @@ public class LoansApiResource {
         PortfolioAccountData linkedAccount = null;
         Collection<DisbursementData> disbursementData = null;
         Collection<LoanTermVariationsData> emiAmountVariations = null;
-        Collection<LoanCollateralManagement> loanCollateralManagements = null;
+        Collection<LoanCollateralResponseData> loanCollateralManagements = null;
         Collection<LoanCollateralManagementData> loanCollateralManagementData = new ArrayList<>();
 
         final Set<String> mandatoryResponseParameters = new HashSet<>();
@@ -612,8 +612,8 @@ public class LoansApiResource {
 
             if (associationParameters.contains("collateral")) {
                 mandatoryResponseParameters.add("collateral");
-                loanCollateralManagements = this.loanCollateralManagementReadPlatformService.getLoanCollaterals(loanId);
-                for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+                loanCollateralManagements = this.loanCollateralManagementReadPlatformService.getLoanCollateralResponseDataList(loanId);
+                for (LoanCollateralResponseData loanCollateralManagement : loanCollateralManagements) {
                     loanCollateralManagementData.add(loanCollateralManagement.toCommand());
                 }
                 if (CollectionUtils.isEmpty(loanCollateralManagements)) {
@@ -621,13 +621,13 @@ public class LoansApiResource {
                 }
             }
 
-            if (associationParameters.contains("collateral")) {
-                mandatoryResponseParameters.add("collateral");
-                collateral = this.loanCollateralReadPlatformService.retrieveCollaterals(loanId);
-                if (CollectionUtils.isEmpty(collateral)) {
-                    collateral = null;
-                }
-            }
+            // if (associationParameters.contains("collateral")) {
+            // mandatoryResponseParameters.add("collateral");
+            // collateral = this.loanCollateralReadPlatformService.retrieveCollaterals(loanId);
+            // if (CollectionUtils.isEmpty(collateral)) {
+            // collateral = null;
+            // }
+            // }
 
             if (associationParameters.contains("meeting")) {
                 mandatoryResponseParameters.add("meeting");

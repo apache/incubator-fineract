@@ -362,7 +362,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             BigDecimal quantity = loanCollateralManagement.getQuantity();
             BigDecimal pctToBase = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getPctToBase();
             BigDecimal basePrice = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getBasePrice();
-            totalCollateral = totalCollateral.add(quantity.multiply(basePrice).multiply(pctToBase));
+            totalCollateral = totalCollateral.add(quantity.multiply(basePrice).multiply(pctToBase).divide(BigDecimal.valueOf(100)));
         }
 
         // Validate the loan collateral value against the disbursedAmount
@@ -917,6 +917,12 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         LoanTransaction loanTransaction = this.loanAccountDomainService.makeRepayment(loan, commandProcessingResultBuilder, transactionDate,
                 transactionAmount, paymentDetail, noteText, txnExternalId, isRecoveryRepayment, isAccountTransfer, holidayDetailDto,
                 isHolidayValidationDone);
+
+        // Update loan transaction on repayment.
+        Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+            loanCollateralManagement.setLoanTransactionData(loanTransaction);
+        }
 
         /**
          * TODO: Implement repayment with collaterals.

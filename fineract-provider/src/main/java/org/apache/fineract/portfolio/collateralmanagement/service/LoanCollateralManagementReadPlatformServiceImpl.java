@@ -18,8 +18,13 @@
  */
 package org.apache.fineract.portfolio.collateralmanagement.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
+import org.apache.fineract.portfolio.collateralmanagement.data.LoanCollateralResponseData;
+import org.apache.fineract.portfolio.collateralmanagement.domain.CollateralManagementDomain;
+import org.apache.fineract.portfolio.collateralmanagement.exception.LoanCollateralManagementNotFoundException;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagementRepository;
@@ -49,4 +54,36 @@ public class LoanCollateralManagementReadPlatformServiceImpl implements LoanColl
         Loan loan = this.loanRepository.findById(loanId).orElseThrow(() -> new LoanNotFoundException(loanId));
         return this.loanCollateralManagementRepository.findByLoan(loan);
     }
+
+    @Override
+    public LoanCollateralResponseData getLoanCollateralResponseData(Long collateralId) {
+        this.context.authenticatedUser();
+        LoanCollateralManagement loanCollateralManagement = this.loanCollateralManagementRepository.findById(collateralId)
+                .orElseThrow(() -> new LoanCollateralManagementNotFoundException(collateralId));
+        final CollateralManagementDomain collateralManagementDomain = loanCollateralManagement.getClientCollateralManagement()
+                .getCollaterals();
+        BigDecimal quantity = loanCollateralManagement.getQuantity();
+        BigDecimal total = quantity.multiply(collateralManagementDomain.getBasePrice());
+        BigDecimal totalCollateral = total.multiply(collateralManagementDomain.getPctToBase()).divide(BigDecimal.valueOf(100));
+        return LoanCollateralResponseData.instanceOf(loanCollateralManagement, total, totalCollateral);
+    }
+
+    @Override
+    public List<LoanCollateralResponseData> getLoanCollateralResponseDataList(Long loanId) {
+        this.context.authenticatedUser();
+        Loan loan = this.loanRepository.findById(loanId).orElseThrow(() -> new LoanNotFoundException(loanId));
+        List<LoanCollateralResponseData> loanCollateralResponseDataCollection = new ArrayList<>();
+        List<LoanCollateralManagement> loanCollateralManagements = this.loanCollateralManagementRepository.findByLoan(loan);
+        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+            final CollateralManagementDomain collateralManagementDomain = loanCollateralManagement.getClientCollateralManagement()
+                    .getCollaterals();
+            BigDecimal quantity = loanCollateralManagement.getQuantity();
+            BigDecimal total = quantity.multiply(collateralManagementDomain.getBasePrice());
+            BigDecimal totalCollateral = total.multiply(collateralManagementDomain.getPctToBase()).divide(BigDecimal.valueOf(100));
+            loanCollateralResponseDataCollection
+                    .add(LoanCollateralResponseData.instanceOf(loanCollateralManagement, total, totalCollateral));
+        }
+        return loanCollateralResponseDataCollection;
+    }
+
 }
