@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 import org.apache.fineract.portfolio.loanaccount.data.LoanCollateralManagementData;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCollateralManagement;
 
-public class LoanCollateralResponseData {
+public final class LoanCollateralResponseData {
 
     private Long collateralId;
 
