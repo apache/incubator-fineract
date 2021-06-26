@@ -47,7 +47,7 @@ public class PostDatedChecks extends AbstractPersistableCustom {
     private String bankName;
     @Column(name = "amount", scale = 6, precision = 19)
     private BigDecimal amount;
-    @Column(name = "date", nullable = false)
+    @Column(name = "repayment_date", nullable = false)
     private Date date;
 
     private PostDatedChecks() {}
