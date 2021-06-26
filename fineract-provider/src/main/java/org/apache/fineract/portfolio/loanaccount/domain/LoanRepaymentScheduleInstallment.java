@@ -31,6 +31,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -38,6 +39,7 @@ import org.apache.fineract.infrastructure.core.domain.AbstractAuditableCustom;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.organisation.monetary.domain.MonetaryCurrency;
 import org.apache.fineract.organisation.monetary.domain.Money;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecks;
 
 @Entity
 @Table(name = "m_loan_repayment_schedule")
@@ -136,6 +138,9 @@ public final class LoanRepaymentScheduleInstallment extends AbstractAuditableCus
     @JoinColumn(name = "loan_repayment_schedule_id", referencedColumnName = "id", nullable = false)
     private Set<LoanInterestRecalcualtionAdditionalDetails> loanCompoundingDetails = new HashSet<>();
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private PostDatedChecks postDatedChecks;
+
     LoanRepaymentScheduleInstallment() {
         this.installmentNumber = null;
         this.fromDate = null;
@@ -193,6 +198,8 @@ public final class LoanRepaymentScheduleInstallment extends AbstractAuditableCus
         }
         return result;
     }
+
+    public PostDatedChecks getPostDatedChecks() { return this.postDatedChecks; }
 
     public Loan getLoan() {
         return this.loan;
