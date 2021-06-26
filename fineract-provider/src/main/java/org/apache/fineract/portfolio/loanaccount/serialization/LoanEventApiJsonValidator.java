@@ -139,9 +139,6 @@ public final class LoanEventApiJsonValidator {
             JsonArray postDatedChecks = jsonObject.get("postDatedChecks").getAsJsonArray();
             for (int i=0; i< postDatedChecks.size(); i++) {
                 final JsonObject postDatedCheck = postDatedChecks.get(i).getAsJsonObject();
-                if (postDatedCheck == null) {
-                    continue;
-                }
 
                 final String name = this.fromApiJsonHelper.extractStringNamed("name", postDatedCheck);
                 baseDataValidator.reset().parameter("name").value(name).notNull();

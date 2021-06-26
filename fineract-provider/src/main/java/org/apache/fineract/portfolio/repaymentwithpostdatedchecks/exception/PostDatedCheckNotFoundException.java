@@ -16,17 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.repaymentwithpostdatedchecks.service;
+package org.apache.fineract.portfolio.repaymentwithpostdatedchecks.exception;
 
-import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.data.PostDatedChecksData;
-import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecks;
+import org.apache.fineract.infrastructure.core.exception.AbstractPlatformResourceNotFoundException;
 
-import java.util.List;
+public class PostDatedCheckNotFoundException extends AbstractPlatformResourceNotFoundException {
 
-public interface RepaymentWithPostDatedChecksReadPlatformService {
-
-    List<PostDatedChecksData> getPostDatedChecks(Long id);
-
-    PostDatedChecksData getPostDatedCheck(Long id);
-
+    public PostDatedCheckNotFoundException(final Long id) {
+        super("error.msg.post.dated.check.id.invalid", "Post Dated Check with identifier " + id + " does not exist", id);
+    }
 }

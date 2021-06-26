@@ -24,4 +24,6 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 public interface RepaymentWithPostDatedChecksWritePlatformService {
 
     CommandProcessingResult addPostDatedChecks(JsonCommand command);
+
+    CommandProcessingResult deletePostDatedChecks(JsonCommand command);
 }

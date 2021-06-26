@@ -18,5 +18,51 @@
  */
 package org.apache.fineract.portfolio.repaymentwithpostdatedchecks.service;
 
-public class RepaymentWithPostDatedChecksReadPlatformServiceImpl {
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepository;
+import org.apache.fineract.portfolio.loanaccount.exception.LoanNotFoundException;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.data.PostDatedChecksData;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecks;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecksRepository;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.exception.PostDatedCheckNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class RepaymentWithPostDatedChecksReadPlatformServiceImpl implements RepaymentWithPostDatedChecksReadPlatformService {
+
+    private final PostDatedChecksRepository postDatedChecksRepository;
+    private final LoanRepository loanRepository;
+
+    @Autowired
+    public RepaymentWithPostDatedChecksReadPlatformServiceImpl(final PostDatedChecksRepository postDatedChecksRepository,
+                                                               final LoanRepository loanRepository) {
+        this.postDatedChecksRepository = postDatedChecksRepository;
+        this.loanRepository = loanRepository;
+    }
+
+    @Override
+    public List<PostDatedChecksData> getPostDatedChecks(final Long id) {
+        final Loan loan = this.loanRepository.findById(id).orElseThrow(()-> new LoanNotFoundException(id));
+        final List<PostDatedChecks> postDatedChecks = loan.getPostDatedChecks();
+        List<PostDatedChecksData> postDatedChecksDataList = new ArrayList<>();
+        for (PostDatedChecks postDatedCheckObject: postDatedChecks) {
+            /**
+             * Check how date type converted into local date.
+             */
+            postDatedChecksDataList.add(PostDatedChecksData.from(postDatedCheckObject.getLoanRepaymentScheduleInstallment().getDueDate(), postDatedCheckObject.getId(), postDatedCheckObject.getLoanRepaymentScheduleInstallment().getInstallmentNumber(),
+                    postDatedCheckObject.getAccountNo(), postDatedCheckObject.getAmount(), postDatedCheckObject.getBankName()));
+        }
+        return postDatedChecksDataList;
+    }
+
+    @Override
+    public PostDatedChecksData getPostDatedCheck(final Long id) {
+        final PostDatedChecks postDatedChecks = this.postDatedChecksRepository.findById(id).orElseThrow(() -> new PostDatedCheckNotFoundException(id));
+        return PostDatedChecksData.from(postDatedChecks.getLoanRepaymentScheduleInstallment().getDueDate(), postDatedChecks.getId(),
+                postDatedChecks.getLoanRepaymentScheduleInstallment().getInstallmentNumber(),
+                postDatedChecks.getAccountNo(), postDatedChecks.getAmount(), postDatedChecks.getBankName());
+    }
 }

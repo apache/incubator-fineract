@@ -29,14 +29,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Entity
 @Table(name = "m_repayment_with_post_dated_checks")
 public class PostDatedChecks extends AbstractPersistableCustom {
 
-//    @ManyToOne(optional = false)
-//    @JoinColumn(name = "loan_id", referencedColumnName = "id", nullable = false)
-//    private Loan loan;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "loan_id", referencedColumnName = "id", nullable = false)
+    private Loan loan;
     @OneToOne(optional = false)
     @JoinColumn(name = "repayment_id", referencedColumnName = "id", nullable = false)
     private LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment;
@@ -46,31 +47,36 @@ public class PostDatedChecks extends AbstractPersistableCustom {
     private String bankName;
     @Column(name = "amount", scale = 6, precision = 19)
     private BigDecimal amount;
+    @Column(name = "date", nullable = false)
+    private Date date;
 
     private PostDatedChecks() {}
 
-    private PostDatedChecks(final Long accountNo, final String bankName, final BigDecimal amount, final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment) {
+    private PostDatedChecks(final Long accountNo, final String bankName, final BigDecimal amount, final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment,
+                            final Date date) {
         this.bankName = bankName;
         this.accountNo = accountNo;
         this.amount = amount;
         this.loanRepaymentScheduleInstallment = loanRepaymentScheduleInstallment;
+        this.date = date;
     }
 
-    public static PostDatedChecks instanceOf(final Long accountNo, final String bankName, final BigDecimal amount, final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment) {
-        return new PostDatedChecks(accountNo, bankName, amount, loanRepaymentScheduleInstallment);
+    public static PostDatedChecks instanceOf(final Long accountNo, final String bankName, final BigDecimal amount, final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment,
+                                             final Date date) {
+        return new PostDatedChecks(accountNo, bankName, amount, loanRepaymentScheduleInstallment, date);
     }
 
-//    public void setLoan(Loan loan) {
-//        this.loan = loan;
-//    }
+    public void setLoan(Loan loan) {
+        this.loan = loan;
+    }
 
     public void setLoanRepaymentScheduleInstallment(final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment) {
         this.loanRepaymentScheduleInstallment = loanRepaymentScheduleInstallment;
     }
 
-//    public Loan getLoan() {
-//        return this.loan;
-//    }
+    public Loan getLoan() {
+        return this.loan;
+    }
 
     public LoanRepaymentScheduleInstallment getLoanRepaymentScheduleInstallment() {
         return this.loanRepaymentScheduleInstallment;
@@ -87,4 +93,5 @@ public class PostDatedChecks extends AbstractPersistableCustom {
     public BigDecimal getAmount() {
         return this.amount;
     }
+
 }

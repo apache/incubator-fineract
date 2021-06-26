@@ -20,6 +20,8 @@ package org.apache.fineract.portfolio.repaymentwithpostdatedchecks.service;
 
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
+import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,14 +29,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RepaymentWithPostDatedChecksWritePlatformServiceImpl implements RepaymentWithPostDatedChecksWritePlatformService{
 
+    private final PostDatedChecksRepository postDatedChecksRepository;
     @Autowired
-    public RepaymentWithPostDatedChecksWritePlatformServiceImpl() {
-
+    public RepaymentWithPostDatedChecksWritePlatformServiceImpl(final PostDatedChecksRepository postDatedChecksRepository) {
+        this.postDatedChecksRepository = postDatedChecksRepository;
     }
 
     @Transactional
     @Override
     public CommandProcessingResult addPostDatedChecks(JsonCommand command) {
         return CommandProcessingResult.empty();
+    }
+
+    @Transactional
+    @Override
+    public CommandProcessingResult deletePostDatedChecks(final JsonCommand command) {
+        this.postDatedChecksRepository.deleteById(command.entityId());
+        return new CommandProcessingResultBuilder()
+                .withCommandId(command.commandId())
+                .withLoanId(command.getLoanId())
+                .withEntityId(command.entityId())
+                .build();
     }
 }
