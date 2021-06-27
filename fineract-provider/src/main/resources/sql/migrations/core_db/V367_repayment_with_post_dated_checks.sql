@@ -17,8 +17,8 @@
 -- under the License.
 --
 
--- create m_client_collateral_management management
-CREATE TABLE `m_client_collateral_management` (
+-- create m_repayment_with_post_dated_checks management
+CREATE TABLE `m_repayment_with_post_dated_checks` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `amount` decimal(20,5) NOT NULL,
   `loan_id` bigint(20) DEFAULT NULL,

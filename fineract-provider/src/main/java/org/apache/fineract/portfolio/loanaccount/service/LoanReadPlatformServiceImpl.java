@@ -85,6 +85,7 @@ import org.apache.fineract.portfolio.loanaccount.data.LoanAccountData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanApplicationTimelineData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanApprovalData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanInterestRecalculationData;
+import org.apache.fineract.portfolio.loanaccount.data.LoanRepaymentScheduleInstallmentData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanScheduleAccrualData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanStatusEnumData;
 import org.apache.fineract.portfolio.loanaccount.data.LoanSummaryData;
@@ -534,10 +535,29 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
         if (paymentDetailsRequired) {
             paymentOptions = this.paymentTypeReadPlatformService.retrieveAllPaymentTypes();
         }
+
         return LoanTransactionData.loanTransactionDataForDisbursalTemplate(transactionType,
                 loan.getExpectedDisbursedOnLocalDateForTemplate(), loan.getDisburseAmountForTemplate(), paymentOptions,
                 loan.retriveLastEmiAmount(), loan.getNextPossibleRepaymentDateForRescheduling());
 
+    }
+
+    @Override
+    public Integer retrieveNumberOfRepayments (final Long loanId) {
+        this.context.authenticatedUser();
+        return this.loanRepositoryWrapper.getNumberOfRepayments(loanId);
+    }
+
+    @Override
+    public List<LoanRepaymentScheduleInstallmentData> getRepaymentDataResponse(final Long loanId) {
+        this.context.authenticatedUser();
+        final List<LoanRepaymentScheduleInstallment> loanRepaymentScheduleInstallments = this.loanRepositoryWrapper.getLoanRepaymentScheduleInstallments(loanId);
+        List<LoanRepaymentScheduleInstallmentData> loanRepaymentScheduleInstallmentData = new ArrayList<>();
+        for (LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment: loanRepaymentScheduleInstallments) {
+            loanRepaymentScheduleInstallmentData.add(LoanRepaymentScheduleInstallmentData.instanceOf(loanRepaymentScheduleInstallment.getId(),
+                    loanRepaymentScheduleInstallment.getInstallmentNumber(), loanRepaymentScheduleInstallment.getDueDate(), loanRepaymentScheduleInstallment.getTotalOutstanding(loanRepaymentScheduleInstallment.getLoan().getCurrency()).getAmount()));
+        }
+        return loanRepaymentScheduleInstallmentData;
     }
 
     @Override
