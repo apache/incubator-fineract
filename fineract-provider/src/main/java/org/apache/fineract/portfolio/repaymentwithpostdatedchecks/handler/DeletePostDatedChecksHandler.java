@@ -34,7 +34,8 @@ public class DeletePostDatedChecksHandler implements NewCommandSourceHandler {
     private final RepaymentWithPostDatedChecksWritePlatformService repaymentWithPostDatedChecksWritePlatformService;
 
     @Autowired
-    public DeletePostDatedChecksHandler(final RepaymentWithPostDatedChecksWritePlatformService repaymentWithPostDatedChecksWritePlatformService) {
+    public DeletePostDatedChecksHandler(
+            final RepaymentWithPostDatedChecksWritePlatformService repaymentWithPostDatedChecksWritePlatformService) {
         this.repaymentWithPostDatedChecksWritePlatformService = repaymentWithPostDatedChecksWritePlatformService;
     }
 

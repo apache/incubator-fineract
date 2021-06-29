@@ -25,4 +25,9 @@ public class PostDatedCheckNotFoundException extends AbstractPlatformResourceNot
     public PostDatedCheckNotFoundException(final Long id) {
         super("error.msg.post.dated.check.id.invalid", "Post Dated Check with identifier " + id + " does not exist", id);
     }
+
+    public PostDatedCheckNotFoundException(final Long id, final Integer installmentNo) {
+        super("error.msg.post.dated.check.for.installment.not.found",
+                "Post Dated Check for installment id " + id + " and installment number " + installmentNo + " does not exist");
+    }
 }

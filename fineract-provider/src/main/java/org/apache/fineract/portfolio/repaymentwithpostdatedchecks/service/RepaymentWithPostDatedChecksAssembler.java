@@ -21,14 +21,6 @@ package org.apache.fineract.portfolio.repaymentwithpostdatedchecks.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
-import org.apache.fineract.portfolio.loanaccount.domain.Loan;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
-import org.apache.fineract.portfolio.loanaccount.domain.LoanRepository;
-import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecks;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
@@ -36,10 +28,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanRepaymentScheduleInstallment;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecks;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class RepaymentWithPostDatedChecksAssembler {
+
     private final FromJsonHelper fromApiJsonHelper;
 
     @Autowired
@@ -56,7 +54,7 @@ public class RepaymentWithPostDatedChecksAssembler {
         final Locale locale = this.fromApiJsonHelper.extractLocaleParameter(jsonObject);
         if (jsonObject.has("postDatedChecks") && jsonObject.get("postDatedChecks").isJsonArray()) {
             JsonArray postDatedCheckArray = jsonObject.get("postDatedChecks").getAsJsonArray();
-            for (int i=0; i< postDatedCheckArray.size(); i++) {
+            for (int i = 0; i < postDatedCheckArray.size(); i++) {
                 final JsonObject postDatedCheck = postDatedCheckArray.get(i).getAsJsonObject();
                 if (postDatedCheck == null) {
                     continue;
@@ -71,7 +69,8 @@ public class RepaymentWithPostDatedChecksAssembler {
                 final BigDecimal amount = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", postDatedCheck);
 
                 final Integer installmentId = this.fromApiJsonHelper.extractIntegerWithLocaleNamed("installmentId", postDatedCheck);
-                final List<LoanRepaymentScheduleInstallment> installmentList = loanRepaymentScheduleInstallments.stream().filter(repayment -> repayment.getInstallmentNumber() == installmentId).collect(Collectors.toList());
+                final List<LoanRepaymentScheduleInstallment> installmentList = loanRepaymentScheduleInstallments.stream()
+                        .filter(repayment -> repayment.getInstallmentNumber() == installmentId).collect(Collectors.toList());
                 final Long accountNo = this.fromApiJsonHelper.extractLongNamed("accountNo", postDatedCheck);
 
                 postDatedChecks.add(PostDatedChecks.instanceOf(accountNo, name, amount, installmentList.get(0), new Date()));

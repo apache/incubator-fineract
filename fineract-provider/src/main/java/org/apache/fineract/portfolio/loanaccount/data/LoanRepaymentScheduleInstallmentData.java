@@ -32,7 +32,7 @@ public final class LoanRepaymentScheduleInstallmentData {
     private BigDecimal amount;
 
     private LoanRepaymentScheduleInstallmentData(final Long id, final Integer installmentId, final LocalDate date,
-                                                 final BigDecimal amount) {
+            final BigDecimal amount) {
         this.amount = amount;
         this.date = date;
         this.installmentId = installmentId;
@@ -40,7 +40,7 @@ public final class LoanRepaymentScheduleInstallmentData {
     }
 
     public static LoanRepaymentScheduleInstallmentData instanceOf(final Long id, final Integer installmentId, final LocalDate date,
-                                                                  final BigDecimal amount) {
+            final BigDecimal amount) {
         return new LoanRepaymentScheduleInstallmentData(id, installmentId, date, amount);
     }
 

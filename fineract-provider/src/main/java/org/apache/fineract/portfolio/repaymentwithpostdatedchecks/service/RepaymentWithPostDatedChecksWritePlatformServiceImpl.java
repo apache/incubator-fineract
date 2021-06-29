@@ -18,21 +18,37 @@
  */
 package org.apache.fineract.portfolio.repaymentwithpostdatedchecks.service;
 
+import com.google.gson.JsonElement;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.infrastructure.core.data.ApiParameterError;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResultBuilder;
+import org.apache.fineract.infrastructure.core.data.DataValidatorBuilder;
+import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidationException;
+import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecks;
 import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecksRepository;
+import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.exception.PostDatedCheckNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class RepaymentWithPostDatedChecksWritePlatformServiceImpl implements RepaymentWithPostDatedChecksWritePlatformService{
+public class RepaymentWithPostDatedChecksWritePlatformServiceImpl implements RepaymentWithPostDatedChecksWritePlatformService {
 
     private final PostDatedChecksRepository postDatedChecksRepository;
+    private final FromJsonHelper fromApiJsonHelper;
+
     @Autowired
-    public RepaymentWithPostDatedChecksWritePlatformServiceImpl(final PostDatedChecksRepository postDatedChecksRepository) {
+    public RepaymentWithPostDatedChecksWritePlatformServiceImpl(final PostDatedChecksRepository postDatedChecksRepository,
+            final FromJsonHelper fromApiJsonHelper) {
         this.postDatedChecksRepository = postDatedChecksRepository;
+        this.fromApiJsonHelper = fromApiJsonHelper;
     }
 
     @Transactional
@@ -43,12 +59,60 @@ public class RepaymentWithPostDatedChecksWritePlatformServiceImpl implements Rep
 
     @Transactional
     @Override
+    public CommandProcessingResult updatePostDatedChecks(JsonCommand command) {
+        validateForUpdate(command);
+        final PostDatedChecks postDatedChecks = this.postDatedChecksRepository.findById(command.entityId())
+                .orElseThrow(() -> new PostDatedCheckNotFoundException(command.entityId()));
+        Map<String, Object> changes = postDatedChecks.updatePostDatedChecks(command);
+        this.postDatedChecksRepository.saveAndFlush(postDatedChecks);
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(command.entityId()).with(changes)
+                .build();
+    }
+
+    private void validateForUpdate(JsonCommand command) {
+        final JsonElement jsonElement = this.fromApiJsonHelper.parse(command.json());
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors)
+                .resource("repayment-with-post-dated-checks");
+
+        if (!command.parameterExists("locale")) {
+            baseDataValidator.reset().parameter("locale").notNull().failWithCode("locale.not.exists");
+        } else {
+            final String locale = this.fromApiJsonHelper.extractStringNamed("locale", jsonElement);
+            baseDataValidator.reset().parameter("locale").value(locale).notNull();
+        }
+
+        if (command.parameterExists("amount")) {
+            final BigDecimal amount = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", jsonElement);
+            baseDataValidator.reset().parameter("amount").value(amount).notNull().positiveAmount();
+        }
+
+        if (command.parameterExists(("repaymentDate"))) {
+            final LocalDate repaymentDate = this.fromApiJsonHelper.extractLocalDateNamed("repaymentDate", jsonElement);
+            baseDataValidator.reset().parameter("repaymentDate").value(repaymentDate).notNull();
+        }
+
+        if (command.parameterExists("accountNo")) {
+            final Long accountNo = this.fromApiJsonHelper.extractLongNamed("accountNo", jsonElement);
+            baseDataValidator.reset().parameter("accountNo").value(accountNo).notNull().positiveAmount();
+        }
+
+        if (command.parameterExists("name")) {
+            final String name = this.fromApiJsonHelper.extractStringNamed("name", jsonElement);
+            baseDataValidator.reset().parameter("name").value(name).notNull();
+        }
+
+        if (!dataValidationErrors.isEmpty()) {
+            throw new PlatformApiDataValidationException(dataValidationErrors);
+        }
+
+    }
+
+    @Transactional
+    @Override
     public CommandProcessingResult deletePostDatedChecks(final JsonCommand command) {
         this.postDatedChecksRepository.deleteById(command.entityId());
-        return new CommandProcessingResultBuilder()
-                .withCommandId(command.commandId())
-                .withLoanId(command.getLoanId())
-                .withEntityId(command.entityId())
-                .build();
+        return new CommandProcessingResultBuilder().withCommandId(command.commandId()).withLoanId(command.getLoanId())
+                .withEntityId(command.entityId()).build();
     }
 }

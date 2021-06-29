@@ -199,8 +199,6 @@ public final class LoanRepaymentScheduleInstallment extends AbstractAuditableCus
         return result;
     }
 
-    public PostDatedChecks getPostDatedChecks() { return this.postDatedChecks; }
-
     public Loan getLoan() {
         return this.loan;
     }
@@ -216,6 +214,10 @@ public final class LoanRepaymentScheduleInstallment extends AbstractAuditableCus
         }
 
         return fromLocalDate;
+    }
+
+    public PostDatedChecks getPostDatedCheck() {
+        return this.postDatedChecks;
     }
 
     public LocalDate getDueDate() {

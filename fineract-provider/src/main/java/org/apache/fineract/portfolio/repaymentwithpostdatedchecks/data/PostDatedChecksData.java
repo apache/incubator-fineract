@@ -35,8 +35,8 @@ public final class PostDatedChecksData {
 
     private final LocalDate installmentDate;
 
-    private PostDatedChecksData(final LocalDate installmentDate, final Long id, final Integer installmentId,
-                                final Long accountNo, final BigDecimal amount, final String name) {
+    private PostDatedChecksData(final LocalDate installmentDate, final Long id, final Integer installmentId, final Long accountNo,
+            final BigDecimal amount, final String name) {
         this.accountNo = accountNo;
         this.amount = amount;
         this.name = name;
@@ -45,8 +45,8 @@ public final class PostDatedChecksData {
         this.installmentId = installmentId;
     }
 
-    public static PostDatedChecksData from (final LocalDate installmentDate, final Long id, final Integer installmentId,
-                                            final Long accountNo, final BigDecimal amount, final String name) {
+    public static PostDatedChecksData from(final LocalDate installmentDate, final Long id, final Integer installmentId,
+            final Long accountNo, final BigDecimal amount, final String name) {
         return new PostDatedChecksData(installmentDate, id, installmentId, accountNo, amount, name);
     }
 

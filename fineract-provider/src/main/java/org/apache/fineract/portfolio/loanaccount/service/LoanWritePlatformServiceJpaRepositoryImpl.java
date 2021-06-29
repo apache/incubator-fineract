@@ -273,7 +273,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             final CodeValueRepositoryWrapper codeValueRepository, final LoanRepositoryWrapper loanRepositoryWrapper,
             final CashierTransactionDataValidator cashierTransactionDataValidator, final GLIMAccountInfoRepository glimRepository,
             final LoanRepository loanRepository, final RepaymentWithPostDatedChecksAssembler repaymentWithPostDatedChecksAssembler,
-                                                     final PostDatedChecksRepository postDatedChecksRepository) {
+            final PostDatedChecksRepository postDatedChecksRepository) {
         this.context = context;
         this.loanEventApiJsonValidator = loanEventApiJsonValidator;
         this.loanAssembler = loanAssembler;

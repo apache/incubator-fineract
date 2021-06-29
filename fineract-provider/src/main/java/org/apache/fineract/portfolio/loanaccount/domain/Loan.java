@@ -529,7 +529,6 @@ public class Loan extends AbstractPersistableCustom {
         return this.loanRepaymentScheduleDetail.getNumberOfRepayments();
     }
 
-
     private LoanSummary updateSummaryWithTotalFeeChargesDueAtDisbursement(final BigDecimal feeChargesDueAtDisbursement) {
         if (this.summary == null) {
             this.summary = LoanSummary.create(feeChargesDueAtDisbursement);

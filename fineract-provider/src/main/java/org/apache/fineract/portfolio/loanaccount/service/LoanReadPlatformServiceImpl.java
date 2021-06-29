@@ -543,7 +543,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     }
 
     @Override
-    public Integer retrieveNumberOfRepayments (final Long loanId) {
+    public Integer retrieveNumberOfRepayments(final Long loanId) {
         this.context.authenticatedUser();
         return this.loanRepositoryWrapper.getNumberOfRepayments(loanId);
     }
@@ -551,11 +551,14 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService {
     @Override
     public List<LoanRepaymentScheduleInstallmentData> getRepaymentDataResponse(final Long loanId) {
         this.context.authenticatedUser();
-        final List<LoanRepaymentScheduleInstallment> loanRepaymentScheduleInstallments = this.loanRepositoryWrapper.getLoanRepaymentScheduleInstallments(loanId);
+        final List<LoanRepaymentScheduleInstallment> loanRepaymentScheduleInstallments = this.loanRepositoryWrapper
+                .getLoanRepaymentScheduleInstallments(loanId);
         List<LoanRepaymentScheduleInstallmentData> loanRepaymentScheduleInstallmentData = new ArrayList<>();
-        for (LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment: loanRepaymentScheduleInstallments) {
-            loanRepaymentScheduleInstallmentData.add(LoanRepaymentScheduleInstallmentData.instanceOf(loanRepaymentScheduleInstallment.getId(),
-                    loanRepaymentScheduleInstallment.getInstallmentNumber(), loanRepaymentScheduleInstallment.getDueDate(), loanRepaymentScheduleInstallment.getTotalOutstanding(loanRepaymentScheduleInstallment.getLoan().getCurrency()).getAmount()));
+        for (LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment : loanRepaymentScheduleInstallments) {
+            loanRepaymentScheduleInstallmentData.add(LoanRepaymentScheduleInstallmentData.instanceOf(
+                    loanRepaymentScheduleInstallment.getId(), loanRepaymentScheduleInstallment.getInstallmentNumber(),
+                    loanRepaymentScheduleInstallment.getDueDate(), loanRepaymentScheduleInstallment
+                            .getTotalOutstanding(loanRepaymentScheduleInstallment.getLoan().getCurrency()).getAmount()));
         }
         return loanRepaymentScheduleInstallmentData;
     }
