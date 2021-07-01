@@ -139,17 +139,17 @@ public final class LoanEventApiJsonValidator {
                 final String name = this.fromApiJsonHelper.extractStringNamed("name", postDatedCheck);
                 baseDataValidator.reset().parameter("name").value(name).notNull();
 
-                final BigDecimal amount = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", postDatedCheck);
+                final BigDecimal amount = this.fromApiJsonHelper.extractBigDecimalNamed("amount", postDatedCheck, locale);
                 baseDataValidator.reset().parameter("amount").value(amount).notNull().positiveAmount();
 
                 final Long accountNo = this.fromApiJsonHelper.extractLongNamed("accountNo", postDatedCheck);
                 baseDataValidator.reset().parameter("accountNo").value(accountNo).notNull().positiveAmount();
 
-                final Integer installmentId = this.fromApiJsonHelper.extractIntegerWithLocaleNamed("installmentId", postDatedCheck);
-                final List<LoanRepaymentScheduleInstallment> installmentList = loanRepaymentScheduleInstallment.stream()
-                        .filter(repayment -> repayment.getInstallmentNumber() == installmentId && repayment.getLoan().getId() == loanId)
+                final Integer installmentId = this.fromApiJsonHelper.extractIntegerNamed("installmentId", postDatedCheck, locale);
+                final List<LoanRepaymentScheduleInstallment> installmentList = loanRepaymentScheduleInstallment.stream().filter(
+                        repayment -> repayment.getInstallmentNumber().equals(installmentId) && repayment.getLoan().getId().equals(loanId))
                         .collect(Collectors.toList());
-                if (installmentList.size() > 0) {
+                if (installmentList.size() > 1) {
                     throw new PlatformDataIntegrityException("error.repayment.redundancy", "Multiple installment data found",
                             "postDatedChecks");
                 } else if (installmentList.size() == 0) {

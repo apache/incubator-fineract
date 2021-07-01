@@ -87,7 +87,7 @@ public class RepaymentWithPostDatedChecksWritePlatformServiceImpl implements Rep
             baseDataValidator.reset().parameter("amount").value(amount).notNull().positiveAmount();
         }
 
-        if (command.parameterExists(("repaymentDate"))) {
+        if (command.parameterExists("repaymentDate")) {
             final LocalDate repaymentDate = this.fromApiJsonHelper.extractLocalDateNamed("repaymentDate", jsonElement);
             baseDataValidator.reset().parameter("repaymentDate").value(repaymentDate).notNull();
         }

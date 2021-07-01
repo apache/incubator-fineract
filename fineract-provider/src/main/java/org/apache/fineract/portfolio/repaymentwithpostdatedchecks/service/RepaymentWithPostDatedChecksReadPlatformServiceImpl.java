@@ -30,7 +30,9 @@ import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDat
 import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecksRepository;
 import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.exception.PostDatedCheckNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RepaymentWithPostDatedChecksReadPlatformServiceImpl implements RepaymentWithPostDatedChecksReadPlatformService {
 
     private final PostDatedChecksRepository postDatedChecksRepository;
@@ -75,6 +77,11 @@ public class RepaymentWithPostDatedChecksReadPlatformServiceImpl implements Repa
     public PostDatedChecksData getPostDatedCheckByInstallmentId(final Integer id, final Long loanId) {
         final Loan loan = this.loanRepository.findById(loanId).orElseThrow(() -> new LoanNotFoundException(loanId));
         final List<PostDatedChecks> postDatedChecks = loan.getPostDatedChecks();
+
+        if (postDatedChecks == null || postDatedChecks.size() == 0) {
+            throw new PostDatedCheckNotFoundException(loanId, id);
+        }
+
         final PostDatedChecks postDatedChecksData = postDatedChecks.stream()
                 .filter((postDatedCheck) -> postDatedCheck.getLoanRepaymentScheduleInstallment().getInstallmentNumber().equals(id))
                 .collect(Collectors.toList()).get(0);

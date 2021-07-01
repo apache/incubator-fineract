@@ -31,4 +31,8 @@ public class LoanRepaymentScheduleNotFoundException extends AbstractPlatformReso
         super("error.msg.loan.repayment.id.invalid", "Loan repayment with identifier " + id + " does not exist", id);
     }
 
+    public LoanRepaymentScheduleNotFoundException(final Long id, final Integer loan) {
+        super("error.msg.loan.id" + id + ".not.contains.repayment.schedule", "Loan does not have repayment scheduled", loan);
+    }
+
 }

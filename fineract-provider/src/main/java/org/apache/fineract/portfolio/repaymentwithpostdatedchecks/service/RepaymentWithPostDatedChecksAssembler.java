@@ -66,14 +66,14 @@ public class RepaymentWithPostDatedChecksAssembler {
                  * Get the date from the request
                  */
 
-                final BigDecimal amount = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed("amount", postDatedCheck);
+                final BigDecimal amount = this.fromApiJsonHelper.extractBigDecimalNamed("amount", postDatedCheck, locale);
 
-                final Integer installmentId = this.fromApiJsonHelper.extractIntegerWithLocaleNamed("installmentId", postDatedCheck);
+                final Integer installmentId = this.fromApiJsonHelper.extractIntegerNamed("installmentId", postDatedCheck, locale);
                 final List<LoanRepaymentScheduleInstallment> installmentList = loanRepaymentScheduleInstallments.stream()
-                        .filter(repayment -> repayment.getInstallmentNumber() == installmentId).collect(Collectors.toList());
+                        .filter(repayment -> repayment.getInstallmentNumber().equals(installmentId)).collect(Collectors.toList());
                 final Long accountNo = this.fromApiJsonHelper.extractLongNamed("accountNo", postDatedCheck);
 
-                postDatedChecks.add(PostDatedChecks.instanceOf(accountNo, name, amount, installmentList.get(0), new Date()));
+                postDatedChecks.add(PostDatedChecks.instanceOf(accountNo, name, amount, installmentList.get(0), new Date(), loan));
             }
         }
 

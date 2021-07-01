@@ -56,18 +56,21 @@ public class PostDatedChecks extends AbstractPersistableCustom {
     @Column(name = "is_paid", columnDefinition = "0")
     private Integer isPaid;
 
+    public PostDatedChecks() {}
+
     private PostDatedChecks(final Long accountNo, final String bankName, final BigDecimal amount,
-            final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment, final Date date) {
+            final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment, final Date date, final Loan loan) {
         this.bankName = bankName;
         this.accountNo = accountNo;
         this.amount = amount;
         this.loanRepaymentScheduleInstallment = loanRepaymentScheduleInstallment;
         this.repaymentDate = date;
+        this.loan = loan;
     }
 
     public static PostDatedChecks instanceOf(final Long accountNo, final String bankName, final BigDecimal amount,
-            final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment, final Date date) {
-        return new PostDatedChecks(accountNo, bankName, amount, loanRepaymentScheduleInstallment, date);
+            final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment, final Date date, final Loan loan) {
+        return new PostDatedChecks(accountNo, bankName, amount, loanRepaymentScheduleInstallment, date, loan);
     }
 
     public void setLoan(Loan loan) {
