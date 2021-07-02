@@ -69,8 +69,10 @@ public class PostDatedChecks extends AbstractPersistableCustom {
     }
 
     public static PostDatedChecks instanceOf(final Long accountNo, final String bankName, final BigDecimal amount,
-            final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment, final Date date, final Loan loan) {
-        return new PostDatedChecks(accountNo, bankName, amount, loanRepaymentScheduleInstallment, date, loan);
+            final LoanRepaymentScheduleInstallment loanRepaymentScheduleInstallment, final Loan loan) {
+        return new PostDatedChecks(accountNo, bankName, amount, loanRepaymentScheduleInstallment,
+                Date.from(loanRepaymentScheduleInstallment.getDueDate().atStartOfDay(DateUtils.getDateTimeZoneOfTenant()).toInstant()),
+                loan);
     }
 
     public void setLoan(Loan loan) {
@@ -102,11 +104,11 @@ public class PostDatedChecks extends AbstractPersistableCustom {
             changes.put("accountNo", newAccountNo);
         }
 
-        if (command.isChangeInLocalDateParameterNamed("repaymentDate",
+        if (command.isChangeInLocalDateParameterNamed("date",
                 LocalDate.ofInstant(this.repaymentDate.toInstant(), DateUtils.getDateTimeZoneOfTenant()))) {
-            final LocalDate newDate = command.localDateValueOfParameterNamed("repaymentDate");
+            final LocalDate newDate = command.localDateValueOfParameterNamed("date");
             this.repaymentDate = Date.from(newDate.atStartOfDay(DateUtils.getDateTimeZoneOfTenant()).toInstant());
-            changes.put("repaymentDate", newDate);
+            changes.put("date", newDate);
         }
 
         return changes;

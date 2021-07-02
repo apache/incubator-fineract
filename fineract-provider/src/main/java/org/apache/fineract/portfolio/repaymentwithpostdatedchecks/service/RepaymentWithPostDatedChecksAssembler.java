@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -73,7 +72,7 @@ public class RepaymentWithPostDatedChecksAssembler {
                         .filter(repayment -> repayment.getInstallmentNumber().equals(installmentId)).collect(Collectors.toList());
                 final Long accountNo = this.fromApiJsonHelper.extractLongNamed("accountNo", postDatedCheck);
 
-                postDatedChecks.add(PostDatedChecks.instanceOf(accountNo, name, amount, installmentList.get(0), new Date(), loan));
+                postDatedChecks.add(PostDatedChecks.instanceOf(accountNo, name, amount, installmentList.get(0), loan));
             }
         }
 

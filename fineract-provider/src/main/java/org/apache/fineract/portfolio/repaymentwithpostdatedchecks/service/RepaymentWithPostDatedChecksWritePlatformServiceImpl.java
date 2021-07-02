@@ -102,6 +102,16 @@ public class RepaymentWithPostDatedChecksWritePlatformServiceImpl implements Rep
             baseDataValidator.reset().parameter("name").value(name).notNull();
         }
 
+        if (command.parameterExists("dateFormat")) {
+            final String dateFormat = this.fromApiJsonHelper.extractDateFormatParameter(jsonElement.getAsJsonObject());
+            baseDataValidator.reset().parameter("dateFormat").value(dateFormat).notNull();
+        }
+
+        if (command.parameterExists("date")) {
+            final LocalDate date = this.fromApiJsonHelper.extractLocalDateNamed("date", jsonElement);
+            baseDataValidator.reset().parameter("date").value(date).notNull();
+        }
+
         if (!dataValidationErrors.isEmpty()) {
             throw new PlatformApiDataValidationException(dataValidationErrors);
         }
