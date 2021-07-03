@@ -73,6 +73,9 @@ public class ShareAccountTransaction extends AbstractPersistableCustom {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "shareAccountTransaction", orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<ShareAccountChargePaidBy> shareAccountChargesPaid = new HashSet<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "toShareTransaction", orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<ShareAccountTransaction> shareAccountTransactions = new HashSet<>();
+
     protected ShareAccountTransaction() {
 
     }

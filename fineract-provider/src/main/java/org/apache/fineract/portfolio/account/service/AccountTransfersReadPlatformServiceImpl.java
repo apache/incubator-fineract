@@ -89,6 +89,7 @@ public class AccountTransfersReadPlatformServiceImpl implements AccountTransfers
 
         final EnumOptionData loanAccountType = AccountTransferEnumerations.accountType(PortfolioAccountType.LOAN);
         final EnumOptionData savingsAccountType = AccountTransferEnumerations.accountType(PortfolioAccountType.SAVINGS);
+        final EnumOptionData shareAccountType = AccountTransferEnumerations.accountType(PortfolioAccountType.SHARE);
 
         final Integer mostRelevantFromAccountType = fromAccountType;
         final Collection<EnumOptionData> fromAccountTypeOptions = Arrays.asList(savingsAccountType, loanAccountType);
@@ -97,7 +98,7 @@ public class AccountTransfersReadPlatformServiceImpl implements AccountTransfers
             // overpaid loan amt transfer to savings account
             toAccountTypeOptions = Arrays.asList(savingsAccountType);
         } else {
-            toAccountTypeOptions = Arrays.asList(loanAccountType, savingsAccountType);
+            toAccountTypeOptions = Arrays.asList(loanAccountType, savingsAccountType, shareAccountType);
         }
         final Integer mostRelevantToAccountType = toAccountType;
 
