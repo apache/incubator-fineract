@@ -21,15 +21,22 @@ package org.apache.fineract.portfolio.shareaccounts.domain;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.apache.fineract.portfolio.account.domain.AccountTransferType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class ShareAccountDomainServiceImpl implements ShareAccountDomainService {
 
+    @Autowired
     public ShareAccountDomainServiceImpl() {}
 
+    @Transactional
     @Override
-    public ShareAccountTransaction purchaseShares(final Long toAccountId, final LocalDate transactionDate, final Long shares,
+    public ShareAccountTransaction purchaseShares(final ShareAccount shareAccount, final LocalDate transactionDate, final Long shares,
             final BigDecimal unitPrice, final BigDecimal transactionAmount, final ShareAccountStatusType shareAccountStatusType,
             final AccountTransferType accountTransferType) {
-        return new ShareAccountTransaction();
+        return new ShareAccountTransaction(shareAccount, transactionDate, shares, unitPrice, transactionAmount, shareAccountStatusType,
+                accountTransferType);
     }
 }

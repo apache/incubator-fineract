@@ -20,7 +20,6 @@ package org.apache.fineract.portfolio.account.service;
 
 import static org.apache.fineract.portfolio.account.AccountDetailConstants.fromAccountIdParamName;
 import static org.apache.fineract.portfolio.account.AccountDetailConstants.fromAccountTypeParamName;
-import static org.apache.fineract.portfolio.account.AccountDetailConstants.requestedShares;
 import static org.apache.fineract.portfolio.account.AccountDetailConstants.toAccountIdParamName;
 import static org.apache.fineract.portfolio.account.AccountDetailConstants.toAccountTypeParamName;
 import static org.apache.fineract.portfolio.account.api.AccountTransfersApiConstants.transferAmountParamName;
@@ -63,6 +62,7 @@ import org.apache.fineract.portfolio.savings.domain.SavingsAccount;
 import org.apache.fineract.portfolio.savings.domain.SavingsAccountAssembler;
 import org.apache.fineract.portfolio.savings.domain.SavingsAccountDomainService;
 import org.apache.fineract.portfolio.savings.domain.SavingsAccountTransaction;
+import org.apache.fineract.portfolio.savings.exception.InsufficientAccountBalanceException;
 import org.apache.fineract.portfolio.savings.service.SavingsAccountWritePlatformService;
 import org.apache.fineract.portfolio.shareaccounts.domain.ShareAccount;
 import org.apache.fineract.portfolio.shareaccounts.domain.ShareAccountAssembler;
@@ -227,13 +227,21 @@ public class AccountTransfersWritePlatformServiceImpl implements AccountTransfer
             /**
              * TODO: Properly handle Exceptions.
              */
-            if (!transactionAmount.divide(unitPrice).equals(requestedShares)) {
+            if (transactionAmount.divide(unitPrice).longValue() != requestedShares) {
                 throw new AmountNotForRequestedShareException();
+            }
+
+            /**
+             * Throw if the account balance is insufficient.
+             */
+            if (fromSavingsAccount.getAccountBalance().compareTo(transactionAmount) < 0) {
+                throw new InsufficientAccountBalanceException(transferAmountParamName, fromSavingsAccount.getAccountBalance(),
+                        withdrawal.getAmount(), transactionAmount);
             }
 
             shareAccount.setTotalSharesApproved(requestedShares);
 
-            final ShareAccountTransaction shareAccountTransaction = this.shareAccountDomainService.purchaseShares(toShareAccountId,
+            final ShareAccountTransaction shareAccountTransaction = this.shareAccountDomainService.purchaseShares(shareAccount,
                     transactionDate, requestedShares, unitPrice, transactionAmount, ShareAccountStatusType.ACTIVE,
                     AccountTransferType.ACCOUNT_TRANSFER);
 

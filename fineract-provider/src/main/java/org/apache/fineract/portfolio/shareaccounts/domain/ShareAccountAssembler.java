@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.shareaccounts.domain;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +26,7 @@ public class ShareAccountAssembler {
 
     private ShareAccountRepositoryWrapper shareAccountRepositoryWrapper;
 
+    @Autowired
     public ShareAccountAssembler(final ShareAccountRepositoryWrapper shareAccountRepositoryWrapper) {
         this.shareAccountRepositoryWrapper = shareAccountRepositoryWrapper;
     }

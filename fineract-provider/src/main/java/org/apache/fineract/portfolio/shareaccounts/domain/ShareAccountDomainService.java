@@ -24,7 +24,7 @@ import org.apache.fineract.portfolio.account.domain.AccountTransferType;
 
 public interface ShareAccountDomainService {
 
-    ShareAccountTransaction purchaseShares(final Long toAccountId, final LocalDate transactionDate, final Long shares,
+    ShareAccountTransaction purchaseShares(final ShareAccount shareAccount, final LocalDate transactionDate, final Long shares,
             final BigDecimal unitPrice, final BigDecimal transactionAmount, final ShareAccountStatusType shareAccountStatusType,
             final AccountTransferType accountTransferType);
 }

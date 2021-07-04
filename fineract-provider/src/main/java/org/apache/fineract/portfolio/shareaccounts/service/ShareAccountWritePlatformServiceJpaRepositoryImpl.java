@@ -255,46 +255,83 @@ public class ShareAccountWritePlatformServiceJpaRepositoryImpl implements ShareA
     @Override
     public CommandProcessingResult approveShareAccount(Long accountId, JsonCommand jsonCommand) {
 
-        try {
-            ShareAccount account = this.shareAccountRepository.findOneWithNotFoundDetection(accountId);
-            Map<String, Object> changes = this.accountDataSerializer.validateAndApprove(jsonCommand, account);
-            if (!changes.isEmpty()) {
-                this.shareAccountRepository.save(account);
-                final String noteText = jsonCommand.stringValueOfParameterNamed("note");
-                if (StringUtils.isNotBlank(noteText)) {
-                    final Note note = Note.shareNote(account, noteText);
-                    changes.put("note", noteText);
-                    this.noteRepository.save(note);
-                }
+        ShareAccount account = this.shareAccountRepository.findOneWithNotFoundDetection(accountId);
+        Map<String, Object> changes = this.accountDataSerializer.validateAndApprove(jsonCommand, account);
+        if (!changes.isEmpty()) {
+            this.shareAccountRepository.save(account);
+            final String noteText = jsonCommand.stringValueOfParameterNamed("note");
+            if (StringUtils.isNotBlank(noteText)) {
+                final Note note = Note.shareNote(account, noteText);
+                changes.put("note", noteText);
+                this.noteRepository.save(note);
             }
-            Set<ShareAccountTransaction> transactions = account.getShareAccountTransactions();
-            Set<ShareAccountTransaction> journalTransactions = new HashSet<>();
-            Long totalSubsribedShares = Long.valueOf(0);
-
-            for (ShareAccountTransaction transaction : transactions) {
-                if (transaction.isActive() && transaction.isPurchasTransaction()) {
-                    journalTransactions.add(transaction);
-                    totalSubsribedShares += transaction.getTotalShares();
-                }
-            }
-            ShareProduct shareProduct = account.getShareProduct();
-            shareProduct.addSubscribedShares(totalSubsribedShares);
-            this.shareProductRepository.save(shareProduct);
-
-            this.journalEntryWritePlatformService.createJournalEntriesForShares(populateJournalEntries(account, journalTransactions));
-
-            this.businessEventNotifierService.notifyBusinessEventWasExecuted(BusinessEvents.SHARE_ACCOUNT_APPROVE,
-                    constructEntityMap(BusinessEntity.SHARE_ACCOUNT, account));
-
-            return new CommandProcessingResultBuilder() //
-                    .withCommandId(jsonCommand.commandId()) //
-                    .withEntityId(accountId) //
-                    .with(changes) //
-                    .build();
-        } catch (final JpaSystemException | DataIntegrityViolationException dve) {
-            handleDataIntegrityIssues(jsonCommand, dve.getMostSpecificCause(), dve);
-            return CommandProcessingResult.empty();
         }
+        Set<ShareAccountTransaction> transactions = account.getShareAccountTransactions();
+        Set<ShareAccountTransaction> journalTransactions = new HashSet<>();
+        Long totalSubsribedShares = Long.valueOf(0);
+
+        for (ShareAccountTransaction transaction : transactions) {
+            if (transaction.isActive() && transaction.isPurchasTransaction()) {
+                journalTransactions.add(transaction);
+                totalSubsribedShares += transaction.getTotalShares();
+            }
+        }
+        ShareProduct shareProduct = account.getShareProduct();
+        shareProduct.addSubscribedShares(totalSubsribedShares);
+        this.shareProductRepository.save(shareProduct);
+
+        this.journalEntryWritePlatformService.createJournalEntriesForShares(populateJournalEntries(account, journalTransactions));
+
+        this.businessEventNotifierService.notifyBusinessEventWasExecuted(BusinessEvents.SHARE_ACCOUNT_APPROVE,
+                constructEntityMap(BusinessEntity.SHARE_ACCOUNT, account));
+
+        return new CommandProcessingResultBuilder() //
+                .withCommandId(jsonCommand.commandId()) //
+                .withEntityId(accountId) //
+                .with(changes) //
+                .build();
+
+        // try {
+        // ShareAccount account = this.shareAccountRepository.findOneWithNotFoundDetection(accountId);
+        // Map<String, Object> changes = this.accountDataSerializer.validateAndApprove(jsonCommand, account);
+        // if (!changes.isEmpty()) {
+        // this.shareAccountRepository.save(account);
+        // final String noteText = jsonCommand.stringValueOfParameterNamed("note");
+        // if (StringUtils.isNotBlank(noteText)) {
+        // final Note note = Note.shareNote(account, noteText);
+        // changes.put("note", noteText);
+        // this.noteRepository.save(note);
+        // }
+        // }
+        // Set<ShareAccountTransaction> transactions = account.getShareAccountTransactions();
+        // Set<ShareAccountTransaction> journalTransactions = new HashSet<>();
+        // Long totalSubsribedShares = Long.valueOf(0);
+        //
+        // for (ShareAccountTransaction transaction : transactions) {
+        // if (transaction.isActive() && transaction.isPurchasTransaction()) {
+        // journalTransactions.add(transaction);
+        // totalSubsribedShares += transaction.getTotalShares();
+        // }
+        // }
+        // ShareProduct shareProduct = account.getShareProduct();
+        // shareProduct.addSubscribedShares(totalSubsribedShares);
+        // this.shareProductRepository.save(shareProduct);
+        //
+        // this.journalEntryWritePlatformService.createJournalEntriesForShares(populateJournalEntries(account,
+        // journalTransactions));
+        //
+        // this.businessEventNotifierService.notifyBusinessEventWasExecuted(BusinessEvents.SHARE_ACCOUNT_APPROVE,
+        // constructEntityMap(BusinessEntity.SHARE_ACCOUNT, account));
+        //
+        // return new CommandProcessingResultBuilder() //
+        // .withCommandId(jsonCommand.commandId()) //
+        // .withEntityId(accountId) //
+        // .with(changes) //
+        // .build();
+        // } catch (final JpaSystemException | DataIntegrityViolationException dve) {
+        // handleDataIntegrityIssues(jsonCommand, dve.getMostSpecificCause(), dve);
+        // return CommandProcessingResult.empty();
+        // }
     }
 
     @Override

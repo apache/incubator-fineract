@@ -54,7 +54,7 @@ public class AccountTransferTransaction extends AbstractPersistableCustom {
     private SavingsAccountTransaction toSavingsTransaction;
 
     @ManyToOne
-    @JoinColumn(name = "to_shares_transaction_id", nullable = true)
+    @JoinColumn(name = "to_share_transaction_id", nullable = true)
     private ShareAccountTransaction toShareTransaction;
 
     @ManyToOne
