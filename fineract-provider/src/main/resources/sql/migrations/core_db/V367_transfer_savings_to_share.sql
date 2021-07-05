@@ -21,5 +21,13 @@
 ALTER TABLE `m_account_transfer_details`
 ADD COLUMN `to_share_account_id` BIGINT(20) DEFAULT NULL AFTER `from_loan_account_id`;
 
+ALTER TABLE `m_account_transfer_details`
+ADD CONSTRAINT `m_share_account_id_fk`
+FOREIGN KEY (`to_share_account_id`) REFERENCES `m_share_account` (`id`) ON DELETE CASCADE;
+
 ALTER TABLE `m_account_transfer_transaction`
 ADD COLUMN `to_share_transaction_id` BIGINT(20) DEFAULT NULL AFTER `from_loan_transaction_id`;
+
+ALTER TABLE `m_account_transfer_transaction`
+ADD CONSTRAINT `FK_m_share_transaction_to_share_account`
+FOREIGN KEY (`to_share_transaction_id`) REFERENCES `m_share_account_transactions` (`id`) ON DELETE CASCADE;

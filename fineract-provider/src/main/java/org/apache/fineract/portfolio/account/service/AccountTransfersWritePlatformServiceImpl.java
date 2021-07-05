@@ -248,7 +248,7 @@ public class AccountTransfersWritePlatformServiceImpl implements AccountTransfer
             final AccountTransferDetails accountTransferDetails = this.accountTransferAssembler.assembleSavingsToShareTransfer(command,
                     fromSavingsAccount, shareAccount, withdrawal, shareAccountTransaction);
 
-            this.accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
+            this.accountTransferDetailRepository.save(accountTransferDetails);
             transferDetailId = accountTransferDetails.getId();
         }
 

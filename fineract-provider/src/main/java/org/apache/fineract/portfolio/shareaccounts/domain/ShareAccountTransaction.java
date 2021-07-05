@@ -35,7 +35,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
-import org.apache.fineract.portfolio.account.domain.AccountTransferTransaction;
 import org.apache.fineract.portfolio.account.domain.AccountTransferType;
 
 @Entity
@@ -77,8 +76,9 @@ public class ShareAccountTransaction extends AbstractPersistableCustom {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "shareAccountTransaction", orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<ShareAccountChargePaidBy> shareAccountChargesPaid = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "toShareTransaction", orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<AccountTransferTransaction> aAccountTransactions = new HashSet<>();
+    // @OneToMany(cascade = CascadeType.ALL, mappedBy = "toShareTransaction", orphanRemoval = true, fetch =
+    // FetchType.EAGER)
+    // private Set<AccountTransferTransaction> aAccountTransactions = new HashSet<>();
 
     protected ShareAccountTransaction() {
 
@@ -115,7 +115,7 @@ public class ShareAccountTransaction extends AbstractPersistableCustom {
             final AccountTransferType accountTransferType) {
         this.shareAccount = shareAccount;
         this.transactionDate = Date.from(transactionDate.atStartOfDay(DateUtils.getDateTimeZoneOfTenant()).toInstant());
-        this.totalShares += shares;
+        this.totalShares = shares;
         this.shareValue = unitPrice;
         this.amount = transactionAmount;
         this.status = shareAccountStatusType.getValue();
