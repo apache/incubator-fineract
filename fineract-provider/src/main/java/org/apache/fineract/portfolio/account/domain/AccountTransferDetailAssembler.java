@@ -165,7 +165,7 @@ public class AccountTransferDetailAssembler {
         final Integer transferType = this.fromApiJsonHelper.extractIntegerNamed(transferTypeParamName, element, Locale.getDefault());
 
         return AccountTransferDetails.savingsToShareTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient, toShareAccount,
-                transferType);
+                AccountTransferType.ACCOUNT_TRANSFER.getValue());
 
     }
 

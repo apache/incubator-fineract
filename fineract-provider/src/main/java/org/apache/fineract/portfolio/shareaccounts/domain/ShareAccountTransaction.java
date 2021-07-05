@@ -88,6 +88,14 @@ public class ShareAccountTransaction extends AbstractPersistableCustom {
         this.shareAccount = shareAccount;
     }
 
+    public void setType(final Integer type) {
+        this.type = type;
+    }
+
+    public void setStatus(final Integer status) {
+        this.status = status;
+    }
+
     public ShareAccountTransaction(final Date transactionDate, final Long totalShares, final BigDecimal shareValue) {
         this.transactionDate = transactionDate;
         this.totalShares = totalShares;
