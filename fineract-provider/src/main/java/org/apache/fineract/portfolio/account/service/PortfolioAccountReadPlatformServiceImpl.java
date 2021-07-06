@@ -255,7 +255,7 @@ public class PortfolioAccountReadPlatformServiceImpl implements PortfolioAccount
 
         private final String schemaSql;
 
-        public PortfolioShareAccountMapper() {
+        PortfolioShareAccountMapper() {
 
             final StringBuilder sqlBuilder = new StringBuilder(400);
             sqlBuilder.append("sh.id as id, sh.account_no as accountNo, sh.external_id as externalId, ");
