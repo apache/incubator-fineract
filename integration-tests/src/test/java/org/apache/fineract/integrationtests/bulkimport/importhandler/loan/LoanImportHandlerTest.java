@@ -214,7 +214,8 @@ public class LoanImportHandlerTest {
         LOG.info("Failure reason column: {}", row.getCell(LoanConstants.FAILURE_REPORT_COL).getStringCellValue());
 
         /**
-         * TODO: Implement Integration Tests to add Loan Collaterals. Check required conditions and change the expected value of assertion in to `Imported`.
+         * TODO: Implement Integration Tests to add Loan Collaterals. Check required conditions and change the expected
+         * value of assertion in to `Imported`.
          */
         Assertions.assertEquals("Creation failed", row.getCell(LoanConstants.STATUS_COL).getStringCellValue());
         outputworkbook.close();
