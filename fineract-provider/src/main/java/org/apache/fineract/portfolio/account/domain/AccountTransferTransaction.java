@@ -21,7 +21,6 @@ package org.apache.fineract.portfolio.account.domain;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -54,7 +53,7 @@ public class AccountTransferTransaction extends AbstractPersistableCustom {
     @JoinColumn(name = "to_savings_transaction_id", nullable = true)
     private SavingsAccountTransaction toSavingsTransaction;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "to_share_transaction_id", nullable = true)
     private ShareAccountTransaction toShareTransaction;
 

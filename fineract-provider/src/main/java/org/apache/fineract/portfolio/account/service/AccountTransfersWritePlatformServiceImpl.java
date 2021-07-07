@@ -563,15 +563,10 @@ public class AccountTransfersWritePlatformServiceImpl implements AccountTransfer
         final PaymentDetail paymentDetail = null;
         Long transferTransactionId = null;
 
-        final Long fromAccountId = command.longValueOfParameterNamed(fromAccountIdParamName);
-        final Loan fromLoanAccount = this.loanAccountAssembler.assembleFrom(fromAccountId);
+        final Long fromLoanAccountId = command.longValueOfParameterNamed(fromAccountIdParamName);
+        final Loan fromLoanAccount = this.loanAccountAssembler.assembleFrom(fromLoanAccountId);
 
-        final Integer toAccountType = command.integerValueOfParameterNamed(toAccountTypeParamName);
-        final Integer fromAccountType = command.integerValueOfParameterNamed(fromAccountTypeParamName);
-
-        final Long toShareAccountId = command.longValueOfParameterNamed(toAccountIdParamName);
-
-        BigDecimal overpaid = this.loanReadPlatformService.retrieveTotalPaidInAdvance(fromAccountId).getPaidInAdvance();
+        BigDecimal overpaid = this.loanReadPlatformService.retrieveTotalPaidInAdvance(fromLoanAccountId).getPaidInAdvance();
 
         if (overpaid == null || overpaid.compareTo(BigDecimal.ZERO) == 0 ? Boolean.TRUE
                 : Boolean.FALSE || transactionAmount.floatValue() > overpaid.floatValue()) {
@@ -581,7 +576,7 @@ public class AccountTransfersWritePlatformServiceImpl implements AccountTransfer
             throw new InvalidPaidInAdvanceAmountException(overpaid.toPlainString());
         }
 
-        final LoanTransaction loanRefundTransaction = this.loanAccountDomainService.makeRefundForActiveLoan(fromAccountId,
+        final LoanTransaction loanRefundTransaction = this.loanAccountDomainService.makeRefundForActiveLoan(fromLoanAccountId,
                 new CommandProcessingResultBuilder(), transactionDate, transactionAmount, paymentDetail, null, null);
 
         final Long toSavingsAccountId = command.longValueOfParameterNamed(toAccountIdParamName);
