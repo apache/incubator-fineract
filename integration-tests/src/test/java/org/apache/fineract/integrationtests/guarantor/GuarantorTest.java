@@ -27,6 +27,7 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import org.apache.fineract.integrationtests.common.ClientHelper;
+import org.apache.fineract.integrationtests.common.CollateralManagementHelper;
 import org.apache.fineract.integrationtests.common.CommonConstants;
 import org.apache.fineract.integrationtests.common.Utils;
 import org.apache.fineract.integrationtests.common.loans.LoanApplicationTestBuilder;
@@ -678,8 +680,27 @@ public class GuarantorTest {
         return this.loanTransactionHelper.getLoanProductId(loanProductJSON);
     }
 
+    private void addCollaterals(List<HashMap> collaterals, Integer collateralId, BigDecimal amount) {
+        collaterals.add(collaterals(collateralId, amount));
+    }
+
+    private HashMap<String, String> collaterals(Integer collateralId, BigDecimal amount) {
+        HashMap<String, String> collateral = new HashMap<String, String>(1);
+        collateral.put("clientCollateralId", collateralId.toString());
+        collateral.put("amount", amount.toString());
+        return collateral;
+    }
+
     private Integer applyForLoanApplication(final Integer clientID, final Integer loanProductID, final String disbursementDate) {
         LOG.info("--------------------------------APPLYING FOR LOAN APPLICATION--------------------------------");
+        List<HashMap> collaterals = new ArrayList<>();
+
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
+
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
+                clientID.toString(), collateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1000000));
+
         final String loanApplicationJSON = new LoanApplicationTestBuilder() //
                 .withPrincipal("10000.00") //
                 .withLoanTermFrequency("4") //
@@ -693,7 +714,7 @@ public class GuarantorTest {
                 .withInterestCalculationPeriodTypeSameAsRepaymentPeriod() //
                 .withExpectedDisbursementDate(disbursementDate) //
                 .withSubmittedOnDate(disbursementDate) //
-                .build(clientID.toString(), loanProductID.toString(), null);
+                .withCollaterals(collaterals).build(clientID.toString(), loanProductID.toString(), null);
         return this.loanTransactionHelper.getLoanId(loanApplicationJSON);
     }
 

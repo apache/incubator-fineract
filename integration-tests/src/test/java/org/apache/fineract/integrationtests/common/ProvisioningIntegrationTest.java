@@ -24,6 +24,7 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -77,11 +78,21 @@ public class ProvisioningIntegrationTest {
         ArrayList<Integer> loanProducts = new ArrayList<>(LOANPRODUCTS_SIZE);
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
         ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
+
+        List<HashMap> collaterals = new ArrayList<>();
+
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
+                String.valueOf(clientID), collateralId);
+        Assertions.assertNotNull(clientCollateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
+
         for (int i = 0; i < LOANPRODUCTS_SIZE; i++) {
             final Integer loanProductID = createLoanProduct(false, NONE);
             loanProducts.add(loanProductID);
             Assertions.assertNotNull(loanProductID);
-            final Integer loanID = applyForLoanApplication(clientID, loanProductID, null, null, "1,00,000.00");
+            final Integer loanID = applyForLoanApplication(clientID, loanProductID, null, null, "1,00,000.00", collaterals);
             HashMap loanStatusHashMap = LoanStatusChecker.getStatusOfLoan(this.requestSpec, this.responseSpec, loanID);
             LoanStatusChecker.verifyLoanIsPending(loanStatusHashMap);
             loanStatusHashMap = this.loanTransactionHelper.approveLoan("20 September 2011", loanID);
@@ -136,6 +147,17 @@ public class ProvisioningIntegrationTest {
         Assertions.assertTrue((Boolean) entry.get("journalEntry"));
         Map provisioningEntry = transactionHelper.retrieveProvisioningEntries(provisioningEntryId);
         Assertions.assertTrue(((ArrayList) provisioningEntry.get("pageItems")).size() > 0);
+    }
+
+    private HashMap collaterals(Integer collateralId, BigDecimal amount) {
+        HashMap collateral = new HashMap(1);
+        collateral.put("clientCollateralId", collateralId);
+        collateral.put("amount", String.valueOf(amount));
+        return collateral;
+    }
+
+    private void addCollaterals(List<HashMap> collaterals, Integer collateralId, BigDecimal amount) {
+        collaterals.add(collaterals(collateralId, amount));
     }
 
     private void validateProvisioningCriteria(Map requestCriteria, Map newCriteria) {
@@ -206,7 +228,7 @@ public class ProvisioningIntegrationTest {
     }
 
     private Integer applyForLoanApplication(final Integer clientID, final Integer loanProductID, List<HashMap> charges,
-            final String savingsId, String principal) {
+            final String savingsId, String principal, List<HashMap> collaterals) {
         LOG.info("--------------------------------APPLYING FOR LOAN APPLICATION--------------------------------");
         final String loanApplicationJSON = new LoanApplicationTestBuilder() //
                 .withPrincipal(principal) //
@@ -221,7 +243,7 @@ public class ProvisioningIntegrationTest {
                 .withInterestCalculationPeriodTypeSameAsRepaymentPeriod() //
                 .withExpectedDisbursementDate("20 September 2011") //
                 .withSubmittedOnDate("20 September 2011") //
-                .withCharges(charges).build(clientID.toString(), loanProductID.toString(), savingsId);
+                .withCollaterals(collaterals).withCharges(charges).build(clientID.toString(), loanProductID.toString(), savingsId);
         return this.loanTransactionHelper.getLoanId(loanApplicationJSON);
     }
 

@@ -25,6 +25,7 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.integrationtests.common.ClientHelper;
+import org.apache.fineract.integrationtests.common.CollateralManagementHelper;
 import org.apache.fineract.integrationtests.common.CommonConstants;
 import org.apache.fineract.integrationtests.common.SchedulerJobHelper;
 import org.apache.fineract.integrationtests.common.Utils;
@@ -138,7 +140,16 @@ public class AccountingScenarioIntegrationTest {
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
-        final Integer loanID = applyForLoanApplication(clientID, loanProductID);
+
+        List<HashMap> collaterals = new ArrayList<>();
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(requestSpec, responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(requestSpec, responseSpec, clientID.toString(),
+                collateralId);
+        Assertions.assertNotNull(clientCollateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
+
+        final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         HashMap loanStatusHashMap = LoanStatusChecker.getStatusOfLoan(requestSpec, responseSpec, loanID);
         LoanStatusChecker.verifyLoanIsPending(loanStatusHashMap);
@@ -238,14 +249,14 @@ public class AccountingScenarioIntegrationTest {
         return this.loanTransactionHelper.getLoanProductId(loanProductJSON);
     }
 
-    private Integer applyForLoanApplication(final Integer clientID, final Integer loanProductID) {
+    private Integer applyForLoanApplication(final Integer clientID, final Integer loanProductID, List<HashMap> collaterals) {
         LOG.info("--------------------------------APPLYING FOR LOAN APPLICATION--------------------------------");
         final String loanApplicationJSON = new LoanApplicationTestBuilder().withPrincipal(LP_PRINCIPAL.toString())
                 .withLoanTermFrequency(LOAN_TERM_FREQUENCY).withLoanTermFrequencyAsMonths().withNumberOfRepayments(LP_REPAYMENTS)
                 .withRepaymentEveryAfter(LP_REPAYMENT_PERIOD).withRepaymentFrequencyTypeAsMonths()
                 .withInterestRatePerPeriod(LP_INTEREST_RATE).withInterestTypeAsFlatBalance().withAmortizationTypeAsEqualPrincipalPayments()
                 .withInterestCalculationPeriodTypeSameAsRepaymentPeriod().withExpectedDisbursementDate(EXPECTED_DISBURSAL_DATE)
-                .withSubmittedOnDate(LOAN_APPLICATION_SUBMISSION_DATE).withLoanType(INDIVIDUAL_LOAN)
+                .withSubmittedOnDate(LOAN_APPLICATION_SUBMISSION_DATE).withLoanType(INDIVIDUAL_LOAN).withCollaterals(collaterals)
                 .build(clientID.toString(), loanProductID.toString(), null);
         return this.loanTransactionHelper.getLoanId(loanApplicationJSON);
     }
@@ -564,7 +575,16 @@ public class AccountingScenarioIntegrationTest {
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
-        final Integer loanID = applyForLoanApplication(clientID, loanProductID);
+
+        List<HashMap> collaterals = new ArrayList<>();
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(requestSpec, responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(requestSpec, responseSpec, clientID.toString(),
+                collateralId);
+        Assertions.assertNotNull(clientCollateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
+
+        final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         HashMap loanStatusHashMap = LoanStatusChecker.getStatusOfLoan(requestSpec, responseSpec, loanID);
         LoanStatusChecker.verifyLoanIsPending(loanStatusHashMap);
@@ -677,7 +697,16 @@ public class AccountingScenarioIntegrationTest {
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
-        final Integer loanID = applyForLoanApplication(clientID, loanProductID);
+
+        List<HashMap> collaterals = new ArrayList<>();
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(requestSpec, responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(requestSpec, responseSpec, clientID.toString(),
+                collateralId);
+        Assertions.assertNotNull(clientCollateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
+
+        final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         HashMap loanStatusHashMap = LoanStatusChecker.getStatusOfLoan(requestSpec, responseSpec, loanID);
         LoanStatusChecker.verifyLoanIsPending(loanStatusHashMap);
@@ -721,6 +750,17 @@ public class AccountingScenarioIntegrationTest {
 
     }
 
+    private void addCollaterals(List<HashMap> collaterals, Integer collateralId, BigDecimal quantity) {
+        collaterals.add(collaterals(collateralId, quantity));
+    }
+
+    private HashMap<String, String> collaterals(Integer collateralId, BigDecimal quantity) {
+        HashMap<String, String> collateral = new HashMap<String, String>(2);
+        collateral.put("clientCollateralId", collateralId.toString());
+        collateral.put("quantity", quantity.toString());
+        return collateral;
+    }
+
     @Test
     public void checkPeriodicAccrualAccountingTillCurrentDateFlow() throws InterruptedException, ParseException {
         final Account assetAccount = this.accountHelper.createAssetAccount();
@@ -732,7 +772,16 @@ public class AccountingScenarioIntegrationTest {
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
-        final Integer loanID = applyForLoanApplication(clientID, loanProductID);
+
+        List<HashMap> collaterals = new ArrayList<>();
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(requestSpec, responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(requestSpec, responseSpec, clientID.toString(),
+                collateralId);
+        Assertions.assertNotNull(clientCollateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
+
+        final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         final float FEE_PORTION = 50.0f;
         final float PENALTY_PORTION = 100.0f;
@@ -816,12 +865,13 @@ public class AccountingScenarioIntegrationTest {
         final Account incomeAccount = this.accountHelper.createIncomeAccount();
         final Account expenseAccount = this.accountHelper.createExpenseAccount();
         final Account overpaymentAccount = this.accountHelper.createLiabilityAccount();
+        List<HashMap> collaterals = null;
 
         final Integer loanProductID = createLoanProductWithPeriodicAccrualAccountingEnabled(assetAccount, incomeAccount, expenseAccount,
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
-        final Integer loanID = applyForLoanApplication(clientID, loanProductID);
+        final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         final float FEE_PORTION = 50.0f;
         final float PENALTY_PORTION = 100.0f;
@@ -937,12 +987,13 @@ public class AccountingScenarioIntegrationTest {
         final Account incomeAccount = this.accountHelper.createIncomeAccount();
         final Account expenseAccount = this.accountHelper.createExpenseAccount();
         final Account overpaymentAccount = this.accountHelper.createLiabilityAccount();
+        List<HashMap> collaterals = null;
 
         final Integer loanProductID = createLoanProductWithCashBasedAccountingEnabled(assetAccount, incomeAccount, expenseAccount,
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
-        final Integer loanID = applyForLoanApplication(clientID, loanProductID);
+        final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         HashMap loanStatusHashMap = LoanStatusChecker.getStatusOfLoan(requestSpec, responseSpec, loanID);
         LoanStatusChecker.verifyLoanIsPending(loanStatusHashMap);
