@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 
 public class CollateralManagementHelper {
 
-    private static final String CREATE_COLLATERAL_PRODUCT_URL = "/fineract-provider/api/v1/CreditBureauConfiguration/configuration?"
-            + Utils.TENANT_IDENTIFIER;
     private static final Logger LOG = LoggerFactory.getLogger(CollateralManagementHelper.class);
     private final RequestSpecification requestSpec;
     private final ResponseSpecification responseSpec;
@@ -58,7 +56,7 @@ public class CollateralManagementHelper {
 
     public static Integer createCollateralProduct(final RequestSpecification requestSpec, final ResponseSpecification responseSpec) {
         LOG.info("---------------------------------CREATING A COLLATERAL_PRODUCT---------------------------------------------");
-        final String COLLATERAL_PRODUCT = " /fineract-provider/api/v1/collateral-management" + "?" + Utils.TENANT_IDENTIFIER;
+        final String COLLATERAL_PRODUCT = "/fineract-provider/api/v1/collateral-management" + "?" + Utils.TENANT_IDENTIFIER;
         return Utils.performServerPost(requestSpec, responseSpec, COLLATERAL_PRODUCT, collateralProductAsJson("Land Property New", "USD",
                 "acre", "agriculture", BigDecimal.valueOf(40), BigDecimal.valueOf(100000000), "en"), "resourceId");
     }
@@ -80,7 +78,7 @@ public class CollateralManagementHelper {
     public static Object updateCollateralProduct(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
             final Integer collateralId) {
         LOG.info("---------------------------------UPDATING A COLLATERAL_PRODUCT---------------------------------------------");
-        final String COLLATERAL_PRODUCT_URL = " /fineract-provider/api/v1/collateral-management/" + collateralId + "?"
+        final String COLLATERAL_PRODUCT_URL = "/fineract-provider/api/v1/collateral-management/" + collateralId + "?"
                 + Utils.TENANT_IDENTIFIER;
         return Utils.performServerPut(requestSpec, responseSpec, COLLATERAL_PRODUCT_URL, updateCollateralProductAsJson("Land Property New",
                 "USD", "acre", "agriculture", BigDecimal.valueOf(40), BigDecimal.valueOf(100000), "en"), "changes");
@@ -117,7 +115,7 @@ public class CollateralManagementHelper {
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec);
         ClientHelper.verifyClientCreatedOnServer(requestSpec, responseSpec, clientID);
         LOG.info("---------------------------------UPDATING A COLLATERAL_PRODUCT---------------------------------------------");
-        final String CLIENT_COLLATERAL_URL = " /fineract-provider/api/v1/clients/" + clientID + "/collaterals/" + collateralId + "?"
+        final String CLIENT_COLLATERAL_URL = "/fineract-provider/api/v1/clients/" + clientID + "/collaterals/" + collateralId + "?"
                 + Utils.TENANT_IDENTIFIER;
         return Utils.performServerPut(requestSpec, responseSpec, CLIENT_COLLATERAL_URL,
                 updateClientCollateralAsJson(collateralId, BigDecimal.valueOf(1), ""), "changes");

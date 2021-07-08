@@ -5230,6 +5230,8 @@ public class ClientLoanIntegrationTest {
         Assertions.assertNotNull(clientCollateralId);
         addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
 
+        LOG.info(collaterals.get(0).get("clientCollateralId").toString());
+
         final Integer loanID = applyForLoanApplication(clientID, loanProductID, charges, null, "10,000.00", collaterals);
         Assertions.assertNotNull(loanID);
 

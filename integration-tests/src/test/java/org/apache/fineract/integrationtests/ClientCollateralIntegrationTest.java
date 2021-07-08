@@ -16,10 +16,9 @@ import org.slf4j.LoggerFactory;
 
 public class ClientCollateralIntegrationTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CollateralProductIntegrationTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClientCollateralIntegrationTest.class);
     private ResponseSpecification responseSpec;
     private RequestSpecification requestSpec;
-    private LoanTransactionHelper loanTransactionHelper;
 
     @BeforeEach
     public void setup() {
@@ -27,13 +26,13 @@ public class ClientCollateralIntegrationTest {
         this.requestSpec = new RequestSpecBuilder().setContentType(ContentType.JSON).build();
         this.requestSpec.header("Authorization", "Basic " + Utils.loginIntoServerAndGetBase64EncodedAuthenticationKey());
         this.responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
-        this.loanTransactionHelper = new LoanTransactionHelper(this.requestSpec, this.responseSpec);
     }
 
     @Test
     public void createClientCollateralTest() {
         final Integer collateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec);
         Assertions.assertNotNull(collateralId);
+        LOG.info("Creating Client Collateral");
         updateClientCollateral(collateralId);
     }
 
