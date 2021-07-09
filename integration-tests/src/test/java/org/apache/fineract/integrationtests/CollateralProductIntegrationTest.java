@@ -32,16 +32,19 @@ public class CollateralProductIntegrationTest {
 
     @Test
     public void createCollateralProductTest() {
-
+        LOG.info("-------------------------Creating Collateral Product---------------------------");
         final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
         Assertions.assertNotNull(collateralId);
-        updateCollateralProduct(collateralId);
     }
 
-    private void updateCollateralProduct(final Integer collateralId) {
-        final String updateconfiguration = CollateralManagementHelper.updateCollateralProductAsString(this.requestSpec, this.responseSpec,
+    @Test
+    public void updateCollateralProductTest() {
+        LOG.info("-------------------------Updating Client Collateral---------------------------");
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final String updatedCollateralId = CollateralManagementHelper.updateCollateralProductAsString(this.requestSpec, this.responseSpec,
                 collateralId);
 
-        Assertions.assertEquals("updateConfigKeyValue", updateconfiguration);
+        Assertions.assertEquals(updatedCollateralId, collateralId);
     }
 }

@@ -148,7 +148,7 @@ public class ClientCollateralManagementAPIResource {
     @Operation(summary = "Add New Collateral For a Client", description = "Add New Collateral For a Client")
     @RequestBody(required = true, content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PostClientCollateralRequest.class)))
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PostClientCollateralResponse.class))) })
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PostClientCollateralResponse.class))) })
     public String addCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
             @Parameter(hidden = true) String apiJsonRequestBody) {
         final CommandWrapper commandWrapper = new CommandWrapperBuilder().addClientCollateralProduct(clientId).withJson(apiJsonRequestBody)
@@ -166,7 +166,7 @@ public class ClientCollateralManagementAPIResource {
     @Operation(summary = "Update New Collateral of a Client", description = "Update New Collateral of a Client")
     @RequestBody(required = true, content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PutClientCollateralRequest.class)))
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PutClientCollateralResponse.class))) })
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = ClientCollateralManagementAPIResourceSwagger.PutClientCollateralResponse.class))) })
     public String updateCollateral(@PathParam("clientId") @Parameter(description = "clientId") final Long clientId,
             @PathParam("collateralId") @Parameter(description = "collateralId") final Long collateralId,
             @Parameter(hidden = true) String apiJsonRequestBody) {

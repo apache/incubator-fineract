@@ -5,9 +5,9 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import org.apache.fineract.integrationtests.common.ClientHelper;
 import org.apache.fineract.integrationtests.common.CollateralManagementHelper;
 import org.apache.fineract.integrationtests.common.Utils;
-import org.apache.fineract.integrationtests.common.loans.LoanTransactionHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,15 +30,30 @@ public class ClientCollateralIntegrationTest {
 
     @Test
     public void createClientCollateralTest() {
-        final Integer collateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec);
+        LOG.info("-------------------------Creating Client Collateral---------------------------");
+        final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec);
+        ClientHelper.verifyClientCreatedOnServer(requestSpec, responseSpec, clientID);
+
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
         Assertions.assertNotNull(collateralId);
-        LOG.info("Creating Client Collateral");
-        updateClientCollateral(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
+                clientID.toString(), collateralId);
+        Assertions.assertNotNull(clientCollateralId);
     }
 
-    private void updateClientCollateral(final Integer collateralId) {
+    @Test
+    public void updateClientCollateral() {
+        LOG.info("-------------------------Updating Client Collateral---------------------------");
+        final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec);
+        ClientHelper.verifyClientCreatedOnServer(requestSpec, responseSpec, clientID);
+
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
+        Assertions.assertNotNull(collateralId);
+
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
+                clientID.toString(), collateralId);
         final String updateClientCollateral = CollateralManagementHelper.updateClientCollateralAsString(this.requestSpec, this.responseSpec,
-                collateralId);
+                clientCollateralId);
         Assertions.assertEquals(collateralId, updateClientCollateral);
     }
 

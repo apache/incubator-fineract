@@ -201,7 +201,8 @@ public class NotesTest {
         final String loanApplication = new LoanApplicationTestBuilder().withPrincipal("5000").withLoanTermFrequency("5")
                 .withLoanTermFrequencyAsMonths().withNumberOfRepayments("5").withRepaymentEveryAfter("1")
                 .withRepaymentFrequencyTypeAsMonths().withInterestRatePerPeriod("2").withExpectedDisbursementDate("04 April 2012")
-                .withSubmittedOnDate("02 April 2012").build(clientID.toString(), loanProductID.toString(), null);
+                .withCollaterals(collaterals).withSubmittedOnDate("02 April 2012")
+                .build(clientID.toString(), loanProductID.toString(), null);
         return this.loanTransactionHelper.getLoanId(loanApplication);
     }
 

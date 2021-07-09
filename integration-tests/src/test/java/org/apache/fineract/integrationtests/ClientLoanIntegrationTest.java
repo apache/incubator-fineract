@@ -759,11 +759,11 @@ public class ClientLoanIntegrationTest {
                 MINIMUM_OPENING_BALANCE);
 
         List<HashMap> collaterals = new ArrayList<>();
-
         final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
-
+        Assertions.assertNotNull(collateralId);
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
                 String.valueOf(clientID), collateralId);
+        Assertions.assertNotNull(clientCollateralId);
         addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
 
         final Integer loanID = applyForLoanApplication(clientID, loanProductID, null, savingsId.toString(), "12,000.00", collaterals);

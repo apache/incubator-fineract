@@ -222,7 +222,7 @@ public class LoanWithWaiveInterestAndWriteOffIntegrationTest {
                 .withInterestRatePerPeriod(RATE_OF_INTEREST_PER_PERIOD).withInterestTypeAsFlatBalance()
                 .withAmortizationTypeAsEqualInstallments().withInterestCalculationPeriodTypeSameAsRepaymentPeriod()
                 .withExpectedDisbursementDate(EXPECTED_DISBURSAL_DATE).withSubmittedOnDate(LOAN_APPLICATION_SUBMISSION_DATE)
-                .build(clientID.toString(), loanProductID.toString(), null);
+                .withCollaterals(collaterals).build(clientID.toString(), loanProductID.toString(), null);
         return this.loanTransactionHelper.getLoanId(loanApplicationJSON);
     }
 

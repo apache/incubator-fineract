@@ -100,7 +100,7 @@ public class CollateralManagementAPIResource {
     @Operation(summary = "Create a new collateral", description = "Collateral Creation")
     @RequestBody(required = true, content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.PostCollateralManagementProductRequest.class)))
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "OK", content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.PostCollateralManagementProductResponse.class))) })
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CollateralManagementAPIResourceSwagger.PostCollateralManagementProductResponse.class))) })
     public String createCollateral(@Parameter(hidden = true) final String apiRequestBodyAsJson) {
         final CommandWrapper commandWrapper = new CommandWrapperBuilder().createCollateral().withJson(apiRequestBodyAsJson).build();
         final CommandProcessingResult commandProcessingResult = this.commandsSourceWritePlatformService.logCommandSource(commandWrapper);

@@ -24,9 +24,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.codes.domain.CodeValue;
 import org.apache.fineract.infrastructure.codes.domain.CodeValueRepositoryWrapper;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
@@ -43,6 +45,7 @@ import org.apache.fineract.organisation.staff.exception.StaffNotFoundException;
 import org.apache.fineract.organisation.staff.exception.StaffRoleException;
 import org.apache.fineract.organisation.workingdays.domain.WorkingDays;
 import org.apache.fineract.organisation.workingdays.domain.WorkingDaysRepositoryWrapper;
+import org.apache.fineract.portfolio.accountdetails.domain.AccountType;
 import org.apache.fineract.portfolio.accountdetails.service.AccountEnumerations;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
@@ -212,23 +215,35 @@ public class LoanAssembler {
                         loanProduct.maxTrancheCount(), disbursementDetails.size());
             }
         }
-        final Set<LoanCollateralManagement> collateral = this.collateralAssembler.fromParsedJson(element);
 
-        if (collateral.size() == 0) {
-            throw new InvalidAmountOfCollaterals(BigDecimal.ZERO);
-        }
+        final String loanTypeParameterName = "loanType";
+        final String loanTypeStr = this.fromApiJsonHelper.extractStringNamed(loanTypeParameterName, element);
+        final EnumOptionData loanType = AccountEnumerations.loanType(loanTypeStr);
+        Set<LoanCollateralManagement> collateral = new HashSet<>();
 
-        BigDecimal totalValue = BigDecimal.ZERO;
-        for (LoanCollateralManagement collateralManagement : collateral) {
-            final CollateralManagementDomain collateralManagementDomain = collateralManagement.getClientCollateralManagement()
-                    .getCollaterals();
-            BigDecimal totalCollateral = collateralManagement.getQuantity().multiply(collateralManagementDomain.getBasePrice())
-                    .multiply(collateralManagementDomain.getPctToBase()).divide(BigDecimal.valueOf(100));
-            totalValue = totalValue.add(totalCollateral);
-        }
+        if (!StringUtils.isBlank(loanTypeStr)) {
+            final AccountType loanAccountType = AccountType.fromName(loanTypeStr);
 
-        if (amount.compareTo(totalValue) > 0) {
-            throw new InvalidAmountOfCollaterals(totalValue);
+            if (loanAccountType.isIndividualAccount()) {
+                collateral = this.collateralAssembler.fromParsedJson(element);
+
+                if (collateral.size() == 0) {
+                    throw new InvalidAmountOfCollaterals(BigDecimal.ZERO);
+                }
+
+                BigDecimal totalValue = BigDecimal.ZERO;
+                for (LoanCollateralManagement collateralManagement : collateral) {
+                    final CollateralManagementDomain collateralManagementDomain = collateralManagement.getClientCollateralManagement()
+                            .getCollaterals();
+                    BigDecimal totalCollateral = collateralManagement.getQuantity().multiply(collateralManagementDomain.getBasePrice())
+                            .multiply(collateralManagementDomain.getPctToBase()).divide(BigDecimal.valueOf(100));
+                    totalValue = totalValue.add(totalCollateral);
+                }
+
+                if (amount.compareTo(totalValue) > 0) {
+                    throw new InvalidAmountOfCollaterals(totalValue);
+                }
+            }
         }
 
         // final Set<LoanCollateral> collateral = this.loanCollateralAssembler.fromParsedJson(element);
@@ -261,10 +276,6 @@ public class LoanAssembler {
         final Boolean isFloatingInterestRate = this.fromApiJsonHelper
                 .extractBooleanNamed(LoanApiConstants.isFloatingInterestRateParameterName, element);
 
-        final String loanTypeParameterName = "loanType";
-        final String loanTypeStr = this.fromApiJsonHelper.extractStringNamed(loanTypeParameterName, element);
-        final EnumOptionData loanType = AccountEnumerations.loanType(loanTypeStr);
-
         if (clientId != null) {
             client = this.clientRepository.findOneWithNotFoundDetection(clientId);
             if (client.isNotActive()) {
@@ -286,13 +297,13 @@ public class LoanAssembler {
             }
 
             loanApplication = Loan.newIndividualLoanApplicationFromGroup(accountNo, client, group, loanType.getId().intValue(), loanProduct,
-                    fund, loanOfficer, loanPurpose, loanTransactionProcessingStrategy, loanProductRelatedDetail, loanCharges, collateral,
+                    fund, loanOfficer, loanPurpose, loanTransactionProcessingStrategy, loanProductRelatedDetail, loanCharges, null,
                     syncDisbursementWithMeeting, fixedEmiAmount, disbursementDetails, maxOutstandingLoanBalance,
                     createStandingInstructionAtDisbursement, isFloatingInterestRate, interestRateDifferential, rates);
 
         } else if (group != null) {
             loanApplication = Loan.newGroupLoanApplication(accountNo, group, loanType.getId().intValue(), loanProduct, fund, loanOfficer,
-                    loanPurpose, loanTransactionProcessingStrategy, loanProductRelatedDetail, loanCharges, collateral,
+                    loanPurpose, loanTransactionProcessingStrategy, loanProductRelatedDetail, loanCharges, null,
                     syncDisbursementWithMeeting, fixedEmiAmount, disbursementDetails, maxOutstandingLoanBalance,
                     createStandingInstructionAtDisbursement, isFloatingInterestRate, interestRateDifferential, rates);
 

@@ -358,15 +358,17 @@ public class AccountNumberPreferencesTest {
             /* Create Client with Client Type */
             this.clientId = ClientHelper.createClientForAccountPreference(this.requestSpec, this.responseSpec, this.clientCodeValueId,
                     "clientId");
+            ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, this.clientId);
 
-            Assertions.assertNotNull(clientId);
+            // Assertions.assertNotNull(clientId);
 
             clientAccountNo = (String) ClientHelper.getClient(this.requestSpec, this.responseSpec, this.clientId.toString(), "accountNo");
             this.validateAccountNumberLengthAndStartsWithPrefix(clientAccountNo, this.clientCodeValueName);
 
         } else if (clientPrefixName.equals(this.officeName)) {
             this.clientId = ClientHelper.createClient(this.requestSpec, this.responseSpec);
-            Assertions.assertNotNull(clientId);
+            ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, this.clientId);
+            // Assertions.assertNotNull(clientId);
             clientAccountNo = (String) ClientHelper.getClient(requestSpec, responseSpec, this.clientId.toString(), "accountNo");
             String officeName = (String) ClientHelper.getClient(requestSpec, responseSpec, this.clientId.toString(), "officeName");
             this.validateAccountNumberLengthAndStartsWithPrefix(clientAccountNo, officeName);
@@ -423,7 +425,7 @@ public class AccountNumberPreferencesTest {
                 .withRepaymentEveryAfter("1").withRepaymentFrequencyTypeAsMonths().withAmortizationTypeAsEqualInstallments()
                 .withInterestCalculationPeriodTypeAsDays().withInterestRatePerPeriod(interestRatePerPeriod).withLoanTermFrequencyAsMonths()
                 .withSubmittedOnDate(dateString).withExpectedDisbursementDate(dateString).withPrincipalGrace("2").withInterestGrace("2")
-                .build(this.clientId.toString(), this.loanProductId.toString(), null);
+                .withCollaterals(collaterals).build(this.clientId.toString(), this.loanProductId.toString(), null);
 
         LOG.info("Loan Application :{}", loanApplicationJSON);
 

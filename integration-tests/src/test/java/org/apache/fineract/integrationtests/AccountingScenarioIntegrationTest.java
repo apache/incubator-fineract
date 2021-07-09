@@ -389,7 +389,8 @@ public class AccountingScenarioIntegrationTest {
         final Account liabilityAccount = this.accountHelper.createLiabilityAccount();
 
         Integer clientId = ClientHelper.createClient(requestSpec, responseSpec);
-        Assertions.assertNotNull(clientId);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientId);
+        // Assertions.assertNotNull(clientId);
 
         Integer fixedDepositProductId = createFixedDepositProduct(VALID_FROM, VALID_TO, assetAccount, incomeAccount, expenseAccount,
                 liabilityAccount);
@@ -467,7 +468,8 @@ public class AccountingScenarioIntegrationTest {
         final String INTEREST_POSTED_DATE = dateFormat.format(todaysDate.getTime());
 
         Integer clientId = ClientHelper.createClient(requestSpec, responseSpec);
-        Assertions.assertNotNull(clientId);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientId);
+        // Assertions.assertNotNull(clientId);
 
         Integer recurringDepositProductId = createRecurringDepositProduct(VALID_FROM, VALID_TO, assetAccount, liabilityAccount,
                 incomeAccount, expenseAccount);
@@ -865,12 +867,20 @@ public class AccountingScenarioIntegrationTest {
         final Account incomeAccount = this.accountHelper.createIncomeAccount();
         final Account expenseAccount = this.accountHelper.createExpenseAccount();
         final Account overpaymentAccount = this.accountHelper.createLiabilityAccount();
-        List<HashMap> collaterals = null;
 
         final Integer loanProductID = createLoanProductWithPeriodicAccrualAccountingEnabled(assetAccount, incomeAccount, expenseAccount,
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
+
+        List<HashMap> collaterals = new ArrayList<>();
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(requestSpec, responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(requestSpec, responseSpec, clientID.toString(),
+                collateralId);
+        Assertions.assertNotNull(clientCollateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
+
         final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         final float FEE_PORTION = 50.0f;
@@ -987,12 +997,20 @@ public class AccountingScenarioIntegrationTest {
         final Account incomeAccount = this.accountHelper.createIncomeAccount();
         final Account expenseAccount = this.accountHelper.createExpenseAccount();
         final Account overpaymentAccount = this.accountHelper.createLiabilityAccount();
-        List<HashMap> collaterals = null;
 
         final Integer loanProductID = createLoanProductWithCashBasedAccountingEnabled(assetAccount, incomeAccount, expenseAccount,
                 overpaymentAccount);
 
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec, DATE_OF_JOINING);
+
+        List<HashMap> collaterals = new ArrayList<>();
+        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(requestSpec, responseSpec);
+        Assertions.assertNotNull(collateralId);
+        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(requestSpec, responseSpec, clientID.toString(),
+                collateralId);
+        Assertions.assertNotNull(clientCollateralId);
+        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
+
         final Integer loanID = applyForLoanApplication(clientID, loanProductID, collaterals);
 
         HashMap loanStatusHashMap = LoanStatusChecker.getStatusOfLoan(requestSpec, responseSpec, loanID);

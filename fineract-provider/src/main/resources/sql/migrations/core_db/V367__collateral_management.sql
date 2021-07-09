@@ -18,7 +18,7 @@
 --
 
 -- create collateral management table
-CREATE TABLE `m_collateral_management` (
+CREATE TABLE IF NOT EXISTS `m_collateral_management` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `quality` varchar(40) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE `m_collateral_management` (
 );
 
 -- create client collateral management
-CREATE TABLE `m_client_collateral_management` (
+CREATE TABLE IF NOT EXISTS `m_client_collateral_management` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `quantity` decimal(20,5) NOT NULL,
   `client_id` bigint(20) DEFAULT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE `m_client_collateral_management` (
 
 
 -- create loan collateral management
-CREATE TABLE `m_loan_collateral_management` (
+CREATE TABLE IF NOT EXISTS `m_loan_collateral_management` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `quantity` decimal(20,5) NOT NULL,
   `loan_id` bigint(20) DEFAULT NULL,

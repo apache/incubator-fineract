@@ -147,7 +147,7 @@ public class LoanApplicationTestBuilder {
         map.put("expectedDisbursementDate", this.expectedDisbursmentDate);
         map.put("submittedOnDate", this.submittedOnDate);
         map.put("loanType", this.loanType);
-        map.put("collaterals", this.collaterals);
+        map.put("collateral", this.collaterals);
 
         if (repaymentsStartingFromDate != null) {
             map.put("repaymentsStartingFromDate", this.repaymentsStartingFromDate);

@@ -114,9 +114,10 @@ public class LoanReschedulingWithinCenterTest {
         List<HashMap> collaterals = new ArrayList<>();
 
         final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
-
+        Assertions.assertNotNull(collateralId);
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
                 String.valueOf(clientId), collateralId);
+        Assertions.assertNotNull(clientCollateralId);
         addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
 
         // CREATE LOAN MULTIDISBURSAL PRODUCT WITH INTEREST RECALCULATION
@@ -269,9 +270,10 @@ public class LoanReschedulingWithinCenterTest {
         List<HashMap> collaterals = new ArrayList<>();
 
         final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
-
+        Assertions.assertNotNull(collateralId);
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
                 String.valueOf(clientId), collateralId);
+        Assertions.assertNotNull(clientCollateralId);
         addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
 
         // APPLY FOR TRANCHE LOAN WITH INTEREST RECALCULATION

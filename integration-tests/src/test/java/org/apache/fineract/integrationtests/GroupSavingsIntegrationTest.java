@@ -82,6 +82,7 @@ public class GroupSavingsIntegrationTest {
         this.savingsAccountHelper = new SavingsAccountHelper(requestSpec, responseSpec);
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
         Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
@@ -285,6 +286,7 @@ public class GroupSavingsIntegrationTest {
         this.savingsAccountHelper = new SavingsAccountHelper(this.requestSpec, this.responseSpec);
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
         Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
@@ -341,6 +343,7 @@ public class GroupSavingsIntegrationTest {
         final SavingsAccountHelper validationErrorHelper = new SavingsAccountHelper(this.requestSpec, errorResponse);
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
         Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);

@@ -479,8 +479,10 @@ public class AccountTransferTest {
         LOG.info("--------------------------------APPLYING FOR LOAN APPLICATION--------------------------------");
         List<HashMap> collaterals = new ArrayList<>();
         final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
+        Assertions.assertNotNull(collateralId);
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
-                String.valueOf(clientID), collateralId);
+                clientID.toString(), collateralId);
+        Assertions.assertNotNull(clientCollateralId);
         addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
 
         final String loanApplicationJSON = new LoanApplicationTestBuilder() //

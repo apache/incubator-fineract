@@ -498,7 +498,11 @@ public class Loan extends AbstractPersistableCustom {
             this.charges = null;
             this.summary = new LoanSummary();
         }
-        if (collateral != null && !collateral.isEmpty()) {
+
+        /**
+         * TODO: Apply for group loan creation.
+         */
+        if (loanType.equals(1) && collateral != null && !collateral.isEmpty()) {
             this.loanCollateralManagements = associateWithThisLoan(collateral);
         } else {
             this.loanCollateralManagements = null;

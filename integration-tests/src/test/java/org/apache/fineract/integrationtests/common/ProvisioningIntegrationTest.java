@@ -79,19 +79,17 @@ public class ProvisioningIntegrationTest {
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
         ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
 
-        List<HashMap> collaterals = new ArrayList<>();
-
-        final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
-        Assertions.assertNotNull(collateralId);
-        final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
-                String.valueOf(clientID), collateralId);
-        Assertions.assertNotNull(clientCollateralId);
-        addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
-
         for (int i = 0; i < LOANPRODUCTS_SIZE; i++) {
             final Integer loanProductID = createLoanProduct(false, NONE);
             loanProducts.add(loanProductID);
             Assertions.assertNotNull(loanProductID);
+            List<HashMap> collaterals = new ArrayList<>();
+            final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
+            Assertions.assertNotNull(collateralId);
+            final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
+                    String.valueOf(clientID), collateralId);
+            Assertions.assertNotNull(clientCollateralId);
+            addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
             final Integer loanID = applyForLoanApplication(clientID, loanProductID, null, null, "1,00,000.00", collaterals);
             HashMap loanStatusHashMap = LoanStatusChecker.getStatusOfLoan(this.requestSpec, this.responseSpec, loanID);
             LoanStatusChecker.verifyLoanIsPending(loanStatusHashMap);
