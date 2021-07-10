@@ -70,9 +70,9 @@ public class ClientCollateralIntegrationTest {
 
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
                 clientID.toString(), collateralId);
-        final String updateClientCollateral = CollateralManagementHelper.updateClientCollateralAsString(this.requestSpec, this.responseSpec,
+        final String quantity = CollateralManagementHelper.updateClientCollateralAsString(this.requestSpec, this.responseSpec,
                 clientCollateralId);
-        Assertions.assertEquals(collateralId.toString(), updateClientCollateral);
+        Assertions.assertEquals("1", quantity);
     }
 
 }

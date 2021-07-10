@@ -60,9 +60,9 @@ public class CollateralProductIntegrationTest {
         LOG.info("-------------------------Updating Client Collateral---------------------------");
         final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
         Assertions.assertNotNull(collateralId);
-        final String updatedCollateralId = CollateralManagementHelper.updateCollateralProductAsString(this.requestSpec, this.responseSpec,
+        final String pctToBase = CollateralManagementHelper.updateCollateralProductAsString(this.requestSpec, this.responseSpec,
                 collateralId);
 
-        Assertions.assertEquals(updatedCollateralId, collateralId.toString());
+        Assertions.assertEquals("30", pctToBase);
     }
 }

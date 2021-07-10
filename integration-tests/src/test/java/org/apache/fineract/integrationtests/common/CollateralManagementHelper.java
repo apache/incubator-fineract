@@ -103,7 +103,7 @@ public class CollateralManagementHelper {
         return Utils.performServerPut(requestSpec, responseSpec, COLLATERAL_PRODUCT_URL,
                 updateCollateralProductAsJson(Utils.randomNameGenerator("COLLATERAL_PRODUCT", 5), "USD", "acre", "agriculture",
                         BigDecimal.valueOf(30), BigDecimal.valueOf(100000), "en"),
-                "resourceId");
+                "changes");
     }
 
     public static String updateCollateralProductAsString(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
@@ -114,7 +114,7 @@ public class CollateralManagementHelper {
         Gson gson = new Gson();
         String result = gson.toJson(updateCollateralObject);
         JsonObject reportObject = JsonParser.parseString(result).getAsJsonObject();
-        String value = reportObject.get("resourceId").getAsString();
+        String value = reportObject.get("pctToBase").getAsString();
 
         return value;
     }
@@ -140,7 +140,7 @@ public class CollateralManagementHelper {
         final String CLIENT_COLLATERAL_URL = "/fineract-provider/api/v1/clients/" + clientID + "/collaterals/" + collateralId + "?"
                 + Utils.TENANT_IDENTIFIER;
         return Utils.performServerPut(requestSpec, responseSpec, CLIENT_COLLATERAL_URL, updateClientCollateralAsJson(BigDecimal.valueOf(1)),
-                "resourceId");
+                "changes");
     }
 
     public static String updateClientCollateralAsString(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
@@ -151,7 +151,7 @@ public class CollateralManagementHelper {
         Gson gson = new Gson();
         String result = gson.toJson(clientCollateralObject);
         JsonObject reportObject = JsonParser.parseString(result).getAsJsonObject();
-        String value = reportObject.get("resourceId").getAsString();
+        String value = reportObject.get("quantity").getAsString();
 
         return value;
     }
