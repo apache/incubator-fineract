@@ -120,7 +120,10 @@ public class BatchRequestsIntegrationTest {
         // Select a few clients from created group at random
         Integer selClientsCount = (int) Math.ceil(Math.random() * clientsCount) + 2;
         for (int i = 0; i < selClientsCount; i++) {
-            final Integer clientID = clientIDs[i];
+            Integer clientID = null;
+            if (clientsCount > i) {
+                clientID = clientIDs[i];
+            }
 
             final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
             Assertions.assertNotNull(collateralId);

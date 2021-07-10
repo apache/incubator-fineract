@@ -136,7 +136,7 @@ public class CollateralManagementHelper {
             final Integer collateralId) {
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec);
         ClientHelper.verifyClientCreatedOnServer(requestSpec, responseSpec, clientID);
-        LOG.info("---------------------------------UPDATING A COLLATERAL_PRODUCT---------------------------------------------");
+        LOG.info("---------------------------------UPDATING A CLIENT COLLATERAL---------------------------------------------");
         final String CLIENT_COLLATERAL_URL = "/fineract-provider/api/v1/clients/" + clientID + "/collaterals/" + collateralId + "?"
                 + Utils.TENANT_IDENTIFIER;
         return Utils.performServerPut(requestSpec, responseSpec, CLIENT_COLLATERAL_URL, updateClientCollateralAsJson(BigDecimal.valueOf(1)),
@@ -146,10 +146,10 @@ public class CollateralManagementHelper {
     public static String updateClientCollateralAsString(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
             final Integer collateralId) {
 
-        Object configurationObject = updateClientCollateral(requestSpec, responseSpec, collateralId);
+        Object clientCollateralObject = updateClientCollateral(requestSpec, responseSpec, collateralId);
         // Convert the Object to String and fetch updated value
         Gson gson = new Gson();
-        String result = gson.toJson(configurationObject);
+        String result = gson.toJson(clientCollateralObject);
         JsonObject reportObject = JsonParser.parseString(result).getAsJsonObject();
         String value = reportObject.get("resourceId").getAsString();
 
