@@ -354,8 +354,10 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
         this.loanEventApiJsonValidator.validateDisbursement(command.json(), isAccountTransfer);
 
-        // validate with post dated checks for the disbursement
-        this.loanEventApiJsonValidator.validateDisbursementWithPostDatedChecks(command.json(), loanId);
+        if (command.parameterExists("postDatedChecks")) {
+            // validate with post dated checks for the disbursement
+            this.loanEventApiJsonValidator.validateDisbursementWithPostDatedChecks(command.json(), loanId);
+        }
 
         final Loan loan = this.loanAssembler.assembleFrom(loanId);
 
@@ -518,9 +520,11 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         updateRecurringCalendarDatesForInterestRecalculation(loan);
         this.loanAccountDomainService.recalculateAccruals(loan);
 
-        // get repayment with post dates checks to update
-        Set<PostDatedChecks> postDatedChecks = this.repaymentWithPostDatedChecksAssembler.fromParsedJson(command.json(), loan);
-        updatePostDatedChecks(postDatedChecks);
+        if (command.parameterExists("postDatedChecks")) {
+            // get repayment with post dates checks to update
+            Set<PostDatedChecks> postDatedChecks = this.repaymentWithPostDatedChecksAssembler.fromParsedJson(command.json(), loan);
+            updatePostDatedChecks(postDatedChecks);
+        }
 
         this.businessEventNotifierService.notifyBusinessEventWasExecuted(BusinessEvents.LOAN_DISBURSAL,
                 constructEntityMap(BusinessEntity.LOAN, loan));

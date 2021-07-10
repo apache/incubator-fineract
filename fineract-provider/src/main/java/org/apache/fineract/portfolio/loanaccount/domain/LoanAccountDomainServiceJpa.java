@@ -237,22 +237,25 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
         // Mark Post Dated Check as paid.
         final Set<LoanTransactionToRepaymentScheduleMapping> loanTransactionToRepaymentScheduleMappings = newRepaymentTransaction
                 .getLoanTransactionToRepaymentScheduleMappings();
-        for (LoanTransactionToRepaymentScheduleMapping loanTransactionToRepaymentScheduleMapping : loanTransactionToRepaymentScheduleMappings) {
-            final boolean isPaid = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().isNotFullyPaidOff();
-            final PostDatedChecks postDatedChecks = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment()
-                    .getPostDatedCheck();
-            if (postDatedChecks == null) {
-                throw new PostDatedCheckNotFoundException(
-                        loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getId(),
-                        loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getInstallmentNumber());
+
+        if (loanTransactionToRepaymentScheduleMappings != null && loanTransactionToRepaymentScheduleMappings.size() != 0) {
+            for (LoanTransactionToRepaymentScheduleMapping loanTransactionToRepaymentScheduleMapping : loanTransactionToRepaymentScheduleMappings) {
+                final boolean isPaid = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().isNotFullyPaidOff();
+                final PostDatedChecks postDatedChecks = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment()
+                        .getPostDatedCheck();
+                if (postDatedChecks == null) {
+                    throw new PostDatedCheckNotFoundException(
+                            loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getId(),
+                            loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getInstallmentNumber());
+                }
+                if (!isPaid) {
+                    postDatedChecks.setIsPaid(1);
+                } else {
+                    postDatedChecks.setIsPaid(0);
+                }
+                this.postDatedChecksRepository.saveAndFlush(postDatedChecks);
+                break;
             }
-            if (!isPaid) {
-                postDatedChecks.setIsPaid(1);
-            } else {
-                postDatedChecks.setIsPaid(0);
-            }
-            this.postDatedChecksRepository.saveAndFlush(postDatedChecks);
-            break;
         }
 
         return newRepaymentTransaction;
