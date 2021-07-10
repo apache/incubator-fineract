@@ -63,6 +63,6 @@ public class CollateralProductIntegrationTest {
         final String updatedCollateralId = CollateralManagementHelper.updateCollateralProductAsString(this.requestSpec, this.responseSpec,
                 collateralId);
 
-        Assertions.assertEquals(updatedCollateralId, collateralId);
+        Assertions.assertEquals(updatedCollateralId, collateralId.toString());
     }
 }

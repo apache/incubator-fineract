@@ -72,7 +72,7 @@ public class ClientCollateralIntegrationTest {
                 clientID.toString(), collateralId);
         final String updateClientCollateral = CollateralManagementHelper.updateClientCollateralAsString(this.requestSpec, this.responseSpec,
                 clientCollateralId);
-        Assertions.assertEquals(collateralId, updateClientCollateral);
+        Assertions.assertEquals(collateralId.toString(), updateClientCollateral);
     }
 
 }

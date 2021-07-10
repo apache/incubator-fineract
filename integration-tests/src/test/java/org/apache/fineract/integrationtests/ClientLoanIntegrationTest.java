@@ -1745,7 +1745,7 @@ public class ClientLoanIntegrationTest {
         List<HashMap> collaterals = new ArrayList<>();
 
         final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
-        LOG.info("Collateral ID (Integration Test): " + collateralId.toString());
+
         Assertions.assertNotNull(collateralId);
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
                 clientID.toString(), collateralId);
@@ -5229,8 +5229,6 @@ public class ClientLoanIntegrationTest {
                 String.valueOf(clientID), collateralId);
         Assertions.assertNotNull(clientCollateralId);
         addCollaterals(collaterals, clientCollateralId, BigDecimal.valueOf(1));
-
-        LOG.info(collaterals.get(0).get("clientCollateralId").toString());
 
         final Integer loanID = applyForLoanApplication(clientID, loanProductID, charges, null, "10,000.00", collaterals);
         Assertions.assertNotNull(loanID);

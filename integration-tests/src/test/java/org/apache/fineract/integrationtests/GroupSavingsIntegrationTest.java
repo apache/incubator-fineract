@@ -344,7 +344,7 @@ public class GroupSavingsIntegrationTest {
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
         ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
-        Assertions.assertNotNull(clientID);
+        // Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
         Assertions.assertNotNull(groupID);
@@ -392,7 +392,8 @@ public class GroupSavingsIntegrationTest {
         final ResponseSpecification errorResponse = new ResponseSpecBuilder().expectStatusCode(400).build();
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
-        Assertions.assertNotNull(clientID);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
+        // Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
         Assertions.assertNotNull(groupID);
@@ -425,7 +426,8 @@ public class GroupSavingsIntegrationTest {
         final ResponseSpecification errorResponse = new ResponseSpecBuilder().expectStatusCode(400).build();
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
-        Assertions.assertNotNull(clientID);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
+        // Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
         Assertions.assertNotNull(groupID);
@@ -458,7 +460,8 @@ public class GroupSavingsIntegrationTest {
                 new ResponseSpecBuilder().build());
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
-        Assertions.assertNotNull(clientID);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
+        // Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
         Assertions.assertNotNull(groupID);
@@ -509,7 +512,8 @@ public class GroupSavingsIntegrationTest {
         this.savingsAccountHelper = new SavingsAccountHelper(this.requestSpec, this.responseSpec);
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
-        Assertions.assertNotNull(clientID);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
+        // Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
         Assertions.assertNotNull(groupID);
@@ -543,7 +547,8 @@ public class GroupSavingsIntegrationTest {
                 new ResponseSpecBuilder().build());
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
-        Assertions.assertNotNull(clientID);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
+        // Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
         Assertions.assertNotNull(groupID);
@@ -647,7 +652,8 @@ public class GroupSavingsIntegrationTest {
         this.savingsAccountHelper = new SavingsAccountHelper(this.requestSpec, this.responseSpec);
 
         final Integer clientID = ClientHelper.createClient(this.requestSpec, this.responseSpec);
-        Assertions.assertNotNull(clientID);
+        ClientHelper.verifyClientCreatedOnServer(this.requestSpec, this.responseSpec, clientID);
+        // Assertions.assertNotNull(clientID);
 
         Integer groupID = GroupHelper.createGroup(this.requestSpec, this.responseSpec, true);
         Assertions.assertNotNull(groupID);
