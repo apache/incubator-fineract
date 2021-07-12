@@ -914,8 +914,16 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 }
             }
 
-            final Set<LoanCollateralManagement> possiblyModifedLoanCollateralItems = this.loanCollateralAssembler
-                    .fromParsedJson(command.parsedJson());
+            Set<LoanCollateralManagement> possiblyModifedLoanCollateralItems = null;
+
+            if (command.parameterExists("loanType")) {
+                final String loanTypeStr = command.stringValueOfParameterNamed("loanType");
+                final AccountType loanType = AccountType.fromName(loanTypeStr);
+
+                if (!StringUtils.isBlank(loanTypeStr) && loanType.isIndividualAccount()) {
+                    possiblyModifedLoanCollateralItems = this.loanCollateralAssembler.fromParsedJson(command.parsedJson());
+                }
+            }
 
             final Map<String, Object> changes = existingLoanApplication.loanApplicationModification(command, possiblyModifedLoanCharges,
                     possiblyModifedLoanCollateralItems, this.aprCalculator, isChargeModified, loanProductForValidations);
@@ -1092,9 +1100,19 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
                 existingLoanApplication.updateTransactionProcessingStrategy(strategy);
             }
 
-            final String collateralParamName = "collateral";
-            if (changes.containsKey(collateralParamName)) {
-                existingLoanApplication.updateLoanCollateral(possiblyModifedLoanCollateralItems);
+            /**
+             * TODO: Allow other loan types.
+             */
+            if (command.parameterExists("loanType")) {
+                final String loanTypeStr = command.stringValueOfParameterNamed("loanType");
+                final AccountType loanType = AccountType.fromName(loanTypeStr);
+
+                if (!StringUtils.isBlank(loanTypeStr) && loanType.isIndividualAccount()) {
+                    final String collateralParamName = "collateral";
+                    if (changes.containsKey(collateralParamName)) {
+                        existingLoanApplication.updateLoanCollateral(possiblyModifedLoanCollateralItems);
+                    }
+                }
             }
 
             final String chargesParamName = "charges";

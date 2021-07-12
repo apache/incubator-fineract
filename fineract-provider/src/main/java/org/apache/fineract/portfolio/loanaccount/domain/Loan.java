@@ -1550,14 +1550,13 @@ public class Loan extends AbstractPersistableCustom {
 
         final String collateralParamName = "collateral";
 
-        if (command.parameterExists(collateralParamName)) {
+        if (command.parameterExists(collateralParamName)
+                && (possiblyModifedLoanCollateralItems != null || possiblyModifedLoanCollateralItems.size() != 0)) {
 
             Set<LoanCollateralManagement> loanCollateralManagements = this.loanCollateralManagements;
             boolean isTrue = possiblyModifedLoanCollateralItems.equals(loanCollateralManagements);
 
             if (!isTrue) {
-                LoanCollateralManagementData[] loanCollateralManagementData = getLoanCollateralDataFormCommand(
-                        possiblyModifedLoanCollateralItems);
                 actualChanges.put(collateralParamName, getLoanCollateralDataFormCommand(possiblyModifedLoanCollateralItems));
             }
         }

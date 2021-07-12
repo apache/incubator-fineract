@@ -353,6 +353,9 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         // Get disbursedAmount
         final BigDecimal disbursedAmount = loan.getDisbursedAmount();
 
+        /**
+         * TODO: Add condition for collaterals if and only if the loan type is `INDIVIDUAL`
+         */
         // Get relevant loan collateral modules
         final Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
 
@@ -919,9 +922,11 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                 isHolidayValidationDone);
 
         // Update loan transaction on repayment.
-        Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
-        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
-            loanCollateralManagement.setLoanTransactionData(loanTransaction);
+        if (AccountType.fromInt(loan.getLoanType()).isIndividualAccount()) {
+            Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+            for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+                loanCollateralManagement.setLoanTransactionData(loanTransaction);
+            }
         }
 
         /**

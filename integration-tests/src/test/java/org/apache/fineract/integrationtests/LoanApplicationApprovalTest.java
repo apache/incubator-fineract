@@ -262,14 +262,14 @@ public class LoanApplicationApprovalTest {
         return this.loanTransactionHelper.getLoanId(loanApplication);
     }
 
-    private void addCollaterals(List<HashMap> collaterals, Integer collateralId, BigDecimal amount) {
-        collaterals.add(collaterals(collateralId, amount));
+    private void addCollaterals(List<HashMap> collaterals, Integer collateralId, BigDecimal quantity) {
+        collaterals.add(collaterals(collateralId, quantity));
     }
 
-    private HashMap<String, String> collaterals(Integer collateralId, BigDecimal amount) {
+    private HashMap<String, String> collaterals(Integer collateralId, BigDecimal quantity) {
         HashMap<String, String> collateral = new HashMap<String, String>(2);
         collateral.put("clientCollateralId", collateralId.toString());
-        collateral.put("amount", amount.toString());
+        collateral.put("quantity", quantity.toString());
         return collateral;
     }
 

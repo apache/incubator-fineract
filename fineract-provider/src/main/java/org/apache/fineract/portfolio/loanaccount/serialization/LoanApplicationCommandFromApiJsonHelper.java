@@ -903,7 +903,10 @@ public final class LoanApplicationCommandFromApiJsonHelper {
             final AccountType loanType = AccountType.fromName(loanTypeStr);
             baseDataValidator.reset().parameter(loanTypeParameterName).value(loanType.getValue()).inMinMaxRange(1, 4);
 
-            if (loanType.isIndividualAccount() || loanType.isJLGAccount()) {
+            /**
+             * TODO: Allow for other loan account types.
+             */
+            if (loanType.isIndividualAccount()) {
                 // collateral
                 final String collateralParameterName = "collateral";
                 if (element.isJsonObject() && this.fromApiJsonHelper.parameterExists(collateralParameterName, element)) {

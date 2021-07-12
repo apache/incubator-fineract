@@ -120,15 +120,11 @@ public class BatchRequestsIntegrationTest {
         // Select a few clients from created group at random
         Integer selClientsCount = (int) Math.ceil(Math.random() * clientsCount) + 2;
         for (int i = 0; i < selClientsCount; i++) {
-            Integer clientID = null;
-            if (clientsCount > i) {
-                clientID = clientIDs[i];
-            }
 
             final Integer collateralId = CollateralManagementHelper.createCollateralProduct(this.requestSpec, this.responseSpec);
             Assertions.assertNotNull(collateralId);
             final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
-                    clientID.toString(), collateralId);
+                    String.valueOf(clientIDs[(int) Math.floor(Math.random() * (clientsCount - 1))]), collateralId);
             Assertions.assertNotNull(clientCollateralId);
 
             BatchRequest br = BatchHelper.applyLoanRequest((long) selClientsCount, null, loanProductID, clientCollateralId);

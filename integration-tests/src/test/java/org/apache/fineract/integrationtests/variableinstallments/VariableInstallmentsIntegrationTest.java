@@ -121,15 +121,15 @@ public class VariableInstallmentsIntegrationTest {
 
     }
 
-    private HashMap collaterals(Integer collateralId, BigDecimal amount) {
-        HashMap collateral = new HashMap(1);
-        collateral.put("clientCollateralId", collateralId);
-        collateral.put("amount", String.valueOf(amount));
+    private HashMap<String, String> collaterals(Integer collateralId, BigDecimal quantity) {
+        HashMap<String, String> collateral = new HashMap<String, String>(2);
+        collateral.put("clientCollateralId", collateralId.toString());
+        collateral.put("amount", quantity.toString());
         return collateral;
     }
 
-    private void addCollaterals(List<HashMap> collaterals, Integer collateralId, BigDecimal amount) {
-        collaterals.add(collaterals(collateralId, amount));
+    private void addCollaterals(List<HashMap> collaterals, Integer collateralId, BigDecimal quantity) {
+        collaterals.add(collaterals(collateralId, quantity));
     }
 
     private void assertAfterSubmit(ArrayList<Map> serverData, ArrayList<Map> expectedData) {
