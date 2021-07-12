@@ -111,6 +111,7 @@ import org.apache.fineract.portfolio.charge.exception.LoanChargeCannotBeWaivedEx
 import org.apache.fineract.portfolio.charge.exception.LoanChargeNotFoundException;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.exception.LoanCollateralAmountNotSufficientException;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkDisbursalCommand;
 import org.apache.fineract.portfolio.collectionsheet.command.CollectionSheetBulkRepaymentCommand;
@@ -357,20 +358,22 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
          * TODO: Add condition for collaterals if and only if the loan type is `INDIVIDUAL`
          */
         // Get relevant loan collateral modules
-        final Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+        if (AccountType.fromInt(loan.getLoanType()).isIndividualAccount()) {
+            final Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
 
-        BigDecimal totalCollateral = BigDecimal.valueOf(0);
+            BigDecimal totalCollateral = BigDecimal.valueOf(0);
 
-        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
-            BigDecimal quantity = loanCollateralManagement.getQuantity();
-            BigDecimal pctToBase = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getPctToBase();
-            BigDecimal basePrice = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getBasePrice();
-            totalCollateral = totalCollateral.add(quantity.multiply(basePrice).multiply(pctToBase).divide(BigDecimal.valueOf(100)));
-        }
+            for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+                BigDecimal quantity = loanCollateralManagement.getQuantity();
+                BigDecimal pctToBase = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getPctToBase();
+                BigDecimal basePrice = loanCollateralManagement.getClientCollateralManagement().getCollaterals().getBasePrice();
+                totalCollateral = totalCollateral.add(quantity.multiply(basePrice).multiply(pctToBase).divide(BigDecimal.valueOf(100)));
+            }
 
-        // Validate the loan collateral value against the disbursedAmount
-        if (disbursedAmount.compareTo(totalCollateral) > 0) {
-            throw new LoanCollateralAmountNotSufficientException(disbursedAmount);
+            // Validate the loan collateral value against the disbursedAmount
+            if (disbursedAmount.compareTo(totalCollateral) > 0) {
+                throw new LoanCollateralAmountNotSufficientException(disbursedAmount);
+            }
         }
 
         final LocalDate actualDisbursementDate = command.localDateValueOfParameterNamed("actualDisbursementDate");
@@ -926,7 +929,16 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
             for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
                 loanCollateralManagement.setLoanTransactionData(loanTransaction);
+                ClientCollateralManagement clientCollateralManagement = loanCollateralManagement.getClientCollateralManagement();
+
+                if (loan.status().isClosed()) {
+                    loanCollateralManagement.setIsReleased(Integer.valueOf(1));
+                    BigDecimal quantity = loanCollateralManagement.getQuantity();
+                    clientCollateralManagement.updateQuantity(clientCollateralManagement.getQuantity().add(quantity));
+                    loanCollateralManagement.setClientCollateralManagement(clientCollateralManagement);
+                }
             }
+            this.loanAccountDomainService.updateLoanCollateralTransaction(loanCollateralManagements);
         }
 
         /**
@@ -1342,6 +1354,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             postJournalEntries(loan, existingTransactionIds, existingReversedTransactionIds);
         }
         this.loanAccountDomainService.recalculateAccruals(loan);
+
         this.businessEventNotifierService.notifyBusinessEventWasExecuted(BusinessEvents.LOAN_CLOSE,
                 constructEntityMap(BusinessEntity.LOAN, loan));
 

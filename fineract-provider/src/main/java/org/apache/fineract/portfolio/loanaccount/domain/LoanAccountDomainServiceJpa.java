@@ -56,8 +56,10 @@ import org.apache.fineract.portfolio.account.domain.AccountTransferStandingInstr
 import org.apache.fineract.portfolio.account.domain.AccountTransferTransaction;
 import org.apache.fineract.portfolio.account.domain.StandingInstructionRepository;
 import org.apache.fineract.portfolio.account.domain.StandingInstructionStatus;
+import org.apache.fineract.portfolio.accountdetails.domain.AccountType;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEntity;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEvents;
 import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
@@ -149,11 +151,7 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
     @Transactional
     @Override
-    public void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementSet,
-            LoanTransaction loanTransaction) {
-        for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagementSet) {
-            loanCollateralManagement.setLoanTransactionData(loanTransaction);
-        }
+    public void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementSet) {
         this.loanCollateralManagementRepository.saveAll(loanCollateralManagementSet);
     }
 
@@ -552,6 +550,20 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
                 throw new GeneralPlatformDomainRuleException(globalisationMessageCode, e.getMessage(), e);
             }
         }
+
+        // Update loan transaction on repayment.
+        if (AccountType.fromInt(loan.getLoanType()).isIndividualAccount()) {
+            Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+            for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+                ClientCollateralManagement clientCollateralManagement = loanCollateralManagement.getClientCollateralManagement();
+                loanCollateralManagement.setIsReleased(Integer.valueOf(1));
+                BigDecimal quantity = loanCollateralManagement.getQuantity();
+                clientCollateralManagement.updateQuantity(clientCollateralManagement.getQuantity().add(quantity));
+                loanCollateralManagement.setClientCollateralManagement(clientCollateralManagement);
+            }
+            loan.updateLoanCollateral(loanCollateralManagements);
+        }
+
     }
 
     private void generateLoanScheduleAccrualData(final LocalDate accruedTill,

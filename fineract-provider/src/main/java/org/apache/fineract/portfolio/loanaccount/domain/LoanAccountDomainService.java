@@ -49,7 +49,7 @@ public interface LoanAccountDomainService {
     LoanTransaction makeRefundForActiveLoan(Long accountId, CommandProcessingResultBuilder builderResult, LocalDate transactionDate,
             BigDecimal transactionAmount, PaymentDetail paymentDetail, String noteText, String txnExternalId);
 
-    void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementList, LoanTransaction loanTransaction);
+    void updateLoanCollateralTransaction(Set<LoanCollateralManagement> loanCollateralManagementList);
 
     // BigDecimal getTotalQuantity(Loan loan);
 
