@@ -124,7 +124,7 @@ public class VariableInstallmentsIntegrationTest {
     private HashMap<String, String> collaterals(Integer collateralId, BigDecimal quantity) {
         HashMap<String, String> collateral = new HashMap<String, String>(2);
         collateral.put("clientCollateralId", collateralId.toString());
-        collateral.put("amount", quantity.toString());
+        collateral.put("quantity", quantity.toString());
         return collateral;
     }
 
