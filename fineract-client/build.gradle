@@ -42,6 +42,7 @@ task buildJavaSdk(type: org.openapitools.generator.gradle.plugin.tasks.GenerateT
     skipValidateSpec = true
     inputSpec = "$swaggerFile"
     outputDir = "$buildDir/generated/java".toString()
+    templateDir = "$rootDir/fineract-client/src/main/resources/java/template/"
     groupId = 'org.apache.fineract'
     apiPackage = 'org.apache.fineract.client.services'
     invokerPackage = 'org.apache.fineract.client'
@@ -60,6 +61,10 @@ task buildJavaSdk(type: org.openapitools.generator.gradle.plugin.tasks.GenerateT
         ':fineract-provider:compileJava'
     ]
     finalizedBy = [licenseFormat]
+    copy {
+        from file('src/main/java')
+        into file("$buildDir/generated/java/src/main/java")
+    }
 }
 
 task buildTypescriptAngularSdk(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask){
