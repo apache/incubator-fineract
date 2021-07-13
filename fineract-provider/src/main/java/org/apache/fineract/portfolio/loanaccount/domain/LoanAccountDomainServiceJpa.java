@@ -56,6 +56,7 @@ import org.apache.fineract.portfolio.account.domain.AccountTransferStandingInstr
 import org.apache.fineract.portfolio.account.domain.AccountTransferTransaction;
 import org.apache.fineract.portfolio.account.domain.StandingInstructionRepository;
 import org.apache.fineract.portfolio.account.domain.StandingInstructionStatus;
+import org.apache.fineract.portfolio.accountdetails.domain.AccountType;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEntity;
@@ -234,27 +235,30 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
 
         newRepaymentTransaction.getOverPaymentPortion(loan.getCurrency());
 
-        // Mark Post Dated Check as paid.
-        final Set<LoanTransactionToRepaymentScheduleMapping> loanTransactionToRepaymentScheduleMappings = newRepaymentTransaction
-                .getLoanTransactionToRepaymentScheduleMappings();
+        if (AccountType.fromInt(loan.getLoanType()).isIndividualAccount()) {
+            // Mark Post Dated Check as paid.
+            final Set<LoanTransactionToRepaymentScheduleMapping> loanTransactionToRepaymentScheduleMappings = newRepaymentTransaction
+                    .getLoanTransactionToRepaymentScheduleMappings();
 
-        if (loanTransactionToRepaymentScheduleMappings != null && loanTransactionToRepaymentScheduleMappings.size() != 0) {
-            for (LoanTransactionToRepaymentScheduleMapping loanTransactionToRepaymentScheduleMapping : loanTransactionToRepaymentScheduleMappings) {
-                final boolean isPaid = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().isNotFullyPaidOff();
-                final PostDatedChecks postDatedChecks = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment()
-                        .getPostDatedCheck();
-                if (postDatedChecks == null) {
-                    throw new PostDatedCheckNotFoundException(
-                            loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getId(),
-                            loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getInstallmentNumber());
+            if (loanTransactionToRepaymentScheduleMappings != null && loanTransactionToRepaymentScheduleMappings.size() != 0) {
+                for (LoanTransactionToRepaymentScheduleMapping loanTransactionToRepaymentScheduleMapping : loanTransactionToRepaymentScheduleMappings) {
+                    final boolean isPaid = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment()
+                            .isNotFullyPaidOff();
+                    final PostDatedChecks postDatedChecks = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment()
+                            .getPostDatedCheck();
+                    if (postDatedChecks == null) {
+                        throw new PostDatedCheckNotFoundException(
+                                loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getId(),
+                                loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getInstallmentNumber());
+                    }
+                    if (!isPaid) {
+                        postDatedChecks.setIsPaid(1);
+                    } else {
+                        postDatedChecks.setIsPaid(0);
+                    }
+                    this.postDatedChecksRepository.saveAndFlush(postDatedChecks);
+                    break;
                 }
-                if (!isPaid) {
-                    postDatedChecks.setIsPaid(1);
-                } else {
-                    postDatedChecks.setIsPaid(0);
-                }
-                this.postDatedChecksRepository.saveAndFlush(postDatedChecks);
-                break;
             }
         }
 
