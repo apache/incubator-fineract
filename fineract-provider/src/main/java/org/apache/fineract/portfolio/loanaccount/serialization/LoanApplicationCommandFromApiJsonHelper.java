@@ -41,9 +41,11 @@ import org.apache.fineract.infrastructure.core.exception.UnsupportedParameterExc
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
 import org.apache.fineract.portfolio.accountdetails.domain.AccountType;
 import org.apache.fineract.portfolio.calendar.service.CalendarUtils;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepositoryWrapper;
 import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanCharge;
+import org.apache.fineract.portfolio.loanaccount.exception.InvalidAmountOfCollaterals;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
 import org.apache.fineract.portfolio.loanproduct.domain.InterestCalculationPeriodMethod;
 import org.apache.fineract.portfolio.loanproduct.domain.InterestMethod;
@@ -93,12 +95,15 @@ public final class LoanApplicationCommandFromApiJsonHelper {
 
     private final FromJsonHelper fromApiJsonHelper;
     private final CalculateLoanScheduleQueryFromApiJsonHelper apiJsonHelper;
+    private final ClientCollateralManagementRepositoryWrapper clientCollateralManagementRepositoryWrapper;
 
     @Autowired
     public LoanApplicationCommandFromApiJsonHelper(final FromJsonHelper fromApiJsonHelper,
-            final CalculateLoanScheduleQueryFromApiJsonHelper apiJsonHelper) {
+            final CalculateLoanScheduleQueryFromApiJsonHelper apiJsonHelper,
+            final ClientCollateralManagementRepositoryWrapper clientCollateralManagementRepositoryWrapper) {
         this.fromApiJsonHelper = fromApiJsonHelper;
         this.apiJsonHelper = apiJsonHelper;
+        this.clientCollateralManagementRepositoryWrapper = clientCollateralManagementRepositoryWrapper;
     }
 
     public void validateForCreate(final String json, final boolean isMeetingMandatoryForJLGLoans, final LoanProduct loanProduct) {
@@ -917,6 +922,7 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                         final Type collateralParameterTypeOfMap = new TypeToken<Map<String, Object>>() {}.getType();
                         final Set<String> supportedParameters = new HashSet<>(Arrays.asList("id", "clientCollateralId", "quantity"));
                         final JsonArray array = topLevelJsonElement.get("collateral").getAsJsonArray();
+                        BigDecimal totalAmount = BigDecimal.ZERO;
                         for (int i = 1; i <= array.size(); i++) {
                             final JsonObject collateralItemElement = array.get(i - 1).getAsJsonObject();
 
@@ -936,6 +942,20 @@ public final class LoanApplicationCommandFromApiJsonHelper {
                                     collateralItemElement, locale);
                             baseDataValidator.reset().parameter("collateral").parameterAtIndexArray("quantity", i).value(collateralValue)
                                     .ignoreIfNull().positiveAmount();
+
+                            if (clientCollateralId != null || collateralValue != null) {
+                                BigDecimal baseAmount = this.clientCollateralManagementRepositoryWrapper.getCollateral(clientCollateralId)
+                                        .getCollaterals().getBasePrice();
+                                BigDecimal pctToBase = this.clientCollateralManagementRepositoryWrapper.getCollateral(clientCollateralId)
+                                        .getCollaterals().getPctToBase();
+                                BigDecimal total = baseAmount.multiply(pctToBase).multiply(collateralValue);
+                                totalAmount = totalAmount.add(total);
+                            }
+                        }
+                        if (principal != null) {
+                            if (principal.compareTo(totalAmount) > 0 || array.size() == 0) {
+                                throw new InvalidAmountOfCollaterals(totalAmount);
+                            }
                         }
                     } else {
                         baseDataValidator.reset().parameter(collateralParameterName).expectedArrayButIsNot();
