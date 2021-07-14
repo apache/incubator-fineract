@@ -95,7 +95,7 @@ public class CollateralManagementHelper {
         return new Gson().toJson(map);
     }
 
-    public static Object updateCollateralProduct(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
+    public static HashMap updateCollateralProduct(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
             final Integer collateralId) {
         LOG.info("---------------------------------UPDATING A COLLATERAL_PRODUCT---------------------------------------------");
         final String COLLATERAL_PRODUCT_URL = "/fineract-provider/api/v1/collateral-management/" + collateralId + "?"
@@ -132,7 +132,7 @@ public class CollateralManagementHelper {
         return new Gson().toJson(map);
     }
 
-    public static Object updateClientCollateral(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
+    public static HashMap updateClientCollateral(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
             final Integer collateralId) {
         final Integer clientID = ClientHelper.createClient(requestSpec, responseSpec);
         ClientHelper.verifyClientCreatedOnServer(requestSpec, responseSpec, clientID);

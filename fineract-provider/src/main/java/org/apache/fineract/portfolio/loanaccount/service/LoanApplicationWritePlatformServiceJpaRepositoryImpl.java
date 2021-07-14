@@ -81,6 +81,7 @@ import org.apache.fineract.portfolio.client.domain.AccountNumberGenerator;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.client.domain.ClientRepositoryWrapper;
 import org.apache.fineract.portfolio.client.exception.ClientNotActiveException;
+import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagement;
 import org.apache.fineract.portfolio.collateralmanagement.domain.ClientCollateralManagementRepository;
 import org.apache.fineract.portfolio.collateralmanagement.service.LoanCollateralAssembler;
 import org.apache.fineract.portfolio.common.BusinessEventNotificationConstants.BusinessEntity;
@@ -1728,6 +1729,19 @@ public class LoanApplicationWritePlatformServiceJpaRepositoryImpl implements Loa
 
         final Map<String, Object> changes = loan.loanApplicationWithdrawnByApplicant(currentUser, command,
                 defaultLoanLifecycleStateMachine());
+
+        // Release attached collaterals
+        if (AccountType.fromInt(loan.getLoanType()).isIndividualAccount()) {
+            Set<LoanCollateralManagement> loanCollateralManagements = loan.getLoanCollateralManagements();
+            for (LoanCollateralManagement loanCollateralManagement : loanCollateralManagements) {
+                ClientCollateralManagement clientCollateralManagement = loanCollateralManagement.getClientCollateralManagement();
+                clientCollateralManagement
+                        .updateQuantity(clientCollateralManagement.getQuantity().add(loanCollateralManagement.getQuantity()));
+                loanCollateralManagement.setClientCollateralManagement(clientCollateralManagement);
+            }
+            loan.updateLoanCollateral(loanCollateralManagements);
+        }
+
         if (!changes.isEmpty()) {
             this.loanRepositoryWrapper.save(loan);
 

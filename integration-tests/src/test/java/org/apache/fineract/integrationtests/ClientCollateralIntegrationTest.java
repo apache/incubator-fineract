@@ -23,6 +23,7 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import java.util.HashMap;
 import org.apache.fineract.integrationtests.common.ClientHelper;
 import org.apache.fineract.integrationtests.common.CollateralManagementHelper;
 import org.apache.fineract.integrationtests.common.Utils;
@@ -70,9 +71,8 @@ public class ClientCollateralIntegrationTest {
 
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
                 clientID.toString(), collateralId);
-        final String quantity = CollateralManagementHelper.updateClientCollateralAsString(this.requestSpec, this.responseSpec,
-                clientCollateralId);
-        Assertions.assertEquals("1", quantity);
+        final HashMap changes = CollateralManagementHelper.updateClientCollateral(this.requestSpec, this.responseSpec, clientCollateralId);
+        Assertions.assertEquals("1", changes.get("quantity"));
     }
 
 }
