@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -201,6 +202,46 @@ public class LoanTransactionHelper {
 
     public HashMap disburseLoan(final String date, final Integer loanID) {
         return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanID), getDisburseLoanAsJSON(date, null));
+    }
+
+    public HashMap disburseLoanWithPostDatedChecks(final String date, final Integer loanId, final BigDecimal transactionAmount, final Integer installments) {
+        return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanId), getDisburseLoanWithPostDatedChecksAsJSON(date, transactionAmount.toString(), installments));
+    }
+
+    private String getDisburseLoanWithPostDatedChecksAsJSON(final String actualDisbursementDate, final String transactionAmount, final Integer installments) {
+        final HashMap<String, Object> map = new HashMap<String, Object>();
+        map.put("locale", "en");
+        map.put("dateFormat", "dd MMMM yyyy");
+        map.put("actualDisbursementDate", actualDisbursementDate);
+        map.put("note", "DISBURSE NOTE");
+        if (transactionAmount != null) {
+            map.put("transactionAmount", transactionAmount);
+        }
+
+        /**
+         * TODO: Get actual post dated check values.
+         */
+        List<HashMap> postDatedChecks = new ArrayList<>();
+
+        for (int i=1; i<=installments.intValue(); i++) {
+            addPostDatedChecks(postDatedChecks, i,  BigDecimal.valueOf(3000));
+        }
+        map.put("postDatedChecks", postDatedChecks);
+        LOG.info("Loan Application disburse request : {} ", map);
+        return new Gson().toJson(map);
+    }
+
+    private void addPostDatedChecks(List<HashMap> postDatedChecks, Integer installments, BigDecimal amount) {
+        postDatedChecks.add(postDatedChecks(installments, amount));
+    }
+
+    private HashMap<String, String> postDatedChecks(Integer installment, BigDecimal amount) {
+        HashMap<String, String> postDatedChecks = new HashMap<String, String>(4);
+        postDatedChecks.put("name", "AMANA BANK");
+        postDatedChecks.put("amount", amount.toString());
+        postDatedChecks.put("accountNo", "900002300400");
+        postDatedChecks.put("installmentId", installment.toString());
+        return postDatedChecks;
     }
 
     public HashMap disburseLoanWithRepaymentReschedule(final String date, final Integer loanID, String adjustRepaymentDate) {
