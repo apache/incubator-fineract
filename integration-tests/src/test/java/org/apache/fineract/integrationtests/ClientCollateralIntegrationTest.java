@@ -72,7 +72,7 @@ public class ClientCollateralIntegrationTest {
         final Integer clientCollateralId = CollateralManagementHelper.createClientCollateral(this.requestSpec, this.responseSpec,
                 clientID.toString(), collateralId);
         final HashMap changes = CollateralManagementHelper.updateClientCollateral(this.requestSpec, this.responseSpec, clientCollateralId);
-        Assertions.assertEquals("1", changes.get("quantity"));
+        Assertions.assertEquals("1", changes.get("quantity").toString());
     }
 
 }
