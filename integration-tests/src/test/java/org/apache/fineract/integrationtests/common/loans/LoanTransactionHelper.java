@@ -204,11 +204,14 @@ public class LoanTransactionHelper {
         return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanID), getDisburseLoanAsJSON(date, null));
     }
 
-    public HashMap disburseLoanWithPostDatedChecks(final String date, final Integer loanId, final BigDecimal transactionAmount, final Integer installments) {
-        return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanId), getDisburseLoanWithPostDatedChecksAsJSON(date, transactionAmount.toString(), installments));
+    public HashMap disburseLoanWithPostDatedChecks(final String date, final Integer loanId, final BigDecimal transactionAmount,
+            final Integer installments) {
+        return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanId),
+                getDisburseLoanWithPostDatedChecksAsJSON(date, transactionAmount.toString(), installments));
     }
 
-    private String getDisburseLoanWithPostDatedChecksAsJSON(final String actualDisbursementDate, final String transactionAmount, final Integer installments) {
+    private String getDisburseLoanWithPostDatedChecksAsJSON(final String actualDisbursementDate, final String transactionAmount,
+            final Integer installments) {
         final HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("locale", "en");
         map.put("dateFormat", "dd MMMM yyyy");
@@ -223,8 +226,8 @@ public class LoanTransactionHelper {
          */
         List<HashMap> postDatedChecks = new ArrayList<>();
 
-        for (int i=1; i<=installments.intValue(); i++) {
-            addPostDatedChecks(postDatedChecks, i,  BigDecimal.valueOf(3000));
+        for (int i = 1; i <= installments.intValue(); i++) {
+            addPostDatedChecks(postDatedChecks, i, BigDecimal.valueOf(3000));
         }
         map.put("postDatedChecks", postDatedChecks);
         LOG.info("Loan Application disburse request : {} ", map);
