@@ -17,7 +17,6 @@
 -- under the License.
 --
 
-
 ALTER TABLE `m_account_transfer_details`
 ADD COLUMN `to_share_account_id` BIGINT(20) DEFAULT NULL AFTER `from_loan_account_id`;
 
