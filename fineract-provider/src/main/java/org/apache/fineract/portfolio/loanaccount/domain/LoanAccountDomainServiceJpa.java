@@ -76,7 +76,6 @@ import org.apache.fineract.portfolio.note.domain.NoteRepository;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
 import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecks;
 import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.domain.PostDatedChecksRepository;
-import org.apache.fineract.portfolio.repaymentwithpostdatedchecks.exception.PostDatedCheckNotFoundException;
 import org.apache.fineract.useradministration.domain.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -246,18 +245,25 @@ public class LoanAccountDomainServiceJpa implements LoanAccountDomainService {
                             .isNotFullyPaidOff();
                     final PostDatedChecks postDatedChecks = loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment()
                             .getPostDatedCheck();
-                    if (postDatedChecks == null) {
-                        throw new PostDatedCheckNotFoundException(
-                                loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getId(),
-                                loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getInstallmentNumber());
+
+                    /**
+                     * TODO: Remove this exception throwing as this post dated checks is not a mandatory field.
+                     */
+                    // if (postDatedChecks == null) {
+                    // throw new PostDatedCheckNotFoundException(
+                    // loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getId(),
+                    // loanTransactionToRepaymentScheduleMapping.getLoanRepaymentScheduleInstallment().getInstallmentNumber());
+                    // }
+
+                    if (postDatedChecks != null) {
+                        if (!isPaid) {
+                            postDatedChecks.setIsPaid(1);
+                        } else {
+                            postDatedChecks.setIsPaid(0);
+                        }
+                        this.postDatedChecksRepository.saveAndFlush(postDatedChecks);
+                        break;
                     }
-                    if (!isPaid) {
-                        postDatedChecks.setIsPaid(1);
-                    } else {
-                        postDatedChecks.setIsPaid(0);
-                    }
-                    this.postDatedChecksRepository.saveAndFlush(postDatedChecks);
-                    break;
                 }
             }
         }

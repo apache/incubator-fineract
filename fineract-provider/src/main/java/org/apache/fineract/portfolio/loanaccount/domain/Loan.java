@@ -2813,6 +2813,11 @@ public class Loan extends AbstractPersistableCustom {
         return chargesPayment;
     }
 
+    public void removePostDatedChecks() {
+        List<PostDatedChecks> postDatedChecks = new ArrayList<>();
+        this.postDatedChecks = postDatedChecks;
+    }
+
     public Map<String, Object> undoDisbursal(final ScheduleGeneratorDTO scheduleGeneratorDTO, final List<Long> existingTransactionIds,
             final List<Long> existingReversedTransactionIds, AppUser currentUser) {
 

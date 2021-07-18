@@ -612,6 +612,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         try {
             List<LoanRepaymentScheduleInstallment> installments = loan.getRepaymentScheduleInstallments();
             for (LoanRepaymentScheduleInstallment installment : installments) {
+                // installment.setPostDatedChecksToNull();
                 if (installment.getId() == null) {
                     this.repaymentScheduleInstallmentRepository.save(installment);
                 }
@@ -828,6 +829,9 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         final LocalDate recalculateFrom = null;
         loan.setActualDisbursementDate(null);
         ScheduleGeneratorDTO scheduleGeneratorDTO = this.loanUtilService.buildScheduleGeneratorDTO(loan, recalculateFrom);
+
+        // Remove post dated checks if added.
+        loan.removePostDatedChecks();
 
         final Map<String, Object> changes = loan.undoDisbursal(scheduleGeneratorDTO, existingTransactionIds, existingReversedTransactionIds,
                 currentUser);

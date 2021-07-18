@@ -216,6 +216,10 @@ public final class LoanRepaymentScheduleInstallment extends AbstractAuditableCus
         return fromLocalDate;
     }
 
+    public void setPostDatedChecksToNull() {
+        this.postDatedChecks = null;
+    }
+
     public PostDatedChecks getPostDatedCheck() {
         return this.postDatedChecks;
     }
