@@ -18,7 +18,14 @@
  */
 package org.apache.fineract.portfolio.repaymentwithpostdatedchecks.api;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import javax.ws.rs.Consumes;
@@ -69,6 +76,9 @@ public class RepaymentWithPostDatedChecksApiResource {
     @GET
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Get All Post Dated Checks", description = "Get All Post dated Checks")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = PostDatedChecksApiResourceSwagger.GetPostDatedChecks.class)))) })
     public String getPostDatedChecks(@PathParam("loanId") @Parameter(description = "loanId") final Long loanId) {
         this.context.authenticatedUser();
         final List<PostDatedChecksData> postDatedChecksDataList = this.repaymentWithPostDatedChecksReadPlatformService
@@ -80,6 +90,9 @@ public class RepaymentWithPostDatedChecksApiResource {
     @Path("{installmentId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Get Post Dated Check", description = "Get Post Dated Check")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = PostDatedChecksApiResourceSwagger.GetPostDatedChecks.class)))) })
     public String getPostDatedCheck(@PathParam("installmentId") @Parameter(description = "installmentId") final Integer installmentId,
             @PathParam("loanId") @Parameter(description = "loanId") final Long loanId) {
         /**
@@ -113,6 +126,10 @@ public class RepaymentWithPostDatedChecksApiResource {
     @Path("{postDatedCheckId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Update Post Dated Check", description = "Update Post Dated Check")
+    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = PostDatedChecksApiResourceSwagger.UpdatePostDatedCheckRequest.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = PostDatedChecksApiResourceSwagger.UpdatePostDatedCheckResponse.class)))) })
     public String updatePostDatedChecks(@PathParam("postDatedCheckId") @Parameter(description = "postDatedCheckId") final Long id,
             @PathParam("loanId") @Parameter(description = "loanId") final Long loanId,
             @Parameter(hidden = true) final String apiRequestBodyAsJson) {
@@ -129,6 +146,9 @@ public class RepaymentWithPostDatedChecksApiResource {
     @Path("{postDatedCheckId}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Delete Post Dated Check", description = "Delete Post Dated Check")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = PostDatedChecksApiResourceSwagger.DeletePostDatedCheck.class)))) })
     public String deletePostDatedCheck(@PathParam("postDatedCheckId") @Parameter(description = "postDatedCheckId") final Long id,
             @PathParam("loanId") @Parameter(description = "loanId") final Long loanId) {
         final CommandWrapper commandRequest = new CommandWrapperBuilder().deletePostDatedCheck(id, loanId).build();
