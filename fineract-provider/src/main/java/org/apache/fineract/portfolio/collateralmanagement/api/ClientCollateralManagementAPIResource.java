@@ -106,7 +106,7 @@ public class ClientCollateralManagementAPIResource {
         List<ClientCollateralManagementData> collateralProductList = this.clientCollateralManagementReadPlatformService
                 .getClientCollaterals(clientId);
 
-        return this.apiJsonSerializerService.serialize(collateralProductList);
+        return this.apiJsonSerializerDataService.serialize(collateralProductList);
     }
 
     @GET

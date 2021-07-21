@@ -36,21 +36,24 @@ public final class ClientCollateralManagementData implements Serializable {
 
     private final BigDecimal totalCollateral;
 
+    private final String name;
+
     private ClientCollateralManagementData(final BigDecimal quantity, final Long id, final BigDecimal pctToBase, final BigDecimal unitPrice,
-            final BigDecimal total, final BigDecimal totalCollateral) {
+            final BigDecimal total, final BigDecimal totalCollateral, final String name) {
         this.id = id;
         this.pctToBase = pctToBase;
         this.total = total;
         this.totalCollateral = totalCollateral;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
+        this.name = name;
     }
 
     public static ClientCollateralManagementData setCollateralValues(final ClientCollateralManagement clientCollateralManagements,
             final BigDecimal total, final BigDecimal totalCollateral) {
         return new ClientCollateralManagementData(clientCollateralManagements.getQuantity(), clientCollateralManagements.getId(),
                 clientCollateralManagements.getCollaterals().getPctToBase(), clientCollateralManagements.getCollaterals().getBasePrice(),
-                total, totalCollateral);
+                total, totalCollateral, clientCollateralManagements.getCollaterals().getName());
     }
 
     public BigDecimal getQuantity() {
